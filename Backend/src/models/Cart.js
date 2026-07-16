@@ -8,15 +8,24 @@ const cartItemSchema = new mongoose.Schema(
       required: true,
     },
 
+    variantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
     quantity: {
       type: Number,
       default: 1,
       min: 1,
     },
+       priceAtAdded: {
+      type: Number,
+      required: true,
+    },
   },
   {
-    _id: false,
-  }
+    _id: true,
+  },
 );
 
 const cartSchema = new mongoose.Schema(
@@ -47,7 +56,7 @@ const cartSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("Cart", cartSchema);

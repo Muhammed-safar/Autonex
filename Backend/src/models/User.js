@@ -21,12 +21,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 8,
-      
     },
 
     country: {
       type: String,
       required: true,
+      trim: true,
     },
 
     phone: {
@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
 
     isVerified: {
       type: Boolean,
-      default: false,
+      default: true, // Users are only created after OTP verification
     },
   },
   {
