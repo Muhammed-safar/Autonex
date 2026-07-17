@@ -1,28 +1,80 @@
 import express from "express";
-import { login, register , getProfile, deleteUser, verifyOTP, resendOTP, forgotPassword, verifyForgotPassword, resetPassword, updateUser } from "../controllers/auth.controllers.js";
 
-import { protect} from "../middlewares/auth.middleware.js";
+import {
+  register,
+  login,
+  getProfile,
+  updateUser,
+  deleteUser,
+  verifyOTP,
+  resendOTP,
+  forgotPassword,
+  verifyForgotPassword,
+  resetPassword,
+} from "../controllers/auth.controllers.js";
+
+import { protect } from "../middlewares/auth.middleware.js";
 import { adminOrUser } from "../middlewares/AdminorUser.middleware.js";
 import { validation } from "../middlewares/validation.middleware.js";
-import { loginValidation, registerValidation, updateProfileValidation } from "../validators/auth.validator.js";
-import upload from "../middlewares/upload.middleware.js";
-
-
+import {
+  emailValidation,
+  loginValidation,
+  registerValidation,
+  resetPasswordValidation,
+  updateProfileValidation,
+  verifyOtpValidation,
+} from "../validators/auth.validator.js";
+import { otpLimiter } from "../middlewares/rateLimit.middleware.js";
+import { profileUpload } from "../middlewares/types.multer.middleware.js";
 
 const router = express.Router();
 
-router.post("/register", upload.single("profile"), validation(registerValidation), register);
-router.post("/verify-otp", verifyOTP);
-router.post("/resend-otp", resendOTP);
-router.post("/forgot-password", forgotPassword);
-router.post("/verify-forgot-password", verifyForgotPassword);
-router.post("/reset-password", resetPassword);
+router.post(
+  "/register",
+  profileUpload.single("profile"),
+  validation(registerValidation),
+  register,
+);
+
+router.post("/resend-otp", otpLimiter, validation(emailValidation), resendOTP);
+
+router.post(
+  "/verify-otp",
+  otpLimiter,
+  validation(verifyOtpValidation),
+  verifyOTP,
+);
 
 router.post("/login", validation(loginValidation), login);
+
 router.get("/profile", protect, getProfile);
-router.put("/update-User", protect, upload.single("profile"), validation(updateProfileValidation), updateUser);
-router.delete("/delete-User", protect, adminOrUser, deleteUser);
 
+router.post(
+  "/forgot-password",
+  otpLimiter,
+  validation(emailValidation),
+  forgotPassword,
+);
+router.post(
+  "/verify-forgot-password",
+  otpLimiter,
+  validation(verifyOtpValidation),
+  verifyForgotPassword,
+);
+router.post(
+  "/reset-password",
+  validation(resetPasswordValidation),
+  resetPassword,
+);
 
+router.put(
+  "/updateUser",
+  protect,
+  profileUpload.single("profile"),
+  validation(updateProfileValidation),
+  updateUser,
+);
+
+router.delete("/delete", protect, deleteUser);
 
 export default router;

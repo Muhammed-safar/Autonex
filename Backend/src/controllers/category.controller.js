@@ -8,12 +8,12 @@ import {
   restoreCategoryService,
 } from "../services/category.service.js";
 
-
-
-
 export const createCategory = async (req, res) => {
   try {
-    const category = await createCategoryService(req.body);
+    const category = await createCategoryService({
+      ...req.body,
+      icon: req.files?.icon?.[0]?.path,
+    });
 
     res.status(201).json({
       success: true,
@@ -27,9 +27,6 @@ export const createCategory = async (req, res) => {
     });
   }
 };
-
-
-
 
 export const getAllCategories = async (req, res) => {
   try {
@@ -48,8 +45,6 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
-
-
 export const getActiveCategories = async (req, res) => {
   try {
     const categories = await getActiveCategoriesService();
@@ -67,9 +62,6 @@ export const getActiveCategories = async (req, res) => {
   }
 };
 
-
-
-
 export const getCategoryById = async (req, res) => {
   try {
     const category = await getCategoryByIdService(req.params.id);
@@ -86,14 +78,14 @@ export const getCategoryById = async (req, res) => {
   }
 };
 
-
-
-
 export const updateCategory = async (req, res) => {
   try {
     const category = await updateCategoryService(
       req.params.id,
-      req.body
+      {
+        ...req.body,
+        icon: req.files?.icon?.[0]?.path,
+      }
     );
 
     res.status(200).json({
@@ -108,8 +100,6 @@ export const updateCategory = async (req, res) => {
     });
   }
 };
-
-
 
 export const deleteCategory = async (req, res) => {
   try {
@@ -127,9 +117,6 @@ export const deleteCategory = async (req, res) => {
     });
   }
 };
-
-
-
 
 export const restoreCategory = async (req, res) => {
   try {

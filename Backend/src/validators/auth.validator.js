@@ -20,3 +20,19 @@ export const updateProfileValidation = Joi.object({
   phone: Joi.string().pattern(/^[0-9]{10,15}$/),
   password: Joi.string().min(8).max(30)
 });
+
+export const emailValidation = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const verifyOtpValidation = Joi.object({
+  email: Joi.string().email().required(),
+
+  otp: Joi.string().length(6).required(),
+});
+
+export const resetPasswordValidation = Joi.object({
+  email: Joi.string().email().required(),
+
+  password: Joi.string().min(6).required(),
+});

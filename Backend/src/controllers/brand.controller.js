@@ -1,16 +1,67 @@
+import cloudinary from "../config/cloudinary.js";
 import Brand from "../models/Brand.js";
-import Products from "../models/Products.js";
+import Product from "../models/Products.js";
 
 // Create Brand
 export const createBrand = async (req, res) => {
   try {
-    const brand = await Brand.create(req.body);
+    const { name, description, website, sortOrder, isFeatured } = req.body;
+
+    const existingBrand = await Brand.findOne({
+      name,
+    }).collation({
+      locale: "en",
+      strength: 2,
+    });
+
+    if (existingBrand) {
+      return res.status(400).json({
+        success: false,
+        message: "Brand already exists",
+      });
+    }
+
+    let logoData = {
+      url: null,
+      publicId: null,
+    };
+
+    const logoFile = req.files?.logo?.[0];
+
+    if (logoFile) {
+      const uploadResult = await cloudinary.uploader.upload(logoFile.path, {
+        folder: "brands",
+        resource_type: "image",
+      });
+
+      logoData = {
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+      };
+    }
+
+    const brand = await Brand.create({
+      name,
+      description,
+      website,
+      sortOrder,
+      isFeatured,
+      logo: logoData,
+      createdBy: req.user.id,
+    });
 
     res.status(201).json({
       success: true,
       data: brand,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Brand already exists",
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -105,14 +156,7 @@ export const getBrandById = async (req, res) => {
 // Update Brand
 export const updateBrand = async (req, res) => {
   try {
-    const brand = await Brand.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const brand = await Brand.findById(req.params.id);
 
     if (!brand) {
       return res.status(404).json({
@@ -120,6 +164,43 @@ export const updateBrand = async (req, res) => {
         message: "Brand not found",
       });
     }
+
+    const { name, description, website, sortOrder, isFeatured, isActive } =
+      req.body;
+
+    const logoFile = req.files?.logo?.[0];
+
+    if (logoFile) {
+      // Delete old logo from Cloudinary
+      if (brand.logo?.publicId) {
+        await cloudinary.uploader.destroy(brand.logo.publicId);
+      }
+
+      // Upload new logo
+      const uploadResult = await cloudinary.uploader.upload(logoFile.path, {
+        folder: "brands",
+        resource_type: "image",
+      });
+
+      brand.logo = {
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+      };
+    }
+
+    if (name !== undefined) brand.name = name;
+
+    if (description !== undefined) brand.description = description;
+
+    if (website !== undefined) brand.website = website;
+
+    if (sortOrder !== undefined) brand.sortOrder = sortOrder;
+
+    if (isFeatured !== undefined) brand.isFeatured = isFeatured;
+
+    if (isActive !== undefined) brand.isActive = isActive;
+
+    await brand.save();
 
     res.status(200).json({
       success: true,
@@ -140,6 +221,7 @@ export const updateBrand = async (req, res) => {
   }
 };
 
+// toggle status
 export const toggleBrandStatus = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.id);
@@ -156,7 +238,7 @@ export const toggleBrandStatus = async (req, res) => {
     brand.isActive = newStatus;
     await brand.save();
 
-    await Products.updateMany(
+    await Product.updateMany(
       { brand: brand._id },
       { $set: { isActive: newStatus } },
     );
@@ -174,7 +256,7 @@ export const toggleBrandStatus = async (req, res) => {
   }
 };
 
-// Delete Brand
+// delete comolete brand Items
 export const permanentlyDeleteBrand = async (req, res) => {
   try {
     const brand = await Brand.findById(req.params.id);
@@ -187,7 +269,7 @@ export const permanentlyDeleteBrand = async (req, res) => {
     }
 
     // Delete all products belonging to this brand
-    const deletedProducts = await Products.deleteMany({
+    const deletedProducts = await Product.deleteMany({
       brand: brand._id,
     });
 
