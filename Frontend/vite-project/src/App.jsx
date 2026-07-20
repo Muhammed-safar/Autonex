@@ -1,20 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { Route, Routes } from 'react-router-dom'
-import MainLayout from './components/MainLayout'
-
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "./assets/vite.svg";
+import heroImg from "./assets/hero.png";
+import { Route, Routes } from "react-router-dom";
+import MainLayout from "./components/layout/MainLayout.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <Routes>
-     <Route path="/" element={<MainLayout />}>
-     </Route>
+      <Route path="/" element={<MainLayout />}></Route>
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;
