@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Logo, Garage } from "../../assets/icons.js?react";
+import LogoImg from "../../assets/images/logo.png";
 import {
   Search,
   User,
@@ -51,8 +52,8 @@ const Navbar = () => {
       </div>
 
       {/* Main row: logo, garage, search, account/wishlist/compare/cart */}
-      <div className="hidden md:flex max-w-7xl mx-auto px-4 h-22 bg-gray-50 items-center gap-6">
-        <Logo className="w-32 h-auto" />
+      <div className="hidden md:flex max-w-7xl mx-auto px-4 h-20 bg-gray-50 items-center gap-6">
+        <img src={LogoImg} alt="Logo" className="w-32 h-34" />
 
         <button className="hidden lg:flex items-center gap-2 text-sm text-gray-700 shrink-0">
           <div className="border border-gray-300 rounded p-1.5">
@@ -76,37 +77,47 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-5 shrink-0 ">
-          <Link
-            to="/account"
-            className="flex items-center gap-2 text-sm text-gray-600"
-          >
-            <User size={26} className="border flex rounded-full"/>
-            <span className="leading-tight">
-              Sign In
-              <br />
-              <span className="font-bold">Account</span>
-            </span>
-          </Link>
+        <div className="flex items-center gap-4 shrink-0">
+            {/* Account */}
+            <Link to="/account" className="flex items-center gap-2 text-xs">
+              <div className="w-9 h-9 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-700">
+                <User size={18} />
+              </div>
+              <div className="text-left hidden xl:block">
+                <span className="text-gray-400 block text-[10px] leading-tight">
+                  Sign In
+                </span>
+                <span className="font-bold text-gray-800">Account</span>
+              </div>
+            </Link>
 
-          <Link to="/wishlist" className="relative">
-            <Heart size={22} className="text-gray-700" />
-            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-              {wishlistCount}
-            </span>
-          </Link>
+            {/* Wishlist */}
+            <Link
+              to="/wishlist"
+              className="relative w-9 h-9 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-700 hover:bg-gray-300/60 transition-colors"
+            >
+              <Heart size={18} />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {wishlistCount}
+              </span>
+            </Link>
 
-          <button className="relative">
-            <Repeat size={22} className="text-gray-700" />
-          </button>
+            {/* Compare */}
+            <button className="w-9 h-9 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-700 hover:bg-gray-300/60 transition-colors">
+              <Repeat size={18} />
+            </button>
 
-          <Link to="/cart" className="relative">
-            <ShoppingCart size={22} className="text-gray-700" />
-            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-              {cartCount}
-            </span>
-          </Link>
-        </div>
+            {/* Cart */}
+            <Link
+              to="/cart"
+              className="relative w-9 h-9 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-700 hover:bg-gray-300/60 transition-colors"
+            >
+              <ShoppingCart size={18} />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {cartCount}
+              </span>
+            </Link>
+          </div>
       </div>
 
       {/* Category / nav row */}
