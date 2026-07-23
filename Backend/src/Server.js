@@ -23,7 +23,7 @@ connectDB();
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(mongoSanitize());
-app.use(cookieParser);
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
 
