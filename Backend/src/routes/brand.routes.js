@@ -14,7 +14,7 @@ import { validation } from "../middlewares/validation.middleware.js";
 import {
   createBrandSchema,
   updateBrandSchema,
-} from "../validators/Brand.validator.js";
+} from "../validators/brand.validator.js";
 import { brandUpload } from "../middlewares/types.multer.middleware.js";
 
 const router = express.Router();
