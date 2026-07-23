@@ -1,4 +1,4 @@
-import Wishlist from "../models/wishlist.js";
+import Wishlist from "../models/Wishlist.js";
 
 // Find wishlist by user ID
 export const findWishlistByUserId = (userId) => {
