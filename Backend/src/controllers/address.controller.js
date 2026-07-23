@@ -3,7 +3,7 @@ import {
   getUserAddressesService,
   updateAddressService,
   deleteAddressService,
-} from "../services/address.service.js";
+} from "../Services/address.service.js";
 
 export const createAddress = async (req, res, next) => {
   try {

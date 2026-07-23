@@ -3,7 +3,7 @@ import {
   addToWishlistService,
   removeFromWishlistService,
   clearWishlistService,
-} from "../services/wishlist.services.js";
+} from "../Services/wishlist.services.js";
 
 
 // Get Wishlist
