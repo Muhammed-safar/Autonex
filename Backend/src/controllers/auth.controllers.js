@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import PendingRegistration from "../models/PendingRegistration.js";
 import User from "../models/User.js";
-import { generateToken } from "../utils/generateToken.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 import { generateOTP } from "../utils/GenerateOtp.js";
 import { sendOTPEmail } from "../Services/mail.service.js";
@@ -192,9 +192,7 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({
-      email,
-    });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -212,13 +210,22 @@ export const login = async (req, res) => {
       });
     }
 
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       success: true,
-      token,
+      accessToken,
       user,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -290,25 +297,139 @@ export const updateUser = async (req, res) => {
   }
 };
 
+export const refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token missing",
+      });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    const user = await User.findById(decoded.id);
+
+    if (!user || !user.refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+    }
+
+    // Rotate tokens
+    const newAccessToken = generateAccessToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = await bcrypt.hash(newRefreshToken, 10);
+
+    await user.save();
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired refresh token",
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      try {
+        const decoded = jwt.verify(
+          refreshToken,
+          process.env.JWT_REFRESH_SECRET,
+        );
+
+        const user = await User.findById(decoded.id);
+
+        if (user) {
+          user.refreshToken = null;
+          await user.save();
+        }
+      } catch (_) {
+        // Ignore invalid or expired refresh tokens
+      }
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.user.id);
+    const user = await User.findById(req.user.id);
 
-    if (!deletedUser) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
-    res.status(200).json({
+    if (user.profile) {
+      try {
+        await fs.unlink(path.join(process.cwd(), user.profile));
+      } catch (_) {}
+    }
+
+    // Invalidate refresh token
+    user.refreshToken = null;
+    await user.save();
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    await user.deleteOne();
+
+    return res.status(200).json({
       success: true,
       message: "Account deleted successfully",
     });
   } catch (error) {
-    console.error("Delete User Error:", error);
-
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });

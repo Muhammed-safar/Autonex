@@ -1,23 +1,40 @@
-import JWT from "jsonwebtoken";
-
+import jwt from "jsonwebtoken";
 
 export const protect = async (req, res, next) => {
     try {
+
         const authHeader = req.headers.authorization;
+
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({ message: "Not authorized" });
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
         }
+
         const token = authHeader.split(" ")[1];
-        const decoded = JWT.verify(token, process.env.JWT_SECRET);
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_ACCESS_SECRET
+        );
+
         req.user = decoded;
+
         next();
+
     } catch (error) {
-        res.status(500).json({
+
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({
+                success: false,
+                message: "Access token expired",
+            });
+        }
+
+        return res.status(401).json({
             success: false,
-            message: error.message || "Invalid Token",
+            message: "Invalid token",
         });
     }
 };
-
-
-

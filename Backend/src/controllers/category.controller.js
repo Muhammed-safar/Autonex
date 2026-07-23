@@ -6,7 +6,7 @@ import {
   updateCategoryService,
   deleteCategoryService,
   restoreCategoryService,
-} from "../services/category.service.js";
+} from "../Services/category.service.js";
 
 export const createCategory = async (req, res) => {
   try {

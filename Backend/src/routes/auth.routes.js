@@ -11,6 +11,8 @@ import {
   forgotPassword,
   verifyForgotPassword,
   resetPassword,
+  refreshToken,
+  logout,
 } from "../controllers/auth.controllers.js";
 
 import { protect } from "../middlewares/auth.middleware.js";
@@ -78,5 +80,8 @@ router.put(
 );
 
 router.delete("/delete", protect, deleteUser);
+router.post("/refresh", refreshToken);
+
+router.post("/logout", protect, logout);
 
 export default router;

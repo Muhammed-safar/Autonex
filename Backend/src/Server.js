@@ -1,4 +1,5 @@
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 
 import cors from "cors";
 import corsOptions from "./config/cors.js";
@@ -22,6 +23,7 @@ connectDB();
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(mongoSanitize());
+app.use(cookieParser);
 
 const PORT = process.env.PORT || 5000;
 
