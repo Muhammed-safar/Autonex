@@ -65,7 +65,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="products" element={<Products />} />
-          <Route path="categories" element={<Categories />} />
+          <Route path="category" element={<Categories />} />
           <Route path="brands" element={<Brands />} />
           <Route path="orders" element={<Orders />} />
           <Route path="users" element={<UsersView />} />
