@@ -18,7 +18,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { id: "products", label: "Products", path: "/admin/products", icon: Package },
-    { id: "categories", label: "Categories", path: "/admin/categories", icon: FolderTree },
+    { id: "categories", label: "Categories", path: "/admin/category", icon: FolderTree },
     { id: "brands", label: "Brands", path: "/admin/brands", icon: Tag },
     { id: "orders", label: "Orders", path: "/admin/orders", icon: ShoppingBag },
     { id: "users", label: "Users", path: "/admin/users", icon: Users },
