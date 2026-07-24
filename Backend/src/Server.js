@@ -1,4 +1,6 @@
 import "dotenv/config";
+console.log("ENV KEYS:", Object.keys(process.env).filter(k => k.includes("CLIENT")));
+console.log("CLIENT_URL =", process.env.CLIENT_URL);
 import cookieParser from "cookie-parser";
 
 import cors from "cors";
@@ -24,6 +26,7 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser());
+dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
