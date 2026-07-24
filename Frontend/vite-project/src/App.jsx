@@ -8,7 +8,7 @@ import CheckoutPage from "./pages/cart/CheckoutPage.jsx";
 import AuthPage from "./pages/Login/AuthPage.jsx";
 import MyGaragePage from "./pages/Garage/MyGarage.jsx";
 import Wishlist from "./pages/cart/Wishlist.jsx";
-import { WishlistProvider } from "./context/WishlistContext.jsx"; 
+import { WishlistProvider } from "./context/WishlistContext.jsx";
 import ComparePage from "./pages/cart/ComparePage.jsx";
 import AdminLayout from "./components/admin/AdminLayout.jsx";
 import Dashboard from "./components/admin/Dashboard.jsx";
@@ -59,19 +59,17 @@ function App() {
             path="/wish-list"
             element={<Wishlist onReturnToShop={handleReturnToShop} />}
           />
-           <Route path="/compare" element={<ComparePage/>}/>
+          <Route path="/compare" element={<ComparePage />} />
         </Route>
 
-
         <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="/admin/products" element={<Products/>} />
-        <Route path="/admin/categories" element={<Categories/>} />
-        <Route path="/admin/brands" element={<Brands/>} />
-        <Route path="/admin/orders" element={<Orders/>} />
-        <Route path="/admin/users" element={<UsersView/>} />
-      </Route>
-       
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="brands" element={<Brands />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="users" element={<UsersView />} />
+        </Route>
       </Routes>
     </WishlistProvider>
   );
