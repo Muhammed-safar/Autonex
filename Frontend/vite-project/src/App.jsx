@@ -61,7 +61,7 @@ function App() {
           />
           <Route path="/compare" element={<ComparePage />} />
         </Route>
-
+         <Route path="/test" element={<h1>TEST PAGE</h1>} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="products" element={<Products />} />
