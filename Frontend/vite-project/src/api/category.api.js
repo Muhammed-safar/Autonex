@@ -4,25 +4,25 @@ import axios from "./axios";
 
 // GET /api/categories
 export const getCategories = async () => {
-  const { data } = await axios.get("/categories");
+  const { data } = await axios.get("/api/category");
   return data;
 };
 
 // GET /api/categories/active
 export const getActiveCategories = async () => {
-  const { data } = await axios.get("/categories/active");
+  const { data } = await axios.get("/api/category/active");
   return data;
 };
 
 // GET /api/categories/:id
 export const getCategoryById = async (id) => {
-  const { data } = await axios.get(`/categories/${id}`);
+  const { data } = await axios.get(`/api/category/${id}`);
   return data;
 };
 
 // POST /api/categories
 export const createCategory = async (formData) => {
-  const { data } = await axios.post("/categories", formData, {
+  const { data } = await axios.post("/api/category", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -33,7 +33,7 @@ export const createCategory = async (formData) => {
 
 // PUT /api/categories/:id
 export const updateCategory = async ({ id, formData }) => {
-  const { data } = await axios.put(`/categories/${id}`, formData, {
+  const { data } = await axios.put(`/api/category/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -44,12 +44,12 @@ export const updateCategory = async ({ id, formData }) => {
 
 // DELETE /api/categories/:id
 export const deleteCategory = async (id) => {
-  const { data } = await axios.delete(`/categories/${id}`);
+  const { data } = await axios.delete(`/api/category/${id}`);
   return data;
 };
 
 // PATCH /api/categories/:id/restore
 export const restoreCategory = async (id) => {
-  const { data } = await axios.patch(`/categories/${id}/restore`);
+  const { data } = await axios.patch(`/api/category/${id}/restore`);
   return data;
 };
