@@ -8,7 +8,7 @@ import corsOptions from "./config/cors.js";
 
 import connectDB from "./config/db.js";
 import helmet from "helmet";
-import mongoSanitize from "express-mongo-sanitize";
+// import mongoSanitize from "express-mongo-sanitize";
 
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.routes.js";
@@ -24,9 +24,9 @@ connectDB();
 
 app.use(cors(corsOptions));
 app.use(helmet());
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 app.use(cookieParser());
-dotenv.config();
+
 
 const PORT = process.env.PORT || 5000;
 
