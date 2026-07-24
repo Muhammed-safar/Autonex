@@ -1,4 +1,4 @@
-const allowedOrigins = [process.env.CLIENT_URL];
+const allowedOrigins = process.env.CLIENT_URL.split(",")
 
 const corsOptions = {
   origin(origin, callback) {
