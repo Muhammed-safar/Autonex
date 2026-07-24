@@ -100,7 +100,10 @@ const Navbar = () => {
           </Link>
 
           {/* Add Vehicle / My Garage */}
-          <button onClick={()=> navigate("/My-garage")} className="hidden lg:flex items-center gap-2.5 shrink-0 text-left">
+          <button
+            onClick={() => navigate("/My-garage")}
+            className="hidden lg:flex items-center gap-2.5 shrink-0 text-left"
+          >
             <div className="w-10 h-10 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-600">
               <Warehouse size={18} />
             </div>
@@ -188,9 +191,23 @@ const Navbar = () => {
             </NavLink>
 
             {/* Compare */}
-            <button className="w-9 h-9 rounded-full bg-gray-200/70 flex items-center justify-center text-gray-700 hover:bg-gray-300/60 transition-colors">
-              <Repeat size={18} />
-            </button>
+            {/* Compare */}
+            <NavLink
+              to="/compare" // Change this to your route
+              className={({ isActive }) =>
+                `relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                  isActive
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Repeat size={18} />
+                </>
+              )}
+            </NavLink>
 
             {/* Cart */}
             <NavLink
@@ -306,7 +323,10 @@ const Navbar = () => {
 
         {/* Quick action bar */}
         <div className="grid grid-cols-2 divide-x divide-gray-200 border-y border-gray-200 text-xs font-semibold text-gray-700 bg-white">
-          <button onClick={()=> navigate("/My-garage")} className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50">
+          <button
+            onClick={() => navigate("/My-garage")}
+            className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50"
+          >
             <Warehouse size={15} />
             My Garage
           </button>

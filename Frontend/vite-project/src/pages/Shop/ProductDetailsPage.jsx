@@ -5,8 +5,6 @@ import {
   Truck,
   RefreshCw,
   ShieldCheck,
-  Phone,
-  HelpCircle,
   Minus,
   Plus,
 } from "lucide-react";
@@ -19,6 +17,7 @@ import {
   Twitter,
   Whatsapp,
 } from "../../assets/icons.js";
+import { useWishlist } from "../../context/WishlistContext.jsx"; // Update path if needed
 
 export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
@@ -26,9 +25,24 @@ export default function ProductDetailsPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const { toggleWishlist, isWishlisted } = useWishlist();
+
+  // Current page product representation
+  const currentProduct = {
+    id: "main-zeres-g05",
+    title: "Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA",
+    price: 33.43,
+    oldPrice: 48.55,
+    rating: 5,
+    category: "Oils and fluids",
+    image: "https://via.placeholder.com/300",
+    inStock: true,
+  };
+
+  const isCurrentWishlisted = isWishlisted(currentProduct.id);
+
   const images = ["Thumb 1", "Thumb 2", "Thumb 3"];
 
-  // Formatted data array to feed directly into ProductCard props
   const relatedProducts = [
     {
       id: 1,
@@ -38,8 +52,8 @@ export default function ProductDetailsPage() {
       price: "$21.18",
       oldPrice: "$38.45",
       rating: 4.67,
-      reviews: 3,
-      badge: "45%",
+      reviewsCount: 3,
+      discount: "45%",
     },
     {
       id: 2,
@@ -48,8 +62,8 @@ export default function ProductDetailsPage() {
       price: "$24.72",
       oldPrice: "$28.99",
       rating: 4.33,
-      reviews: 6,
-      badge: "30%",
+      reviewsCount: 6,
+      discount: "30%",
     },
     {
       id: 3,
@@ -58,8 +72,8 @@ export default function ProductDetailsPage() {
       price: "$26.96",
       oldPrice: "$41.11",
       rating: 3.33,
-      reviews: 4,
-      badge: "43%",
+      reviewsCount: 4,
+      discount: "43%",
     },
     {
       id: 4,
@@ -68,8 +82,8 @@ export default function ProductDetailsPage() {
       price: "$9.88",
       oldPrice: "$15.88",
       rating: 4.33,
-      reviews: 3,
-      badge: "38%",
+      reviewsCount: 3,
+      discount: "38%",
     },
     {
       id: 5,
@@ -78,8 +92,8 @@ export default function ProductDetailsPage() {
       price: "$65.33",
       oldPrice: "$88.99",
       rating: 4.33,
-      reviews: 9,
-      badge: "25%",
+      reviewsCount: 9,
+      discount: "25%",
     },
   ];
 
@@ -87,21 +101,21 @@ export default function ProductDetailsPage() {
     <div className="min-h-screen py-6 px-4 md:px-8 font-sans text-slate-600 antialiased">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl p-6">
         {/* Breadcrumbs */}
-        <nav className="flex text-xs text-slate-400 mb-4 flex items-center gap-1.5">
+        <nav className="flex text-xs text-slate-400 mb-4 items-center gap-1.5">
           <span className="hover:underline cursor-pointer">Home</span> /
           <span className="hover:underline cursor-pointer shrink-0">
             Oils and fluids
           </span>{" "}
           /
           <span className="text-slate-600 truncate">
-            Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA
+            {currentProduct.title}
           </span>
         </nav>
 
         {/* Product Heading Info */}
         <div className="mb-6 border-b border-slate-200 pb-4">
           <h1 className="text-2xl font-semibold text-slate-900 mb-2">
-            Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA
+            {currentProduct.title}
           </h1>
           <div className="flex items-center gap-6 text-xs">
             <div className="flex items-center text-amber-400 gap-0.5">
@@ -148,7 +162,7 @@ export default function ProductDetailsPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 bo rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all ${
+                  className={`w-20 h-20 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all ${
                     selectedImage === index
                       ? "border-[#006bc0] ring-1 ring-[#006bc0]"
                       : "border-slate-200"
@@ -171,21 +185,18 @@ export default function ProductDetailsPage() {
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-3xl font-bold text-[#00a062] tracking-tight">
-                  $33.43
+                  ${currentProduct.price.toFixed(2)}
                 </span>
                 <span className="text-sm text-slate-400 line-through font-normal">
-                  $48.55
+                  ${currentProduct.oldPrice.toFixed(2)}
                 </span>
               </div>
 
               {/* Live Status Box */}
-              <div className="flex bg-[#FFF1E6] text-orange-600 text-xs  p-3 mb-4 items-center gap-2 ">
-                {/* Flex Item 1: Icon */}
+              <div className="flex bg-[#FFF1E6] text-orange-600 text-xs p-3 mb-4 items-center gap-2">
                 <span className="shrink-0 flex items-center">
                   <MiniCart size={14} />
                 </span>
-
-                {/* Flex Item 2: Text Wrapper (Prevents awkward flex splitting) */}
                 <p className="leading-tight">
                   This product has been added to{" "}
                   <strong className="text-orange-600 font-bold">
@@ -196,7 +207,7 @@ export default function ProductDetailsPage() {
               </div>
 
               {/* Vehicle Check Widget */}
-              <div className="bg-[#FFF1E6] border-b-2 border-orange-400 p-3 text-xs mb-5 flex items-center justify-center justify-between text-slate-700">
+              <div className="bg-[#FFF1E6] border-b-2 border-orange-400 p-3 text-xs mb-5 flex items-center justify-between text-slate-700">
                 <span className="flex items-center gap-1.5">
                   <span>
                     <span className="underline font-medium cursor-pointer">
@@ -207,7 +218,7 @@ export default function ProductDetailsPage() {
                 </span>
               </div>
 
-              {/* Operations row: Quantity selectors + Core Action */}
+              {/* Operations row */}
               <div className="flex gap-3 mb-5">
                 <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden">
                   <button
@@ -226,17 +237,30 @@ export default function ProductDetailsPage() {
                     <Plus size={14} />
                   </button>
                 </div>
-                <button className="flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs">
+                <button className="flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs cursor-pointer">
                   Add to cart
                 </button>
               </div>
 
               {/* Secondary Utility Links */}
               <div className="flex items-center gap-6 text-xs text-slate-600 mb-6 border-b border-slate-100 pb-4">
-                <button className="flex items-center gap-1.5 hover:text-red-500 transition-colors">
-                  <Heart size={14} /> Add to wishlist
+                <button
+                  onClick={() => toggleWishlist(currentProduct)}
+                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                    isCurrentWishlisted
+                      ? "text-red-500 font-semibold"
+                      : "hover:text-red-500 text-slate-600"
+                  }`}
+                >
+                  <Heart
+                    size={14}
+                    className={
+                      isCurrentWishlisted ? "fill-red-500 text-red-500" : ""
+                    }
+                  />
+                  {isCurrentWishlisted ? "In Wishlist" : "Add to wishlist"}
                 </button>
-                <button className="flex items-center gap-1.5 hover:text-[#006bc0] transition-colors">
+                <button className="flex items-center gap-1.5 hover:text-[#006bc0] transition-colors cursor-pointer">
                   <RefreshCw size={14} /> Compare
                 </button>
               </div>
@@ -272,7 +296,7 @@ export default function ProductDetailsPage() {
             </div>
 
             {/* Direct Contact Banner */}
-            <div className="flex items-center gap-3  text-[#008552] rounded-xl p-3 mb-6 text-xs">
+            <div className="flex items-center gap-3 text-[#008552] rounded-xl p-3 mb-6 text-xs">
               <div className="p-2 bg-white rounded-lg text-[#00a062] shrink-0 flex items-center">
                 <Call />
               </div>
@@ -323,7 +347,6 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* Triple Action Value Blocks */}
-        {/* Triple Action Value Blocks */}
         <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-4 mb-10">
           <div className="border border-slate-100 rounded-lg p-2 md:p-4 flex flex-col items-center text-center bg-slate-50/50">
             <Truck
@@ -368,7 +391,6 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-      
         {/* Tabbed Interactive Information Workspace */}
         <div className="border-t border-slate-200 pt-6 mb-12">
           <div className="flex gap-6 border-b border-slate-100 mb-4 text-sm font-medium">
@@ -404,7 +426,7 @@ export default function ProductDetailsPage() {
             </button>
           </div>
 
-          {/* Description Panel with Read More / Show Less Toggle */}
+          {/* Description Panel */}
           <div className="text-xs text-slate-500 leading-relaxed space-y-4">
             {activeTab === "description" && (
               <div>
@@ -433,7 +455,7 @@ export default function ProductDetailsPage() {
 
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="mt-2 text-[#006bc0] font-semibold hover:underline text-xs flex items-center gap-1 focus:outline-none"
+                  className="mt-2 text-[#006bc0] font-semibold hover:underline text-xs flex items-center gap-1 focus:outline-none cursor-pointer"
                 >
                   {isExpanded ? "Show Less" : "Read More..."}
                 </button>
@@ -456,14 +478,13 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* Related Products Rack Component section */}
+        {/* Related Products Section */}
         <div>
           <h3 className="text-base font-bold text-slate-900 mb-4">
             Related products
           </h3>
 
-          {/* Horizontal scroll below md, Grid layout on md and above */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin  md:grid md:grid-cols-3 lg:grid-cols-5 md:overflow-visible md:pb-0">
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin md:grid md:grid-cols-3 lg:grid-cols-5 md:overflow-visible md:pb-0">
             {relatedProducts.map((prod) => (
               <div
                 key={prod.id}
