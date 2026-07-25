@@ -20,9 +20,10 @@ import Products from "./components/admin/Products";
 import Brands from "./components/admin/Brands";
 import Orders from "./components/admin/Orders";
 import UsersView from "./components/admin/UsersView";
-import ProtectedRoute from "./routes/ProtectedRoute"
+import ProtectedRoute from "./routes/ProtectedRoute";
 import VerifyOTPPage from "./pages/Login/VerifyOTPPage";
-
+import ResetPassword from "./pages/Login/ResetPassword";
+import ForgotPassword from "./pages/Login/ForgotPassword";
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -33,10 +34,7 @@ const App = () => {
     navigate("/shop");
   };
 
-
-  const authInitialized = useSelector(
-    (state) => state.auth.authInitialized
-  );
+  const authInitialized = useSelector((state) => state.auth.authInitialized);
 
   if (!authInitialized) {
     return <div>Loading...</div>;
@@ -77,6 +75,9 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOTPPage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route
             path="/wish-list"
@@ -85,8 +86,6 @@ const App = () => {
           <Route path="/compare" element={<ComparePage />} />
 
           <Route path="/MyGaragePage" element={<MyGaragePage />} />
-          <Route path="/verify-otp" element={<VerifyOTPPage/>} />
-
         </Route>
 
         <Route path="/admin" element={<AdminLayout />}>

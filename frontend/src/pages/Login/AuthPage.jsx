@@ -3,6 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Register from "./Register";
 import { Link } from "react-router-dom";
 import { useLogin } from "../../hooks/mutations/useLogin.js";
+import ForgotPassword from "./ForgotPassword.jsx";
 
 const AuthPage = () => {
   const loginMutation = useLogin();
@@ -28,12 +29,10 @@ const AuthPage = () => {
     e.preventDefault();
 
     loginMutation.mutate({
-      email : loginData.email,
-      password : loginData.password
-    })
+      email: loginData.email,
+      password: loginData.password,
+    });
   };
-
-
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto">
@@ -144,12 +143,12 @@ const AuthPage = () => {
                   <span>Remember me</span>
                 </label>
 
-                <a
-                  href="#"
+                <Link
+                  to="/forgot-password"
                   className="text-xs text-[#0066b2] hover:underline font-medium"
                 >
                   Lost your password?
-                </a>
+                </Link>
               </div>
 
               <button

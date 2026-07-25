@@ -2,31 +2,56 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useResendOTP } from "../../hooks/mutations/useResendOTP.js";
 import { useVerifyOTP } from "../../hooks/mutations/useVerifyOTP.js";
+import { useForgotPassword } from "../../hooks/mutations/useForgotPassword.js";
+import { useVerifyForgotPasswordOTP } from "../../hooks/mutations/useVerifyForgotPasswordOTP.js";
 
 const OTP_SESSION_KEY = "pendingVerification";
 
 const VerifyOTPPage = () => {
   const navigate = useNavigate();
-  const verifyOtpMutation = useVerifyOTP();
-  const resendOtpMutation = useResendOTP();
+
+  // Registration flow mutations
+  const verifyRegistrationOtp = useVerifyOTP();
+  const resendRegistrationOtp = useResendOTP();
+
+  // Forgot-password flow mutations
+  const verifyForgotPasswordOtp = useVerifyForgotPasswordOTP();
+  const resendForgotPasswordOtp = useForgotPassword(); // same "send OTP" endpoint, reused to resend
 
   const OTP_LENGTH = 6;
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [pendingEmail, setPendingEmail] = useState(null);
+  const [type, setType] = useState(null); // "registration" | "forgot-password"
   const inputRefs = useRef([]);
 
-  // On mount, make sure there's a valid pending registration to verify
+  // Pick the right mutation set based on which flow we're in
+  const verifyOtpMutation =
+    type === "forgot-password"
+      ? verifyForgotPasswordOtp
+      : verifyRegistrationOtp;
+  const resendOtpMutation =
+    type === "forgot-password"
+      ? resendForgotPasswordOtp
+      : resendRegistrationOtp;
+
+  // On mount, make sure there's a valid pending verification (either flow)
   useEffect(() => {
     const raw = sessionStorage.getItem(OTP_SESSION_KEY);
     const pending = raw ? JSON.parse(raw) : null;
 
-    if (!pending || !pending.email || Date.now() > pending.expiresAt) {
+    if (
+      !pending ||
+      !pending.email ||
+      !pending.type ||
+      Date.now() > pending.expiresAt
+    ) {
       sessionStorage.removeItem(OTP_SESSION_KEY);
       navigate("/login", { replace: true });
       return;
     }
 
     setPendingEmail(pending.email);
+    setType(pending.type);
   }, [navigate]);
 
   // Handle input change and auto-focus next field
@@ -77,8 +102,21 @@ const VerifyOTPPage = () => {
       { otp: otpCode, email: pendingEmail },
       {
         onSuccess: () => {
-          sessionStorage.removeItem(OTP_SESSION_KEY);
-          navigate("/");
+          if (type === "forgot-password") {
+            // Keep the email around for the reset-password step, drop the "pending" flag
+            sessionStorage.setItem(
+              "pendingPasswordReset",
+              JSON.stringify({
+                email: pendingEmail,
+                expiresAt: Date.now() + 10 * 60 * 1000,
+              }),
+            );
+            sessionStorage.removeItem(OTP_SESSION_KEY);
+            navigate("/reset-password", { state: { email: pendingEmail } });
+          } else {
+            sessionStorage.removeItem(OTP_SESSION_KEY);
+            navigate("/");
+          }
         },
       },
     );
