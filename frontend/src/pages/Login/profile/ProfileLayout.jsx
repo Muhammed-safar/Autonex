@@ -130,7 +130,7 @@ const ProfileLayout = () => {
             <div className="w-12 h-12 rounded-full bg-[#0067B2]/10 text-[#0067B2] flex items-center justify-center font-bold">
               {user?.profile ? (
                 <img
-                  src={user.profile}
+                  src={user.profile?.url}
                   alt={user.fullName}
                   className="w-full h-full rounded-full object-cover"
                 />

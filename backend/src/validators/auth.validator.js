@@ -19,6 +19,7 @@ export const updateProfileValidation = Joi.object({
   fullName: Joi.string().min(3).max(50),
   country: Joi.string(),
   phone: Joi.string().pattern(/^[0-9]{10,15}$/),
+  removeProfile: Joi.boolean().optional(),
 });
 
 export const emailValidation = Joi.object({

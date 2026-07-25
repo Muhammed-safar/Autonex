@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Pencil, Camera, Check, Trash2, AlertTriangle } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useUpdateProfile } from "../../../hooks/mutations/useUpdateProfile"; 
+import { useUpdateProfile } from "../../../hooks/mutations/useUpdateProfile";
 
 const PersonalInformation = () => {
   const user = useSelector((state) => state.auth.user);
@@ -12,12 +12,15 @@ const PersonalInformation = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
+  const [removeProfile, setRemoveProfile] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     country: "",
+    profile: null,
   });
 
   const [tempData, setTempData] = useState({
@@ -25,15 +28,18 @@ const PersonalInformation = () => {
     email: "",
     phone: "",
     country: "",
+    profile: null,
   });
 
   useEffect(() => {
     if (user) {
+      const profile = user.profile || null;
       setFormData({
         fullName: user.fullName || "",
         email: user.email || "",
         phone: user.phone || "",
         country: user.country || "",
+        profile,
       });
 
       setTempData({
@@ -41,7 +47,10 @@ const PersonalInformation = () => {
         email: user.email || "",
         phone: user.phone || "",
         country: user.country || "",
+        profile,
       });
+
+      setAvatarSrc(profile?.url || null);
     }
   }, [user]);
 
@@ -67,15 +76,35 @@ const PersonalInformation = () => {
     formData.append("phone", tempData.phone);
     formData.append("country", tempData.country);
 
+    if (removeProfile) {
+      formData.append("removeProfile", "true");
+    }
+
     if (selectedFile) {
       formData.append("profile", selectedFile);
     }
 
     updateProfileMutation.mutate(formData, {
-      onSuccess: () => {
-        setFormData(tempData);
+      onSuccess: (data) => {
+        const updatedUser = data.user;
+        setFormData({
+          fullName: updatedUser.fullName,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          country: updatedUser.country,
+          profile: updatedUser.profile,
+        });
+        setTempData({
+          fullName: updatedUser.fullName,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          country: updatedUser.country,
+          profile: updatedUser.profile,
+        });
+        setAvatarSrc(updatedUser.profile?.url || null);
         setIsEditing(false);
         setSelectedFile(null);
+        setRemoveProfile(false);
       },
     });
   };
@@ -85,20 +114,25 @@ const PersonalInformation = () => {
     setIsEditing(false);
   };
 
+  const handleRemovePhoto = () => {
+    setAvatarSrc(null);
+    setSelectedFile(null);
+    setRemoveProfile(true);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
 
     setSelectedFile(file);
-    setAvatarSrc(URL.createObjectURL(file));
-  };
+    setRemoveProfile(false);
 
-  const handleRemovePhoto = () => {
-    setAvatarSrc(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setAvatarSrc(URL.createObjectURL(file));
   };
 
   const triggerFileInput = () => {

@@ -425,18 +425,30 @@ export const updateProfile = async (req, res) => {
     }
 
     // Update text fields
-    if (req.body.fullName) user.fullName = req.body.fullName;
-    if (req.body.country) user.country = req.body.country;
-    if (req.body.phone) user.phone = req.body.phone;
+    if (req.body.fullName !== undefined) user.fullName = req.body.fullName;
 
-    // Update profile image
-    if (req.file) {
-      // Delete old image from Cloudinary
+    if (req.body.country !== undefined) user.country = req.body.country;
+
+    if (req.body.phone !== undefined) user.phone = req.body.phone;
+
+    // Remove profile image
+    if (req.body.removeProfile === "true" || req.body.removeProfile === true) {
       if (user.profile?.publicId) {
         await deleteFromCloudinary(user.profile.publicId);
       }
 
-      // Upload new image
+      user.profile = {
+        url: "",
+        publicId: "",
+      };
+    }
+
+    // Upload new profile image
+    else if (req.file) {
+      if (user.profile?.publicId) {
+        await deleteFromCloudinary(user.profile.publicId);
+      }
+
       const image = await uploadToCloudinary(req.file.path, "profiles");
 
       user.profile = image;
@@ -446,8 +458,9 @@ export const updateProfile = async (req, res) => {
 
     const updatedUser = user.toObject();
     delete updatedUser.password;
+    delete updatedUser.refreshToken;
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
       user: updatedUser,
@@ -455,7 +468,7 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
