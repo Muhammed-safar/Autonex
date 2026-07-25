@@ -1,12 +1,15 @@
 import bcrypt from "bcryptjs";
-import fs from "fs/promises";
-import path from "path";
 import jwt from "jsonwebtoken";
 import PendingRegistration from "../models/PendingRegistration.js";
 import User from "../models/User.js";
 import { sendOTPEmail } from "../services/mail.service.js";
 import { generateOTP } from "../utils/generateOTP.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
+
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -421,21 +424,22 @@ export const updateProfile = async (req, res) => {
       });
     }
 
+    // Update text fields
     if (req.body.fullName) user.fullName = req.body.fullName;
     if (req.body.country) user.country = req.body.country;
     if (req.body.phone) user.phone = req.body.phone;
 
+    // Update profile image
     if (req.file) {
-      // Delete old profile image
-      if (user.profile) {
-        try {
-          await fs.unlink(path.join(process.cwd(), user.profile));
-        } catch (err) {
-          // Ignore if the file doesn't exist
-        }
+      // Delete old image from Cloudinary
+      if (user.profile?.publicId) {
+        await deleteFromCloudinary(user.profile.publicId);
       }
 
-      user.profile = req.file.path;
+      // Upload new image
+      const image = await uploadToCloudinary(req.file.path, "profiles");
+
+      user.profile = image;
     }
 
     await user.save();
@@ -449,6 +453,8 @@ export const updateProfile = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -511,7 +517,7 @@ export const refreshToken = async (req, res) => {
     return res.status(401).json({
       success: false,
       // message: "Invalid or expired refresh token",
-      message : error.message
+      message: error.message,
     });
   }
 };

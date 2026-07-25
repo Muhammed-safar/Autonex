@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Pencil, Camera, Check, Trash2, AlertTriangle } from "lucide-react";
 import { useSelector } from "react-redux";
+import { useUpdateProfile } from "../../../hooks/mutations/useUpdateProfile"; 
 
 const PersonalInformation = () => {
   const user = useSelector((state) => state.auth.user);
+  const updateProfileMutation = useUpdateProfile();
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
   // Form State
@@ -57,8 +60,24 @@ const PersonalInformation = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    setFormData({ ...tempData });
-    setIsEditing(false);
+
+    const formData = new FormData();
+
+    formData.append("fullName", tempData.fullName);
+    formData.append("phone", tempData.phone);
+    formData.append("country", tempData.country);
+
+    if (selectedFile) {
+      formData.append("profile", selectedFile);
+    }
+
+    updateProfileMutation.mutate(formData, {
+      onSuccess: () => {
+        setFormData(tempData);
+        setIsEditing(false);
+        setSelectedFile(null);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -68,10 +87,11 @@ const PersonalInformation = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setAvatarSrc(imageUrl);
-    }
+
+    if (!file) return;
+
+    setSelectedFile(file);
+    setAvatarSrc(URL.createObjectURL(file));
   };
 
   const handleRemovePhoto = () => {
@@ -272,10 +292,13 @@ const PersonalInformation = () => {
             </button>
             <button
               type="submit"
+              disabled={updateProfileMutation.isPending}
               className="flex items-center space-x-2 bg-[#0067B2] hover:bg-[#00528e] text-white font-semibold py-2.5 px-6 rounded-xl text-sm transition-colors shadow-xs"
             >
               <Check className="w-4 h-4" />
-              <span>Save Changes</span>
+              <span>
+                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+              </span>
             </button>
           </div>
         )}
