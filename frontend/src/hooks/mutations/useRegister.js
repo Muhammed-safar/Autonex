@@ -18,6 +18,7 @@ export const useRegister = () => {
         OTP_SESSION_KEY,
         JSON.stringify({
           email: variables.email,
+          type: "registration",
           expiresAt: Date.now() + 10 * 60 * 1000,
         }),
       );
