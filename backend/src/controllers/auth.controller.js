@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import fs from "fs/promises";
 import path from "path";
+import jwt from "jsonwebtoken";
 import PendingRegistration from "../models/PendingRegistration.js";
 import User from "../models/User.js";
 import { sendOTPEmail } from "../services/mail.service.js";
