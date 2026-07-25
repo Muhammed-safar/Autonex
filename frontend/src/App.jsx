@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import {useInitializeAuth} from "./hooks/auth/useInitializeAuth.js"
+
 import MainLayout from "./Layouts/MainLayout";
 import Home from "./pages/home/Home";
 import Shop from "./pages/Shop/Shop";
@@ -14,18 +16,22 @@ import MyGaragePage from "./pages/garage/MyGaragePage";
 import ProfileLayout from "./pages/Login/profile/ProfileLayout";
 import ComparePage from "./pages/cart/ComparePage";
 import AdminLayout from "./components/admin/AdminLayout";
-import Dashboard from "./components/admin/Dashboard";
+import Dashboard from "./components/admin/Dashboard"; 
 import Categories from "./components/admin/Categories";
 import Products from "./components/admin/Products";
 import Brands from "./components/admin/Brands";
 import Orders from "./components/admin/Orders";
 import UsersView from "./components/admin/UsersView";
-import ProtectedRoute from "./routes/ProtectedRoute";
 import VerifyOTPPage from "./pages/Login/VerifyOTPPage";
 import ResetPassword from "./pages/Login/ResetPassword";
 import ForgotPassword from "./pages/Login/ForgotPassword";
 
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
+import AdminRoute from "./routes/AdminRoute";
+
 const App = () => {
+  useInitializeAuth();
   const [count, setCount] = useState(0);
   const navigate = useNavigate();
 
@@ -65,36 +71,36 @@ const App = () => {
           />
           <Route path="/product/:sku" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/cart/checkout" element={<CheckoutPage />} />
-          <Route path="/account" element={<AuthPage />} />
-          <Route
-            path="/auth"
-            element={
-              <ProtectedRoute>
-                <ProfileLayout />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOTPPage />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+
+          <Route element={<PublicRoute />}>
+            <Route path="/account" element={<AuthPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-otp" element={<VerifyOTPPage />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/auth" element={<ProfileLayout />} />
+
+            <Route path="/cart/checkout" element={<CheckoutPage />} />
+            <Route path="/MyGaragePage" element={<MyGaragePage />} />
+          </Route>
 
           <Route
             path="/wish-list"
             element={<Wishlist onReturnToShop={handleReturnToShop} />}
           />
           <Route path="/compare" element={<ComparePage />} />
-
-          <Route path="/MyGaragePage" element={<MyGaragePage />} />
         </Route>
 
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/admin/products" element={<Products />} />
-          <Route path="/admin/categories" element={<Categories />} />
-          <Route path="/admin/brands" element={<Brands />} />
-          <Route path="/admin/orders" element={<Orders />} />
-          <Route path="/admin/users" element={<UsersView />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="brands" element={<Brands />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="users" element={<UsersView />} />
+          </Route>
         </Route>
       </Routes>
     </>

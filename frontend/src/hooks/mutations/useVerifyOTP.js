@@ -13,7 +13,7 @@ export const useVerifyOTP = () => {
     onSuccess: (data) => {
       toast.success(data.message || "Account verified successfully.");
 
-      navigate("/login");
+      navigate("/account");
     },
 
     onError: (error) => {

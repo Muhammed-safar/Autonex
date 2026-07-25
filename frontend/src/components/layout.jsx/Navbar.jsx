@@ -12,6 +12,7 @@ import {
   Car,
   X,
   Warehouse, // Placeholder if custom Garage icon is not available
+  LayoutDashboard,
 } from "lucide-react";
 import { Garage } from "../../assets/icon.js";
 
@@ -49,7 +50,7 @@ const navItems = [
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [wishlistCount] = useState(0);
   const [cartCount] = useState(0);

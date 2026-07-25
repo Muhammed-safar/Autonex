@@ -46,7 +46,7 @@ const VerifyOTPPage = () => {
       Date.now() > pending.expiresAt
     ) {
       sessionStorage.removeItem(OTP_SESSION_KEY);
-      navigate("/login", { replace: true });
+      navigate("/account", { replace: true });
       return;
     }
 
@@ -139,7 +139,7 @@ const VerifyOTPPage = () => {
             Home
           </Link>
           <span className="mx-1">/</span>
-          <Link to={"/login"} className="hover:underline">
+          <Link to={"/account"} className="hover:underline">
             My account
           </Link>
           <span className="mx-1">/</span>

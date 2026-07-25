@@ -21,7 +21,7 @@ export const useLogout = () => {
       queryClient.clear();
 
       // Redirect to login
-      navigate("/login", { replace: true });
+      navigate("/account", { replace: true });
     },
 
     onError: (error) => {
@@ -31,7 +31,7 @@ export const useLogout = () => {
       dispatch(logout());
       queryClient.clear();
 
-      navigate("/login", { replace: true });
+      navigate("/account", { replace: true });
     },
   });
 };
