@@ -459,7 +459,7 @@ export const updateProfile = async (req, res) => {
     const updatedUser = user.toObject();
     delete updatedUser.password;
     delete updatedUser.refreshToken;
-
+x 
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",

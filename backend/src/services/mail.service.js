@@ -63,7 +63,6 @@ export const sendOTPEmail = async (email, otp) => {
       `,
     });
 
-    console.log("✅ OTP email sent:", response.data.messageId);
 
     return response.data;
   } catch (error) {
