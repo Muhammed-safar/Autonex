@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Register from "./Register";
 import { Link } from "react-router-dom";
@@ -33,6 +33,10 @@ const AuthPage = () => {
       password: loginData.password,
     });
   };
+
+  useEffect(() => {
+    console.log("AuthPage mounted");
+  }, []);
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto">

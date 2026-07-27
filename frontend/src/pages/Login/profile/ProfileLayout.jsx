@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   MapPin,
@@ -53,6 +53,10 @@ const ProfileLayout = () => {
         return <PersonalInformation user={user} />;
     }
   };
+
+  useEffect(() => {
+    console.log("ProfileLayout mounted");
+  }, []);
 
   const handleTabSelect = (id) => {
     setActiveTab(id);

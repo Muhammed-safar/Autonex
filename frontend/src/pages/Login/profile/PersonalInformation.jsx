@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Pencil, Camera, Check, Trash2, AlertTriangle } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useUpdateProfile } from "../../../hooks/mutations/useUpdateProfile";
+import { useDeleteUser } from "../../../hooks/mutations/useDeleteUser";
 
 const PersonalInformation = () => {
   const user = useSelector((state) => state.auth.user);
   const updateProfileMutation = useUpdateProfile();
+  const deleteMutation = useDeleteUser();
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -139,9 +141,10 @@ const PersonalInformation = () => {
     fileInputRef.current?.click();
   };
 
-  const handleDeleteAccount = () => {
-    alert("Account deletion initiated.");
-    setShowDeleteModal(false);
+  const handleDelete = () => {
+    if (!window.confirm("Delete your account permanently?")) return;
+
+    deleteMutation.mutate();
   };
 
   return (
@@ -386,7 +389,8 @@ const PersonalInformation = () => {
               </button>
               <button
                 type="button"
-                onClick={handleDeleteAccount}
+                onClick={handleDelete}
+                
                 className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors shadow-xs"
               >
                 Yes, Delete My Account

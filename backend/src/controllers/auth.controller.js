@@ -466,7 +466,7 @@ export const updateProfile = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error); 
 
     return res.status(500).json({
       success: false,
