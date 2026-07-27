@@ -20,7 +20,7 @@ export const useLogin = () => {
         }),
       );
 
-      navigate("/");
+      navigate("/auth");
     },
 
     onError: (error) => {
