@@ -54,10 +54,6 @@ const ProfileLayout = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("ProfileLayout mounted");
-  }, []);
-
   const handleTabSelect = (id) => {
     setActiveTab(id);
     setIsMobileMenuOpen(false);
