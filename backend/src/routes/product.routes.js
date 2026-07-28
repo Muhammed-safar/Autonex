@@ -13,16 +13,17 @@ import { validate } from "../middlewares/validation.middleware.js";
 import { createProductValidation, updateProductValidation } from "../validators/product.validator.js";
 import { productUpload } from "../middlewares/multer/types.multer.middleware.js";
 import { searchLimiter } from "../middlewares/rateLimiter.js";
+import { parseProductBody } from "../middlewares/multer/parseProductBody.js";
 
 const router = express.Router();
 
-router.post("/",protect , adminOnly , productUpload.array("images" , 10 ) , validate(createProductValidation) , createProduct);
+router.post("/",protect , adminOnly , productUpload.array("images" , 10 ) ,parseProductBody, validate(createProductValidation) , createProduct);
 
 router.get("/",searchLimiter, getProducts);
 
 router.get("/:id",searchLimiter , getProductById);
 
-router.put("/:id", protect , adminOnly,productUpload.array("images" , 10) , validate(updateProductValidation) , updateProduct);
+router.put("/:id", protect , adminOnly,productUpload.array("images" , 10) ,parseProductBody, validate(updateProductValidation) , updateProduct);
 
 router.delete("/:id",protect , adminOnly, deleteProduct);
 
