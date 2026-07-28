@@ -9,6 +9,8 @@ const imageSchema = Joi.object({
 });
 
 const variantSchema = Joi.object({
+  _id: Joi.string().hex().optional(),
+
   name: Joi.string().trim().required(),
 
   price: Joi.number().min(0).required(),

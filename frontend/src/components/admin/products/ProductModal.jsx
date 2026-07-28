@@ -195,6 +195,7 @@ const ProductModal = ({
           <div className="grid grid-cols-4 gap-4">
             <input
               type="number"
+              step="0.01"
               placeholder="Price"
               {...register("price", {
                 valueAsNumber: true,
@@ -204,6 +205,7 @@ const ProductModal = ({
 
             <input
               type="number"
+              step="0.01"
               placeholder="Discount"
               {...register("discountPrice", {
                 valueAsNumber: true,
@@ -213,6 +215,7 @@ const ProductModal = ({
 
             <input
               type="number"
+              step="0.01"
               placeholder="Stock"
               {...register("stock", {
                 valueAsNumber: true,
