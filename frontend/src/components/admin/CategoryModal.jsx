@@ -34,12 +34,7 @@ const CategoryModal = ({ isOpen, onClose, category }) => {
   // Auto-generate slug only while creating
   useEffect(() => {
     if (!category) {
-      setSlug(
-        name
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, "-")
-      );
+      setSlug(name.toLowerCase().trim().replace(/\s+/g, "-"));
     }
   }, [name, category]);
 
@@ -69,7 +64,7 @@ const CategoryModal = ({ isOpen, onClose, category }) => {
           onSuccess: () => {
             onClose();
           },
-        }
+        },
       );
     } else {
       createCategory.mutate(formData, {
@@ -80,8 +75,7 @@ const CategoryModal = ({ isOpen, onClose, category }) => {
     }
   };
 
-  const isPending =
-    createCategory.isPending || updateCategory.isPending;
+  const isPending = createCategory.isPending || updateCategory.isPending;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2 md:px-0">
@@ -120,23 +114,30 @@ const CategoryModal = ({ isOpen, onClose, category }) => {
 
           {category?.icon && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-600">
+              <label className="text-sm font-medium text-slate-700">
                 Current Icon
-              </p>
+              </label>
 
               <img
                 src={category.icon}
                 alt={category.name}
-                className="h-16 w-16 rounded-lg border object-cover"
+                className="h-20 w-20 rounded-xl border border-slate-200 bg-white p-2 object-contain"
               />
             </div>
           )}
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Category Icon
+            </label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+              className="w-full rounded-lg border border-slate-300 p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white hover:file:bg-blue-700"
+            />
+          </div>
 
           <label className="flex items-center gap-2">
             <input
@@ -166,8 +167,8 @@ const CategoryModal = ({ isOpen, onClose, category }) => {
                   ? "Updating..."
                   : "Saving..."
                 : category
-                ? "Update Category"
-                : "Save Category"}
+                  ? "Update Category"
+                  : "Save Category"}
             </button>
           </div>
         </form>

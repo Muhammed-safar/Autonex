@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useCreateBrand } from "../../hooks/brands/useCreateBrand.js";
 
-const BrandModal = ({ isOpen, onClose }) => {
+import { useCreateBrand } from "../../hooks/brands/useCreateBrand.js";
+import { useUpdateBrand } from "../../hooks/brands/useUpdateBrand.js";
+
+const BrandModal = ({ isOpen, onClose, brand }) => {
   const createBrand = useCreateBrand();
+  const updateBrand = useUpdateBrand();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [logo, setLogo] = useState(null);
   const [isFeatured, setIsFeatured] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (brand) {
+      setName(brand.name || "");
+      setDescription(brand.description || "");
+      setWebsite(brand.website || "");
+      setIsFeatured(brand.isFeatured || false);
+      setLogo(null);
+    } else {
+      setName("");
+      setDescription("");
+      setWebsite("");
+      setLogo(null);
+      setIsFeatured(false);
+    }
+  }, [brand, isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,33 +50,36 @@ const BrandModal = ({ isOpen, onClose }) => {
       formData.append("logo", logo);
     }
 
-    createBrand.mutate(formData, {
-      onSuccess: () => {
-        setName("");
-        setDescription("");
-        setWebsite("");
-        setLogo(null);
-        setIsFeatured(false);
-
-        onClose();
-      },
-
-      onError: (error) => {
-        console.error(
-          "Create brand failed:",
-          error.response?.data || error.message,
-        );
-      },
-    });
+    if (brand) {
+      updateBrand.mutate(
+        {
+          id: brand._id,
+          formData,
+        },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+    } else {
+      createBrand.mutate(formData, {
+        onSuccess: () => {
+          onClose();
+        },
+      });
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="px-2 md:px-0 fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl w-full max-w-lg p-6">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold">Create Brand</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
+      <div className="w-full max-w-lg rounded-xl bg-white p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-lg font-bold">
+            {brand ? "Edit Brand" : "Create Brand"}
+          </h2>
 
           <button type="button" onClick={onClose}>
             <X />
@@ -64,21 +88,23 @@ const BrandModal = ({ isOpen, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            className="w-full border rounded-lg p-2"
+            required
+            className="w-full rounded-lg border p-2"
             placeholder="Brand Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
 
           <textarea
-            className="w-full border rounded-lg p-2"
+            className="w-full rounded-lg border p-2"
             placeholder="Description"
+            rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
 
           <input
-            className="w-full border rounded-lg p-2"
+            className="w-full rounded-lg border p-2"
             placeholder="Website"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
@@ -103,23 +129,25 @@ const BrandModal = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="border px-4 py-2 rounded-lg"
+              className="rounded-lg border px-4 py-2"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              disabled={createBrand.isPending}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              disabled={createBrand.isPending || updateBrand.isPending}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
             >
-              {createBrand.isPending ? "Saving..." : "Save Brand"}
+              {brand
+                ? updateBrand.isPending
+                  ? "Updating..."
+                  : "Update Brand"
+                : createBrand.isPending
+                  ? "Saving..."
+                  : "Save Brand"}
             </button>
           </div>
-
-          <p className="text-xs text-slate-400">
-            Mutation: {createBrand.status}
-          </p>
         </form>
       </div>
     </div>

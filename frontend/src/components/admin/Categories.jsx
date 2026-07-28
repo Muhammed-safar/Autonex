@@ -72,9 +72,32 @@ export default function Categories() {
             <tbody className="divide-y divide-slate-100 font-medium">
               {categoriesList.map((cat) => (
                 <tr key={cat._id} className="hover:bg-slate-50">
-                  <td className="p-3.5 sm:p-4 text-slate-800 font-semibold flex items-center gap-2 whitespace-nowrap">
-                    <FolderTree className="w-4 h-4 text-[#0066B2] shrink-0" />{" "}
-                    {cat.name}
+                  <td className="p-3.5 sm:p-4 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      {cat.icon ? (
+                        <img
+                          src={cat.icon}
+                          alt={cat.name}
+                          className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.nextSibling.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+
+                      <div
+                        className={`h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 ${
+                          cat.icon ? "hidden" : "flex"
+                        }`}
+                      >
+                        <FolderTree className="h-4 w-4 text-[#0066B2]" />
+                      </div>
+
+                      <span className="font-semibold text-slate-800">
+                        {cat.name}
+                      </span>
+                    </div>
                   </td>
                   <td className="p-3.5 sm:p-4 text-slate-400">{cat.slug}</td>
                   <td className="p-3.5 sm:p-4 text-slate-600 whitespace-nowrap">

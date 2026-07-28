@@ -9,36 +9,32 @@ import {
 } from "../repositories/category.repository.js";
 
 export const createCategoryService = async (data) => {
-  const { name, description, icon } = data;
+  const { name, description, icon, iconPublicId } = data;
 
-  // Check duplicate name
   const existingCategory = await findCategoryByName(name);
 
   if (existingCategory) {
     throw new Error("Category already exists.");
   }
 
-  // Generate slug
   const slug = slugify(name, {
     lower: true,
     strict: true,
   });
 
-  // Check duplicate slug
   const existingSlug = await findCategoryBySlug(slug);
 
   if (existingSlug) {
     throw new Error("Slug already exists.");
   }
 
-  const category = await createCategory({
+  return await createCategory({
     name,
     slug,
     description,
     icon,
+    iconPublicId,
   });
-
-  return category;
 };
 
 export const getAllCategoriesService = async () => {
@@ -68,53 +64,21 @@ export const updateCategoryService = async (id, data) => {
     throw new Error("Category not found.");
   }
 
-  // Update name & slug
+  // Duplicate name check
   if (data.name && data.name !== category.name) {
-    const existingCategory = await findCategoryByName(data.name);
+    const existing = await findCategoryByName(data.name);
 
-    if (
-      existingCategory &&
-      existingCategory._id.toString() !== id
-    ) {
-      throw new Error("Category name already exists.");
+    if (existing) {
+      throw new Error("Category already exists.");
     }
 
-    const newSlug = slugify(data.name, {
+    data.slug = slugify(data.name, {
       lower: true,
       strict: true,
     });
-
-    const existingSlug = await findCategoryBySlug(newSlug);
-
-    if (
-      existingSlug &&
-      existingSlug._id.toString() !== id
-    ) {
-      throw new Error("Category slug already exists.");
-    }
-
-    category.name = data.name;
-    category.slug = newSlug;
   }
 
-  // Update description
-  if (data.description !== undefined) {
-    category.description = data.description;
-  }
-
-  // Update icon
-  if (data.icon !== undefined) {
-    category.icon = data.icon;
-  }
-
-  // Update status
-  if (data.isActive !== undefined) {
-    category.isActive = data.isActive;
-  }
-
-  await saveCategory(category);
-
-  return category;
+  return await updateCategory(id, data);
 };
 
 export const deleteCategoryService = async (id) => {

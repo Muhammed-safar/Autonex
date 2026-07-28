@@ -17,7 +17,12 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
 
-    icon: {  
+    icon: {
+      type: String,
+      default: "",
+    },
+
+    iconPublicId: {
       type: String,
       default: "",
     },
@@ -34,7 +39,7 @@ const categorySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export default mongoose.model("Category", categorySchema);  
+export default mongoose.model("Category", categorySchema);

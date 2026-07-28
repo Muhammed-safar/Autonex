@@ -7,12 +7,32 @@ import {
   deleteCategoryService,
   restoreCategoryService,
 } from "../services/categoryService.js";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinary.helper.js";
 
 export const createCategory = async (req, res) => {
+  let uploadedImage = null;
+
   try {
+    let icon = "";
+    let iconPublicId = "";
+
+    if (req.files?.icon?.[0]) {
+      uploadedImage = await uploadToCloudinary(
+        req.files.icon[0].path,
+        "categories",
+      );
+
+      icon = uploadedImage.url;
+      iconPublicId = uploadedImage.publicId;
+    }
+
     const category = await createCategoryService({
       ...req.body,
-      icon: req.files?.icon?.[0]?.path,
+      icon,
+      iconPublicId,
     });
 
     res.status(201).json({
@@ -21,6 +41,11 @@ export const createCategory = async (req, res) => {
       data: category,
     });
   } catch (error) {
+    // Remove uploaded Cloudinary image if DB failed
+    if (uploadedImage?.publicId) {
+      await deleteFromCloudinary(uploadedImage.publicId);
+    }
+
     res.status(400).json({
       success: false,
       message: error.message,
@@ -79,22 +104,65 @@ export const getCategoryById = async (req, res) => {
 };
 
 export const updateCategory = async (req, res) => {
-  try {
-    const category = await updateCategoryService(
-      req.params.id,
-      {
-        ...req.body,
-        icon: req.files?.icon?.[0]?.path,
-      }
-    );
+  let uploadedImage = null;
 
-    res.status(200).json({
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found.",
+      });
+    }
+
+    // Keep old image by default
+    let icon = category.icon;
+    let iconPublicId = category.iconPublicId;
+
+    // Upload new image if provided
+    if (req.files?.icon?.[0]) {
+      uploadedImage = await uploadToCloudinary(
+        req.files.icon[0].path,
+        "categories",
+      );
+
+      icon = uploadedImage.url;
+      iconPublicId = uploadedImage.publicId;
+    }
+
+    // Save old public id before updating
+    const oldPublicId = category.iconPublicId;
+
+    // Update database
+    const updatedCategory = await updateCategoryService(req.params.id, {
+      ...req.body,
+      icon,
+      iconPublicId,
+    });
+
+    // DB updated successfully
+    // Delete old image only now
+    if (
+      uploadedImage &&
+      oldPublicId &&
+      oldPublicId !== uploadedImage.publicId
+    ) {
+      await deleteFromCloudinary(oldPublicId);
+    }
+
+    return res.status(200).json({
       success: true,
       message: "Category updated successfully.",
-      data: category,
+      data: updatedCategory,
     });
   } catch (error) {
-    res.status(400).json({
+    // Database failed after uploading new image
+    if (uploadedImage?.publicId) {
+      await deleteFromCloudinary(uploadedImage.publicId);
+    }
+
+    return res.status(400).json({
       success: false,
       message: error.message,
     });

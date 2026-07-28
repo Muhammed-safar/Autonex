@@ -25,8 +25,8 @@ export default function Brands() {
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
     setEditingBrand(null);
+    setIsModalOpen(false);
   };
 
   const handleDelete = (id) => {
@@ -39,76 +39,106 @@ export default function Brands() {
   if (error) return <h2>Failed to load brands.</h2>;
 
   return (
-    <div className="space-y-4 sm:space-y-5 font-sans">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h3 className="font-bold text-slate-700 text-sm">Automotive Brands</h3>
+    <div className="space-y-4 font-sans sm:space-y-5">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <h3 className="text-sm font-bold text-slate-700">Automotive Brands</h3>
+
         <button
           onClick={handleAddClick}
-          className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition shrink-0"
+          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#0066B2] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#005290]"
         >
-          <Plus className="w-4 h-4" /> Add Brand
+          <Plus className="h-4 w-4" />
+          Add Brand
         </button>
       </div>
 
-      {/* Table Container with Horizontal Scroll */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white text-xs shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[500px]">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
+          <table className="min-w-[500px] w-full border-collapse">
+            <thead className="border-b border-slate-200 bg-slate-50 font-bold uppercase text-slate-500">
               <tr>
-                <th className="p-3.5 sm:p-4 text-left">Brand Name</th>
-                <th className="p-3.5 sm:p-4 text-left">Status</th>
-                <th className="p-3.5 sm:p-4 text-left">Products Linked</th>
-                <th className="p-3.5 sm:p-4 text-right">Actions</th>
+                <th className="p-4 text-left">Brand Name</th>
+                <th className="p-4 text-left">Status</th>
+                <th className="p-4 text-left">Products Linked</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-slate-100 font-medium">
               {brandsList.map((brand) => (
-                <tr
-                  key={brand._id}
-                  className="hover:bg-slate-50 transition-colors"
-                >
-                  <td className="p-3.5 sm:p-4 text-slate-800 font-semibold whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-[#0066B2] shrink-0" />
-                      <span>{brand.name}</span>
-                    </div>
+                <tr key={brand._id} className="transition hover:bg-slate-50">
+                  <td className="whitespace-nowrap p-4 font-semibold text-slate-800">
+                    <td className="whitespace-nowrap p-4 font-semibold text-slate-800">
+                      <div className="flex items-center gap-3">
+                        {brand.logo?.url ? (
+                          <img
+                            src={brand.logo.url}
+                            alt={brand.name}
+                            className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextSibling.style.display =
+                                "flex";
+                            }}
+                          />
+                        ) : null}
+
+                        <div
+                          className={`h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 ${
+                            brand.logo?.url ? "hidden" : "flex"
+                          }`}
+                        >
+                          <Tag className="h-4 w-4 text-[#0066B2]" />
+                        </div>
+
+                        <span>{brand.name}</span>
+                      </div>
+                    </td>
                   </td>
-                  <td className="p-3.5 sm:p-4 whitespace-nowrap">
+
+                  <td className="whitespace-nowrap p-4">
                     <span
                       className={
                         brand.isActive
-                          ? "bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded text-[11px] font-bold"
-                          : "bg-slate-50 text-slate-400 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-bold"
+                          ? "rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600"
+                          : "rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-bold text-slate-400"
                       }
                     >
                       {brand.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
-                  <td className="p-3.5 sm:p-4 text-slate-600 whitespace-nowrap">
+
+                  <td className="whitespace-nowrap p-4 text-slate-600">
                     {brand.productsCount || 0} Products
                   </td>
-                  <td className="p-3.5 sm:p-4 text-right whitespace-nowrap">
-                    <div className="flex justify-end gap-1.5 sm:gap-2">
+
+                  <td className="whitespace-nowrap p-4">
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={() => handleEditClick(brand)}
-                        aria-label="Edit brand"
-                        className="p-1.5 text-slate-400 hover:text-[#0066B2] hover:bg-slate-100 rounded-md transition"
+                        className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-[#0066B2]"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="h-4 w-4" />
                       </button>
+
                       <button
                         onClick={() => handleDelete(brand._id)}
-                        aria-label="Delete brand"
-                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition"
+                        className="rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+
+              {brandsList.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-10 text-center text-slate-500">
+                    No brands found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
