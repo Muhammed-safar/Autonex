@@ -1,7 +1,7 @@
 import React from "react";
 import {
   TrendingUp,
-  Package,
+  Package, 
   ShoppingBag,
   Users,
   ArrowUpRight,

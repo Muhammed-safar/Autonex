@@ -78,7 +78,7 @@ export default function Categories() {
                         <img
                           src={cat.icon}
                           alt={cat.name}
-                          className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
+                          className="h-9 w-9 rounded-lg border border-slate-200 bg-white  p-1 object-contain"
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
                             e.currentTarget.nextSibling.style.display = "flex";

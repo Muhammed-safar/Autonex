@@ -16,9 +16,8 @@ import MyGaragePage from "./pages/garage/MyGaragePage";
 import ProfileLayout from "./pages/Login/profile/ProfileLayout";
 import ComparePage from "./pages/cart/ComparePage";
 import AdminLayout from "./components/admin/AdminLayout";
-import Dashboard from "./components/admin/Dashboard"; 
 import Categories from "./components/admin/Categories";
-import Products from "./components/admin/Products";
+import Products from "./components/admin/products/Products.jsx"
 import Brands from "./components/admin/Brands";
 import Orders from "./components/admin/Orders";
 import UsersView from "./components/admin/UsersView";
@@ -29,6 +28,7 @@ import ForgotPassword from "./pages/Login/ForgotPassword";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import AdminRoute from "./routes/AdminRoute";
+import Dashboard from "./components/admin/Dashboard.jsx";
 
 const App = () => {
   useInitializeAuth();
