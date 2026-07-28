@@ -10,7 +10,6 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.helper.js";
 
-
 export const createProduct = async (req, res) => {
   try {
     const { brand, category } = req.body;
@@ -297,6 +296,9 @@ export const getProductById = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
+    console.log(req.body);
+    console.log(req.body.existingImages);
+    console.log(typeof req.body.existingImages);
     const { brand, category } = req.body;
 
     // Validate Brand

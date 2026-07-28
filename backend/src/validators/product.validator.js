@@ -79,7 +79,7 @@ export const updateProductValidation = Joi.object({
 
   existingImages: Joi.array().items(imageSchema),
 
-  removedImages: Joi.array().items(Joi.string()),
+  removedImages: Joi.array().items(Joi.string()), 
 
   brand: Joi.string().hex().length(24),
 
