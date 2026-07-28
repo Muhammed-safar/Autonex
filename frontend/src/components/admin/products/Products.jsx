@@ -9,7 +9,7 @@ import { useCreateProduct } from "../../../hooks/products/useCreateProduct";
 import { useUpdateProduct } from "../../../hooks/products/useUpdateProduct";
 import { useDeleteProduct } from "../../../hooks/products/useDeleteProduct";
 
-import { useBrands } from "../../../hooks/brands/useBrands"; 
+import { useBrands } from "../../../hooks/brands/useBrands";
 import { useCategories } from "../../../hooks/categories/useCategories";
 
 const Products = () => {
@@ -32,7 +32,30 @@ const Products = () => {
   const brands = brandsData?.data || [];
   const categories = categoriesData?.data || [];
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = (values) => {
+    const formData = new FormData();
+
+    formData.append("name", values.name);
+    formData.append("description", values.description);
+    formData.append("sku", values.sku);
+    formData.append("price", values.price);
+    formData.append("discountPrice", values.discountPrice);
+    formData.append("stock", values.stock);
+    formData.append("brand", values.brand);
+    formData.append("category", values.category);
+    formData.append("isActive", values.isActive);
+    formData.append("isFeatured", values.isFeatured);
+
+    values.images.forEach((file) => {
+      formData.append("images", file); // <-- IMPORTANT: "images", not "images[]"
+    });
+
+    formData.append("variants", JSON.stringify(values.variants));
+    formData.append(
+      "compatibleVehicles",
+      JSON.stringify(values.compatibleVehicles),
+    );
+
     if (editingProduct) {
       updateProduct.mutate({
         id: editingProduct._id,

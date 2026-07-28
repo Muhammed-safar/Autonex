@@ -19,8 +19,8 @@ const ImageUploader = ({ images = [], onChange }) => {
             className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-50"
           >
             <img
-              src={img.url}
-              alt={img.alt || "Product"}
+              src={img.url || URL.createObjectURL(img)}
+              alt={img.alt || img.name || "Product"}
               className="w-full h-full object-cover"
             />
             <button

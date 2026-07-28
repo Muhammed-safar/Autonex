@@ -68,32 +68,29 @@ export default function Brands() {
               {brandsList.map((brand) => (
                 <tr key={brand._id} className="transition hover:bg-slate-50">
                   <td className="whitespace-nowrap p-4 font-semibold text-slate-800">
-                    <td className="whitespace-nowrap p-4 font-semibold text-slate-800">
-                      <div className="flex items-center gap-3">
-                        {brand.logo?.url ? (
-                          <img
-                            src={brand.logo.url}
-                            alt={brand.name}
-                            className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                              e.currentTarget.nextSibling.style.display =
-                                "flex";
-                            }}
-                          />
-                        ) : null}
+                    <div className="flex items-center gap-3">
+                      {brand.logo?.url ? (
+                        <img
+                          src={brand.logo.url}
+                          alt={brand.name}
+                          className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.nextSibling.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
 
-                        <div
-                          className={`h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 ${
-                            brand.logo?.url ? "hidden" : "flex"
-                          }`}
-                        >
-                          <Tag className="h-4 w-4 text-[#0066B2]" />
-                        </div>
-
-                        <span>{brand.name}</span>
+                      <div
+                        className={`h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 ${
+                          brand.logo?.url ? "hidden" : "flex"
+                        }`}
+                      >
+                        <Tag className="h-4 w-4 text-[#0066B2]" />
                       </div>
-                    </td>
+
+                      <span>{brand.name}</span>
+                    </div>
                   </td>
 
                   <td className="whitespace-nowrap p-4">
