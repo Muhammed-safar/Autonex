@@ -104,19 +104,9 @@ const productSchema = new mongoose.Schema(
 
     images: [
       {
-        url: {
-          type: String,
-          required: true,
-        },
-        publicId: {
-          type: String,
-          required: true,
-        },
-
-        alt: {
-          type: String,
-          default: "",
-        },
+        url: String,
+        publicId: String,
+        alt: String,
       },
     ],
 

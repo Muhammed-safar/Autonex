@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { X, Package, Check } from "lucide-react";
 import VariantSection from "./VariantSection";
@@ -13,12 +13,13 @@ const ProductModal = ({
   brands = [],
   categories = [],
 }) => {
+  const [removedImages, setRemovedImages] = useState([]);
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -42,17 +43,35 @@ const ProductModal = ({
     fields: variantFields,
     append: appendVariant,
     remove: removeVariant,
-  } = useFieldArray({ control, name: "variants" });
+  } = useFieldArray({
+    control,
+    name: "variants",
+  });
 
   const {
     fields: vehicleFields,
     append: appendVehicle,
     remove: removeVehicle,
-  } = useFieldArray({ control, name: "compatibleVehicles" });
+  } = useFieldArray({
+    control,
+    name: "compatibleVehicles",
+  });
+
+  const addRemovedImage = (publicId) => {
+    setRemovedImages((prev) => [...prev, publicId]);
+  };
 
   useEffect(() => {
+    // IMPORTANT
+    setRemovedImages([]);
+
     if (initialData) {
-      reset(initialData);
+      reset({
+        ...initialData,
+        brand: initialData.brand?._id || initialData.brand || "",
+        category: initialData.category?._id || initialData.category || "",
+        images: initialData.images || [],
+      });
     } else {
       reset({
         name: "",
@@ -75,164 +94,153 @@ const ProductModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden text-slate-800 font-sans">
-        {/* MODAL HEADER */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-[#F8FAFC]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-slate-950/60 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-5 border-b flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0066B2] flex items-center justify-center">
-              <Package size={22} />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Package size={22} className="text-[#0066B2]" />
             </div>
+
             <div>
-              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                {initialData ? "Edit Product" : "Add New Product"}
+              <h2 className="font-bold text-lg">
+                {initialData ? "Edit Product" : "Add Product"}
               </h2>
-              <p className="text-xs text-slate-400">
+
+              <p className="text-xs text-slate-500">
                 {initialData
-                  ? "Update part specifications & pricing"
-                  : "Create a new entry in your catalog"}
+                  ? "Update product details"
+                  : "Create a new product"}
               </p>
             </div>
           </div>
+
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-xl transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-100"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* MODAL BODY */}
+        {/* Form */}
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit((values) => onSubmit(values, removedImages))}
           className="flex-1 overflow-y-auto p-6 space-y-6"
         >
-          {/* BASIC INFORMATION */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Product Name *
-              </label>
-              <input
-                type="text"
-                {...register("name", { required: "Product name is required" })}
-                placeholder="e.g. High-Performance Ceramic Brake Pads"
-                className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#0066B2] focus:ring-1 focus:ring-[#0066B2] transition-all"
-              />
-              {errors.name && (
-                <span className="text-[11px] font-bold text-red-500 mt-1 inline-block">
-                  {errors.name.message}
-                </span>
-              )}
-            </div>
+          {/* Product Name */}
+          <div>
+            <label className="block text-xs font-bold mb-2">Product Name</label>
 
+            <input
+              {...register("name", {
+                required: "Product name is required",
+              })}
+              className="w-full border rounded-xl p-3"
+            />
+
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Brand / Category */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Brand *
-              </label>
+              <label className="block text-xs font-bold mb-2">Brand</label>
+
               <select
                 {...register("brand", { required: true })}
-                className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#0066B2] bg-white"
+                className="w-full border rounded-xl p-3"
               >
                 <option value="">Select Brand</option>
-                {brands.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.name}
+
+                {brands.map((brand) => (
+                  <option key={brand._id} value={brand._id}>
+                    {brand.name}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Category *
-              </label>
+              <label className="block text-xs font-bold mb-2">Category</label>
+
               <select
                 {...register("category", { required: true })}
-                className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#0066B2] bg-white"
+                className="w-full border rounded-xl p-3"
               >
                 <option value="">Select Category</option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name}
+
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
                   </option>
                 ))}
               </select>
             </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Description
-              </label>
-              <textarea
-                rows={3}
-                {...register("description")}
-                placeholder="Detailed technical specification and compatibility details..."
-                className="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#0066B2] transition-all"
-              />
-            </div>
           </div>
 
-          {/* PRICING & INVENTORY */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50/70 rounded-2xl border border-slate-100">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Base Price ($) *
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...register("price", { valueAsNumber: true, required: true })}
-                className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#0066B2]"
-              />
-            </div>
+          {/* Description */}
+          <textarea
+            rows={4}
+            {...register("description")}
+            className="w-full border rounded-xl p-3"
+            placeholder="Description..."
+          />
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Discount ($)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                {...register("discountPrice", { valueAsNumber: true })}
-                className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#0066B2]"
-              />
-            </div>
+          {/* Price */}
+          <div className="grid grid-cols-4 gap-4">
+            <input
+              type="number"
+              placeholder="Price"
+              {...register("price", {
+                valueAsNumber: true,
+              })}
+              className="border rounded-xl p-3"
+            />
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Stock
-              </label>
-              <input
-                type="number"
-                {...register("stock", { valueAsNumber: true })}
-                className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#0066B2]"
-              />
-            </div>
+            <input
+              type="number"
+              placeholder="Discount"
+              {...register("discountPrice", {
+                valueAsNumber: true,
+              })}
+              className="border rounded-xl p-3"
+            />
 
-            <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                SKU
-              </label>
-              <input
-                type="text"
-                {...register("sku")}
-                placeholder="PROD-001"
-                className="w-full text-xs font-bold p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-[#0066B2]"
-              />
-            </div>
+            <input
+              type="number"
+              placeholder="Stock"
+              {...register("stock", {
+                valueAsNumber: true,
+              })}
+              className="border rounded-xl p-3"
+            />
+
+            <input
+              placeholder="SKU"
+              {...register("sku")}
+              className="border rounded-xl p-3"
+            />
           </div>
 
-          {/* IMAGE UPLOADER */}
+          {/* Images */}
           <Controller
             name="images"
             control={control}
             render={({ field }) => (
-              <ImageUploader images={field.value} onChange={field.onChange} />
+              <ImageUploader
+                images={field.value}
+                onChange={field.onChange}
+                onRemoved={addRemovedImage}
+              />
             )}
           />
 
-          {/* DYNAMIC VARIANTS & VEHICLES */}
+          {/* Variants */}
           <VariantSection
             fields={variantFields}
             append={appendVariant}
@@ -241,6 +249,7 @@ const ProductModal = ({
             errors={errors}
           />
 
+          {/* Vehicles */}
           <VehicleSection
             fields={vehicleFields}
             append={appendVehicle}
@@ -249,47 +258,36 @@ const ProductModal = ({
             errors={errors}
           />
 
-          {/* TOGGLES */}
-          <div className="flex items-center gap-6 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                {...register("isActive")}
-                className="w-4 h-4 rounded text-[#0066B2] focus:ring-blue-500 border-slate-300"
-              />
-              <span className="text-xs font-bold text-slate-700">
-                Active Listing
-              </span>
+          {/* Checkboxes */}
+          <div className="flex gap-6">
+            <label className="flex gap-2 items-center">
+              <input type="checkbox" {...register("isActive")} />
+              Active
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                {...register("isFeatured")}
-                className="w-4 h-4 rounded text-[#0066B2] focus:ring-blue-500 border-slate-300"
-              />
-              <span className="text-xs font-bold text-slate-700">
-                Featured Item
-              </span>
+            <label className="flex gap-2 items-center">
+              <input type="checkbox" {...register("isFeatured")} />
+              Featured
             </label>
           </div>
 
-          {/* FOOTER ACTIONS */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+              className="px-5 py-2 rounded-xl border"
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#0066B2] hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
+              className="px-6 py-2 rounded-xl bg-[#0066B2] text-white flex items-center gap-2"
             >
               <Check size={16} />
-              <span>{initialData ? "Save Changes" : "Create Product"}</span>
+              {initialData ? "Save Changes" : "Create Product"}
             </button>
           </div>
         </form>

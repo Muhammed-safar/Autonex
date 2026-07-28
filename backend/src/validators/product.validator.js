@@ -2,6 +2,9 @@ import Joi from "joi";
 
 const imageSchema = Joi.object({
   url: Joi.string().uri().required(),
+
+  publicId: Joi.string().required(),
+
   alt: Joi.string().allow("").optional(),
 });
 
@@ -29,41 +32,35 @@ const compatibleVehicleSchema = Joi.object({
     .optional(),
 });
 
-export const createProductValidation = Joi.object({
-  name: Joi.string().trim().min(3).max(200).required(),
+export const updateProductValidation = Joi.object({
+  name: Joi.string().trim().min(3).max(200),
 
-  description: Joi.string().allow("").optional(),
+  description: Joi.string().allow(""),
 
-  sku: Joi.string().trim().allow("").optional(),
+  sku: Joi.string().trim().allow(""),
 
-  price: Joi.number().min(0).required(),
+  price: Joi.number().min(0),
 
-  discountPrice: Joi.number().min(0).default(0),
+  discountPrice: Joi.number().min(0),
 
-  stock: Joi.number().integer().min(0).default(0),
+  stock: Joi.number().integer().min(0),
 
-  variants: Joi.array()
-    .items(variantSchema)
-    .optional(),
+  variants: Joi.array().items(variantSchema),
 
-  compatibleVehicles: Joi.array()
-    .items(compatibleVehicleSchema)
-    .optional(),
+  compatibleVehicles: Joi.array().items(compatibleVehicleSchema),
 
-  brand: Joi.string()
-    .hex()
-    .length(24)
-    .required(),
+  existingImages: Joi.array().items(imageSchema),
 
-  category: Joi.string()
-    .hex()
-    .length(24)
-    .required(),
+  removedImages: Joi.array().items(Joi.string()),
 
-  isActive: Joi.boolean().optional(),
+  brand: Joi.string().hex().length(24),
 
-  isFeatured: Joi.boolean().optional(),
-});
+  category: Joi.string().hex().length(24),
+
+  isActive: Joi.boolean(),
+
+  isFeatured: Joi.boolean(),
+}).min(1);
 
 export const updateProductValidation = Joi.object({
   name: Joi.string().trim().min(3).max(200),

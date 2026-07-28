@@ -7,7 +7,7 @@ export const useUpdateProduct = () => {
 
   return useMutation({
     mutationFn: ({ id, formData }) =>
-      updateProduct(id, formData),
+      updateProduct({id, formData}),
 
     onSuccess: (data) => {
       toast.success(data.message || "Product updated successfully.");

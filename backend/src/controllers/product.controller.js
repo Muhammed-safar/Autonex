@@ -4,12 +4,18 @@ import Brand from "../models/Brand.js";
 import Category from "../models/Category.js";
 import cloudinary from "../config/cloudinary.js";
 
+import fs from "fs/promises";
+import Brand from "../models/Brand.js";
+import Category from "../models/Category.js";
+import Product from "../models/Product.js";
+import { uploadImage } from "../utils/cloudinary.js"; // Update this path if needed
+
 export const createProduct = async (req, res) => {
   try {
     const { brand, category } = req.body;
 
+    // Verify Brand
     const existingBrand = await Brand.findById(brand);
-
     if (!existingBrand) {
       return res.status(400).json({
         success: false,
@@ -17,8 +23,8 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    // Verify Category
     const existingCategory = await Category.findById(category);
-
     if (!existingCategory) {
       return res.status(400).json({
         success: false,
@@ -26,16 +32,43 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.create(req.body);
+    // Upload images to Cloudinary
+    let uploadedImages = [];
+
+    if (req.files && req.files.length > 0) {
+      uploadedImages = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await uploadImage(file.path);
+
+          // Remove local file after successful upload
+          await fs.unlink(file.path);
+
+          return {
+            url: result.secure_url,
+            publicId: result.public_id,
+            alt: file.originalname,
+          };
+        }),
+      );
+    }
+
+    // Create Product
+    const product = await Product.create({
+      ...req.body,
+      images: uploadedImages,
+    });
 
     res.status(201).json({
       success: true,
+      message: "Product created successfully.",
       data: product,
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Internal server error",
     });
   }
 };
@@ -265,6 +298,7 @@ export const updateProduct = async (req, res) => {
   try {
     const { brand, category } = req.body;
 
+    // Validate Brand
     if (brand) {
       const existingBrand = await Brand.findById(brand);
 
@@ -276,6 +310,7 @@ export const updateProduct = async (req, res) => {
       }
     }
 
+    // Validate Category
     if (category) {
       const existingCategory = await Category.findById(category);
 
@@ -287,10 +322,8 @@ export const updateProduct = async (req, res) => {
       }
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // Find Product
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({
@@ -299,14 +332,76 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    // Existing Images
+    const existingImages = Array.isArray(req.body.existingImages)
+      ? req.body.existingImages
+      : [];
+
+    // Removed Images
+    const removedImages = Array.isArray(req.body.removedImages)
+      ? req.body.removedImages
+      : [];
+
+    // Delete removed images from Cloudinary
+    if (removedImages.length) {
+      await Promise.all(
+        removedImages.map(async (publicId) => {
+          await deleteImage(publicId);
+        }),
+      );
+    }
+
+    // Upload newly selected images
+    let uploadedImages = [];
+
+    if (req.files?.length) {
+      uploadedImages = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await uploadImage(file.path);
+
+          // Delete local file
+          await fs.unlink(file.path);
+
+          return {
+            url: result.secure_url,
+            publicId: result.public_id,
+            alt: file.originalname,
+          };
+        }),
+      );
+    }
+
+    // Update Product Fields
+    product.name = req.body.name ?? product.name;
+    product.description = req.body.description ?? product.description;
+    product.sku = req.body.sku ?? product.sku;
+    product.price = req.body.price ?? product.price;
+    product.discountPrice = req.body.discountPrice ?? product.discountPrice;
+    product.stock = req.body.stock ?? product.stock;
+    product.brand = req.body.brand ?? product.brand;
+    product.category = req.body.category ?? product.category;
+    product.variants = req.body.variants ?? product.variants;
+    product.compatibleVehicles =
+      req.body.compatibleVehicles ?? product.compatibleVehicles;
+    product.isActive = req.body.isActive ?? product.isActive;
+    product.isFeatured = req.body.isFeatured ?? product.isFeatured;
+
+    // Save final images
+    product.images = [...existingImages, ...uploadedImages];
+
+    await product.save();
+
     res.status(200).json({
       success: true,
+      message: "Product updated successfully.",
       data: product,
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Internal server error",
     });
   }
 };
@@ -322,27 +417,30 @@ export const deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete images from Cloudinary
-    if (product.images && product.images.length > 0) {
+    // Delete all images from Cloudinary
+    if (product.images?.length) {
       await Promise.all(
-        product.images.map((image) => {
+        product.images.map(async (image) => {
           if (image.publicId) {
-            return cloudinary.uploader.destroy(image.publicId);
+            await deleteImage(image.publicId);
           }
         }),
       );
     }
 
-    await Product.findByIdAndDelete(req.params.id);
+    // Delete product
+    await product.deleteOne();
 
     res.status(200).json({
       success: true,
-      message: "Product deleted successfully",
+      message: "Product deleted successfully.",
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Internal server error",
     });
   }
 };

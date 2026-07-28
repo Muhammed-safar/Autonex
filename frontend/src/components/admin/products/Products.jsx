@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
 
 import ProductModal from "./ProductModal";
 
@@ -21,10 +20,7 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [search, setSearch] = useState("");
 
-  const { data: productsData, isLoading } = useProducts({
-    search,
-  });
-
+  const { data: productsData } = useProducts({ search });
   const { data: brandsData } = useBrands();
   const { data: categoriesData } = useCategories();
 
@@ -32,9 +28,10 @@ const Products = () => {
   const brands = brandsData?.data || [];
   const categories = categoriesData?.data || [];
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values, removedImages) => {
     const formData = new FormData();
 
+    // Basic fields
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("sku", values.sku);
@@ -46,15 +43,29 @@ const Products = () => {
     formData.append("isActive", values.isActive);
     formData.append("isFeatured", values.isFeatured);
 
-    values.images.forEach((file) => {
-      formData.append("images", file); // <-- IMPORTANT: "images", not "images[]"
-    });
-
-    formData.append("variants", JSON.stringify(values.variants));
+    // Arrays
+    formData.append("variants", JSON.stringify(values.variants || []));
     formData.append(
       "compatibleVehicles",
-      JSON.stringify(values.compatibleVehicles),
+      JSON.stringify(values.compatibleVehicles || []),
     );
+
+    // Existing Cloudinary images
+    const existingImages = values.images.filter(
+      (img) => !(img instanceof File),
+    );
+
+    formData.append("existingImages", JSON.stringify(existingImages));
+
+    // Removed Cloudinary images
+    formData.append("removedImages", JSON.stringify(removedImages));
+
+    // Newly uploaded files
+    values.images.forEach((image) => {
+      if (image instanceof File) {
+        formData.append("images", image);
+      }
+    });
 
     if (editingProduct) {
       updateProduct.mutate({
@@ -66,85 +77,86 @@ const Products = () => {
     }
 
     setIsModalOpen(false);
+    setEditingProduct(null);
   };
 
   return (
     <div className="h-full space-y-4 sm:space-y-5">
-      {/* Search & Action Controls */}
+      {/* Search & Action */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#0066B2] bg-white"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#0066B2]"
           />
         </div>
+
         <button
           onClick={() => {
             setEditingProduct(null);
             setIsModalOpen(true);
           }}
-          className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition shrink-0"
+          className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" />
+          Add Product
         </button>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[640px]">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
+          <table className="w-full min-w-[700px]">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="p-3.5 sm:p-4 text-left">Product Name</th>
-                <th className="p-3.5 sm:p-4 text-left">SKU</th>
-                <th className="p-3.5 sm:p-4 text-left">Category</th>
-                <th className="p-3.5 sm:p-4 text-left">Price</th>
-                <th className="p-3.5 sm:p-4 text-left">Stock</th>
-                <th className="p-3.5 sm:p-4 text-right">Actions</th>
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">SKU</th>
+                <th className="p-4 text-left">Category</th>
+                <th className="p-4 text-left">Price</th>
+                <th className="p-4 text-left">Stock</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium">
+
+            <tbody>
               {products.map((product) => (
-                <tr key={product._id} className="hover:bg-slate-50">
-                  <td className="p-3.5 sm:p-4 text-slate-800 font-semibold">
-                    {product.name}
-                  </td>
-                  <td className="p-3.5 sm:p-4 text-slate-500">{product.sku}</td>
-                  <td className="p-3.5 sm:p-4 text-slate-600">
-                    {product.category?.name}
-                  </td>
-                  <td className="p-3.5 sm:p-4 text-[#0066B2] font-bold">
-                    {product.price}
-                  </td>
-                  <td className="p-3.5 sm:p-4 text-emerald-600">
-                    {product.stock} units
-                  </td>
-                  <td className="p-3.5 sm:p-4 text-right">
-                    <div className="flex justify-end gap-1.5 sm:gap-2">
+                <tr key={product._id} className="border-b hover:bg-slate-50">
+                  <td className="p-4">{product.name}</td>
+                  <td className="p-4">{product.sku}</td>
+                  <td className="p-4">{product.category?.name}</td>
+                  <td className="p-4">${product.price}</td>
+                  <td className="p-4">{product.stock}</td>
+
+                  <td className="p-4">
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={() => {
-                          setEditingProduct(product._id);
+                          setEditingProduct(product);
                           setIsModalOpen(true);
                         }}
-                        aria-label="Edit product"
-                        className="p-1.5 text-slate-400 hover:text-[#0066B2] rounded-md hover:bg-slate-100"
+                        className="p-2 hover:bg-slate-100 rounded"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit size={16} />
                       </button>
+
                       <button
                         onClick={() => {
-                          if (window.confirm("Delete this product?")) {
+                          if (
+                            window.confirm(
+                              "Are you sure you want to delete this product?",
+                            )
+                          ) {
                             deleteProduct.mutate(product._id);
                           }
                         }}
-                        aria-label="Delete product"
-                        className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50"
+                        className="p-2 hover:bg-red-50 text-red-500 rounded"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -154,6 +166,7 @@ const Products = () => {
           </table>
         </div>
       </div>
+
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -168,4 +181,5 @@ const Products = () => {
     </div>
   );
 };
+
 export default Products;
