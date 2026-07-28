@@ -5,7 +5,7 @@ import cloudinary from "../config/cloudinary.js";
  * Upload image to Cloudinary
  * @param {string} filePath - Local temp file path
  * @param {string} folder - Cloudinary folder
- * @returns {{url:string, publicId:string}}
+ * @returns {{url:string, publicId:string}} 
  */
 export const uploadToCloudinary = async (
   filePath,

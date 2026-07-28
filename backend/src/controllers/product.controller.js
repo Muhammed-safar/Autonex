@@ -5,10 +5,11 @@ import Category from "../models/Category.js";
 import cloudinary from "../config/cloudinary.js";
 
 import fs from "fs/promises";
-import Brand from "../models/Brand.js";
-import Category from "../models/Category.js";
-import Product from "../models/Product.js";
-import { uploadImage } from "../utils/cloudinary.js"; // Update this path if needed
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.helper.js";
+
 
 export const createProduct = async (req, res) => {
   try {
