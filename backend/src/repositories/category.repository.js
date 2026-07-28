@@ -1,11 +1,8 @@
 import Category from "../models/Category.js";
 
 // Find category by ID
-export const updateCategory = (id, data) => {
-  return Category.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
+export const findCategoryById = (id) => {
+  return Category.findById(id);
 };
 
 // Find category by name
@@ -17,7 +14,7 @@ export const findCategoryByName = (name) => {
 export const findCategoryBySlug = (slug) => {
   return Category.findOne({ slug });
 };
-
+  
 // Get all categories
 export const findAllCategories = (filter = {}) => {
   return Category.find(filter);
