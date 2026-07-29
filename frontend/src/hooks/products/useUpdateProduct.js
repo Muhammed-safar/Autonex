@@ -6,8 +6,7 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, formData }) =>
-      updateProduct({id, formData}),
+    mutationFn: ({ id, formData }) => updateProduct({ id, formData }),
 
     onSuccess: (data) => {
       toast.success(data.message || "Product updated successfully.");
@@ -22,9 +21,7 @@ export const useUpdateProduct = () => {
     },
 
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Failed to update product."
-      );
+      toast.error(error.response?.data?.message || "Failed to update product.");
     },
   });
 };
