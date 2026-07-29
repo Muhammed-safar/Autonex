@@ -194,15 +194,62 @@ export const getProducts = async (req, res) => {
               $count: "count",
             },
           ],
+
+          activeProducts: [
+            {
+              $match: {
+                isActive: true,
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
+
+          inactiveProducts: [
+            {
+              $match: {
+                isActive: false,
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
+
+          featuredProducts: [
+            {
+              $match: {
+                isFeatured: true,
+              },
+            },
+            {
+              $count: "count",
+            },
+          ],
         },
       },
     ]);
 
     const products = result[0].products;
+
     const total = result[0].totalCount[0]?.count || 0;
+
+    const activeProducts = result[0].activeProducts[0]?.count || 0;
+
+    const inactiveProducts = result[0].inactiveProducts[0]?.count || 0;
+
+    const featuredProducts = result[0].featuredProducts[0]?.count || 0;
 
     res.status(200).json({
       success: true,
+
+      stats: {
+        totalProducts: total,
+        activeProducts,
+        inactiveProducts,
+        featuredProducts,
+      },
 
       pagination: {
         total,
@@ -419,7 +466,7 @@ export const deleteProduct = async (req, res) => {
       await Promise.all(
         product.images.map(async (image) => {
           if (image.publicId) {
-            await deleteImage(image.publicId);
+            await deleteFromCloudinary(image.publicId);
           }
         }),
       );
