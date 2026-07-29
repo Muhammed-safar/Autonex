@@ -393,7 +393,7 @@ export const updateProduct = async (req, res) => {
     if (removedImages.length) {
       await Promise.all(
         removedImages.map(async (publicId) => {
-          await deleteImage(publicId);
+          await deleteFromCloudinary(publicId);
         }),
       );
     }

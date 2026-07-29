@@ -128,7 +128,7 @@ const ProductModal = ({
         {/* Form */}
         <form
           onSubmit={handleSubmit((values) => onSubmit(values, removedImages))}
-          className="flex-1 overflow-y-auto p-6 space-y-6"
+          className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar" 
         >
           {/* Product Name */}
           <div>

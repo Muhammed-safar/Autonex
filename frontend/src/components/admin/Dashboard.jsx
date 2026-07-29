@@ -1,18 +1,25 @@
 import React from "react";
 import {
   TrendingUp,
-  Package, 
+  Package,
   ShoppingBag,
   Users,
   ArrowUpRight,
 } from "lucide-react";
+import { useDashboardStats } from "../../hooks/dashboard/useDashboardStatus";
 
 export default function Dashboard() {
+  const { data, isLoading, isError, error } = useDashboardStats();
+
+  if (isLoading) return <p>Loading...</p>;
+
+  if (isError) return <p>{error.message}</p>;
+
+  const { totalUsers, activeProducts } = data.data;
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] font-sans antialiased text-slate-800">
       <div className="flex-1 flex flex-col min-w-0">
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-7xl w-full mx-auto">
-          
           {/* 1. HERO BANNER */}
           <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 text-white shadow-xl flex flex-col lg:flex-row items-stretch min-h-[320px] sm:min-h-[380px]">
             {/* Background Gradient & Image */}
@@ -72,15 +79,15 @@ export default function Dashboard() {
               },
               {
                 title: "Active Products",
-                value: "3,892",
-                change: "+4.5%",
+                value: isLoading ? "..." : (data?.data?.totalProducts ?? 0),
+                change: `${data?.data?.activeProducts ?? 0} Active`,
                 icon: Package,
                 color: "text-purple-600 bg-purple-50",
               },
               {
                 title: "Registered Users",
-                value: "894",
-                change: "+12.0%",
+                value: isLoading ? "..." : (data?.stats?.totalUsers ?? 0),
+                change: `${data?.stats?.totalUsers ?? 0} Active`,
                 icon: Users,
                 color: "text-amber-600 bg-amber-50",
               },
@@ -190,8 +197,8 @@ export default function Dashboard() {
                             row.status === "Completed"
                               ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                               : row.status === "Processing"
-                              ? "bg-blue-50 text-blue-600 border border-blue-200"
-                              : "bg-amber-50 text-amber-600 border border-amber-200"
+                                ? "bg-blue-50 text-blue-600 border border-blue-200"
+                                : "bg-amber-50 text-amber-600 border border-amber-200"
                           }`}
                         >
                           {row.status}
@@ -203,7 +210,6 @@ export default function Dashboard() {
               </table>
             </div>
           </div>
-
         </main>
       </div>
     </div>

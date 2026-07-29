@@ -15,6 +15,7 @@
   import cartRoutes from "./routes/cart.routes.js";
   import wishRoutes from "./routes/whishlist.routes.js";
   import addressRoutes from "./routes/address.routes.js";
+  import dashboardRoutes from "./routes/dashboard.routes.js"
   import app from "./app.js";
   import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -34,6 +35,8 @@
   app.use("/api/cart", cartRoutes);
   app.use("/api/whishlist", wishRoutes);
   app.use("/api/address", addressRoutes);
+  app.use("/api/dashboard", dashboardRoutes );
+
 
   app.use(errorHandler);
 
