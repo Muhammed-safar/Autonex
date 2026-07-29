@@ -51,6 +51,10 @@ export const createProductValidation = Joi.object({
 
   compatibleVehicles: Joi.array().items(compatibleVehicleSchema).optional(),
 
+  existingImages: Joi.array().items(imageSchema).optional(),
+
+  removedImages: Joi.array().items(Joi.string()).optional(),
+
   brand: Joi.string().hex().length(24).required(),
 
   category: Joi.string().hex().length(24).required(),
@@ -79,7 +83,7 @@ export const updateProductValidation = Joi.object({
 
   existingImages: Joi.array().items(imageSchema),
 
-  removedImages: Joi.array().items(Joi.string()), 
+  removedImages: Joi.array().items(Joi.string()),
 
   brand: Joi.string().hex().length(24),
 
