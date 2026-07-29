@@ -15,7 +15,7 @@ export default function Dashboard() {
 
   if (isError) return <p>{error.message}</p>;
 
-  const { totalUsers, activeProducts } = data.data;
+  const { totalUsers, activeProducts , thisMonthUsers , thisMonthProducts } = data.data;
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] font-sans antialiased text-slate-800">
       <div className="flex-1 flex flex-col min-w-0">
@@ -79,15 +79,15 @@ export default function Dashboard() {
               },
               {
                 title: "Active Products",
-                value: isLoading ? "..." : (data?.totalProducts ?? 0),
-                change: `${data?.data?.activeProducts ?? 0} Active`,
+                value: isLoading ? "..." : (data?.data?.activeProducts ?? 0),
+                change: `${data?.data?.thisMonthProducts ?? 0} Active`,
                 icon: Package,
                 color: "text-purple-600 bg-purple-50",
               },
               {
                 title: "Registered Users",
-                value: isLoading ? "..." : (data?.totalUsers ?? 0),
-                change: `${data?.stats?.totalUsers ?? 0} Active`,
+                value: isLoading ? "..." : (data?.data?.totalUsers ?? 0),
+                change: `${data?.data?.thisMonthUsers ?? 0} Active`,
                 icon: Users,
                 color: "text-amber-600 bg-amber-50",
               },

@@ -22,7 +22,7 @@ export default function UsersView() {
   } = useUsers(currentPage, LIMIT, search);
 
   // Extract data array and pagination info from the API response structure
-  const usersList = apiResponse?.user || [];
+  const usersList = apiResponse?.data || [];
   const pagination = apiResponse?.pagination || {
     total: 0,
     currentPage: 1,
@@ -88,7 +88,7 @@ export default function UsersView() {
                       <td className="p-3.5 sm:p-4 text-slate-800 font-semibold whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <UserCheck className="w-4 h-4 text-[#0066B2] shrink-0" />
-                          <span>{u.name || "N/A"}</span>
+                          <span>{u.fullName || "N/A"}</span>
                         </div>
                       </td>
                       <td className="p-3.5 sm:p-4 text-slate-500 whitespace-nowrap">
