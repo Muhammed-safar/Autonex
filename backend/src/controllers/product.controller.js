@@ -38,7 +38,7 @@ export const createProduct = async (req, res) => {
     if (req.files && req.files.length > 0) {
       uploadedImages = await Promise.all(
         req.files.map(async (file) => {
-          const result = await uploadImage(file.path);
+          const result = await uploadToCloudinary(file.path);
 
           // Remove local file after successful upload
           await fs.unlink(file.path);
@@ -362,12 +362,9 @@ export const updateProduct = async (req, res) => {
         req.files.map(async (file) => {
           const result = await uploadToCloudinary(file.path);
 
-          // Delete local file
-          await fs.unlink(file.path);
-
           return {
-            url: result.secure_url,
-            publicId: result.public_id,
+            url: result.url,
+            publicId: result.publicId,
             alt: file.originalname,
           };
         }),
