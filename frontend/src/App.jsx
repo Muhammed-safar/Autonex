@@ -29,6 +29,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import AdminRoute from "./routes/AdminRoute";
 import Dashboard from "./components/admin/Dashboard.jsx";
+import MainLoader from "./components/layout.jsx/MainLoader.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -43,7 +44,7 @@ const App = () => {
   const authInitialized = useSelector((state) => state.auth.authInitialized);
 
   if (!authInitialized) {
-    return <div>Loading...</div>;
+    return <MainLoader/>
   }
   return (
     <>

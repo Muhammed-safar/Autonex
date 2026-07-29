@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import ProductModal from "./ProductModal";
 
@@ -19,14 +26,27 @@ const Products = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { data: productsData } = useProducts({ search });
+  const { data: productsData } = useProducts({ search, page });
   const { data: brandsData } = useBrands();
   const { data: categoriesData } = useCategories();
 
   const products = productsData?.data || [];
+  const pagination = productsData?.pagination || {
+    total: 0,
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10,
+  };
+
   const brands = brandsData?.data || [];
   const categories = categoriesData?.data || [];
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPage(1); // Reset to first page on search
+  };
 
   const handleSubmit = (values, removedImages) => {
     const formData = new FormData();
@@ -90,7 +110,7 @@ const Products = () => {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Search products..."
             className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#0066B2]"
           />
@@ -109,62 +129,142 @@ const Products = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="p-4 text-left">Name</th>
-                <th className="p-4 text-left">SKU</th>
-                <th className="p-4 text-left">Category</th>
-                <th className="p-4 text-left">Price</th>
-                <th className="p-4 text-left">Stock</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 text-left text-xs font-semibold text-slate-600">
+                  Name
+                </th>
+                <th className="p-4 text-left text-xs font-semibold text-slate-600">
+                  SKU
+                </th>
+                <th className="p-4 text-left text-xs font-semibold text-slate-600">
+                  Category
+                </th>
+                <th className="p-4 text-left text-xs font-semibold text-slate-600">
+                  Price
+                </th>
+                <th className="p-4 text-left text-xs font-semibold text-slate-600">
+                  Stock
+                </th>
+                <th className="p-4 text-right text-xs font-semibold text-slate-600">
+                  Actions
+                </th>
               </tr>
             </thead>
 
             <tbody>
-              {products.map((product) => (
-                <tr key={product._id} className="border-b hover:bg-slate-50">
-                  <td className="p-4">{product.name}</td>
-                  <td className="p-4">{product.sku}</td>
-                  <td className="p-4">{product.category?.name}</td>
-                  <td className="p-4">${product.price}</td>
-                  <td className="p-4">{product.stock}</td>
-
-                  <td className="p-4">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setIsModalOpen(true);
-                        }}
-                        className="p-2 hover:bg-slate-100 rounded"
-                      >
-                        <Edit size={16} />
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              "Are you sure you want to delete this product?",
-                            )
-                          ) {
-                            deleteProduct.mutate(product._id);
-                          }
-                        }}
-                        className="p-2 hover:bg-red-50 text-red-500 rounded"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+              {products.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="p-8 text-center text-xs text-slate-500"
+                  >
+                    No products found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                products.map((product) => (
+                  <tr
+                    key={product._id}
+                    className="border-b hover:bg-slate-50 text-xs"
+                  >
+                    <td className="p-4 font-medium text-slate-800">
+                      {product.name}
+                    </td>
+                    <td className="p-4 text-slate-600">{product.sku}</td>
+                    <td className="p-4 text-slate-600">
+                      {product.category?.name || "-"}
+                    </td>
+                    <td className="p-4 text-slate-800 font-medium">
+                      ${product.price}
+                    </td>
+                    <td className="p-4 text-slate-600">{product.stock}</td>
+
+                    <td className="p-4">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingProduct(product);
+                            setIsModalOpen(true);
+                          }}
+                          className="p-2 hover:bg-slate-100 rounded text-slate-600"
+                        >
+                          <Edit size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Are you sure you want to delete this product?",
+                              )
+                            ) {
+                              deleteProduct.mutate(product._id);
+                            }
+                          }}
+                          className="p-2 hover:bg-red-50 text-red-500 rounded"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <span className="text-xs text-slate-600">
+              Showing page <strong>{pagination.currentPage}</strong> of{" "}
+              <strong>{pagination.totalPages}</strong> ({pagination.total}{" "}
+              items)
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={pagination.currentPage === 1}
+                className="p-1.5 rounded border border-slate-200 text-slate-600 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, i) => i + 1,
+              ).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`px-3 py-1 rounded text-xs font-semibold ${
+                    pagination.currentPage === pageNum
+                      ? "bg-[#0066B2] text-white"
+                      : "border border-slate-200 text-slate-600 hover:bg-white"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, pagination.totalPages))
+                }
+                disabled={pagination.currentPage === pagination.totalPages}
+                className="p-1.5 rounded border border-slate-200 text-slate-600 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <ProductModal

@@ -459,14 +459,14 @@ export const updateProfile = async (req, res) => {
     const updatedUser = user.toObject();
     delete updatedUser.password;
     delete updatedUser.refreshToken;
-x 
+    x;
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error); 
+    console.error(error);
 
     return res.status(500).json({
       success: false,
@@ -569,6 +569,77 @@ export const logout = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.max(Number(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    const { search = "" } = req.query;
+
+    let filter = {};
+
+    if (search.trim()) {
+      const keyword = search.trim();
+
+      // Search by ID or Name
+      filter = mongoose.Types.ObjectId.isValid(keyword)
+        ? {
+            $or: [
+              { _id: keyword },
+              { name: { $regex: keyword, $options: "i" } },
+            ],
+          }
+        : {
+            name: { $regex: keyword, $options: "i" },
+          };
+    }
+
+    const [users, totalUsers, activeUsers, verifiedUsers, adminUsers] =
+      await Promise.all([
+        User.find(filter)
+          .select("-password -refreshToken")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit),
+
+        User.countDocuments(filter),
+
+        User.countDocuments({ ...filter, isActive: true }),
+
+        User.countDocuments({ ...filter, isVerified: true }),
+
+        User.countDocuments({ ...filter, role: "admin" }),
+      ]);
+
+    res.status(200).json({
+      success: true,
+
+      stats: {
+        totalUsers,
+        activeUsers,
+        inactiveUsers: totalUsers - activeUsers,
+        verifiedUsers,
+        adminUsers,
+      },
+
+      pagination: {
+        total: totalUsers,
+        currentPage: page,
+        totalPages: Math.ceil(totalUsers / limit),
+        limit,
+      },
+
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
       message: error.message,
     });

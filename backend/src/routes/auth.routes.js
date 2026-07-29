@@ -13,6 +13,7 @@ import {
   resetPassword,
   refreshToken,
   logout,
+  getAllUsers,
 } from "../controllers/auth.controller.js";
 
 import { protect } from "../middlewares/auth.middleware.js";
@@ -35,6 +36,7 @@ import {
   forgotPasswordLimiter,
 } from "../middlewares/rateLimiter.js";
 import { profileUpload } from "../middlewares/multer/types.multer.middleware.js";
+import { adminOnly } from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
@@ -89,6 +91,8 @@ router.put(
 router.post("/refresh", refreshToken);
 
 router.post("/logout", protect, logout);
+
+router.get("/users", protect, adminOnly, getAllUsers);
 
 router.delete("/delete", protect, deleteUser);
 

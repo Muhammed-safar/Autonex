@@ -85,6 +85,19 @@ export const logout = async () => {
   return data;
 };
 
+//get all
+export const getAllUsers = async ({ page = 1, limit = 20, search = "" }) => {
+  const { data } = await API.get("/auth/users", {
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
+
+  return data;
+};
+
 // Delete User
 export const deleteUser = async () => {
   const { data } = await API.delete("/auth/delete");

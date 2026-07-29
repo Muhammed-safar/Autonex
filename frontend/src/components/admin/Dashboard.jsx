@@ -79,14 +79,14 @@ export default function Dashboard() {
               },
               {
                 title: "Active Products",
-                value: isLoading ? "..." : (data?.data?.totalProducts ?? 0),
+                value: isLoading ? "..." : (data?.totalProducts ?? 0),
                 change: `${data?.data?.activeProducts ?? 0} Active`,
                 icon: Package,
                 color: "text-purple-600 bg-purple-50",
               },
               {
                 title: "Registered Users",
-                value: isLoading ? "..." : (data?.stats?.totalUsers ?? 0),
+                value: isLoading ? "..." : (data?.totalUsers ?? 0),
                 change: `${data?.stats?.totalUsers ?? 0} Active`,
                 icon: Users,
                 color: "text-amber-600 bg-amber-50",

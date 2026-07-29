@@ -1,18 +1,42 @@
 import React, { useState } from "react";
-import { Plus, Tag, Edit, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Tag,
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import { useBrands } from "../../hooks/brands/useBrands.js";
 import { useDeleteBrand } from "../../hooks/brands/useDeleteBrand.js";
 import BrandModal from "./BrandModal.jsx";
 
+const DEFAULT_LIMIT = 10;
+
 export default function Brands() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState(null);
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, error } = useBrands();
+  const { data, isLoading, error } = useBrands({ page });
   const deleteMutation = useDeleteBrand();
 
   const brandsList = data?.data || [];
+
+  // Extract pagination variables from top-level response properties
+  const totalItems = data?.total ?? data?.count ?? brandsList.length;
+  const totalPages =
+    data?.totalPages ?? Math.max(1, Math.ceil(totalItems / DEFAULT_LIMIT));
+  const currentPage = data?.currentPage ?? page;
+
+  // Client-side fallback slice if server doesn't paginate
+  const displayedBrands = data?.totalPages
+    ? brandsList
+    : brandsList.slice(
+        (currentPage - 1) * DEFAULT_LIMIT,
+        currentPage * DEFAULT_LIMIT,
+      );
 
   const handleAddClick = () => {
     setEditingBrand(null);
@@ -52,7 +76,7 @@ export default function Brands() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white text-xs shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white text-xs shadow-sm flex flex-col">
         <div className="overflow-x-auto">
           <table className="min-w-[500px] w-full border-collapse">
             <thead className="border-b border-slate-200 bg-slate-50 font-bold uppercase text-slate-500">
@@ -65,7 +89,7 @@ export default function Brands() {
             </thead>
 
             <tbody className="divide-y divide-slate-100 font-medium">
-              {brandsList.map((brand) => (
+              {displayedBrands.map((brand) => (
                 <tr key={brand._id} className="transition hover:bg-slate-50">
                   <td className="whitespace-nowrap p-4 font-semibold text-slate-800">
                     <div className="flex items-center gap-3">
@@ -76,7 +100,10 @@ export default function Brands() {
                           className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-1 object-contain"
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
-                            e.currentTarget.nextSibling.style.display = "flex";
+                            if (e.currentTarget.nextSibling) {
+                              e.currentTarget.nextSibling.style.display =
+                                "flex";
+                            }
                           }}
                         />
                       ) : null}
@@ -129,7 +156,7 @@ export default function Brands() {
                 </tr>
               ))}
 
-              {brandsList.length === 0 && (
+              {displayedBrands.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-10 text-center text-slate-500">
                     No brands found.
@@ -139,6 +166,52 @@ export default function Brands() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <span className="text-xs text-slate-600">
+              Showing page <strong>{currentPage}</strong> of{" "}
+              <strong>{totalPages}</strong> ({totalItems} items)
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded border border-slate-200 text-slate-600 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`px-3 py-1 rounded text-xs font-semibold ${
+                      currentPage === pageNum
+                        ? "bg-[#0066B2] text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-white"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ),
+              )}
+
+              <button
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded border border-slate-200 text-slate-600 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <BrandModal
