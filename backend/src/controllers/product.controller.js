@@ -360,7 +360,7 @@ export const updateProduct = async (req, res) => {
     if (req.files?.length) {
       uploadedImages = await Promise.all(
         req.files.map(async (file) => {
-          const result = await uploadImage(file.path);
+          const result = await uploadToCloudinary(file.path);
 
           // Delete local file
           await fs.unlink(file.path);
