@@ -40,9 +40,6 @@ export const createProduct = async (req, res) => {
         req.files.map(async (file) => {
           const result = await uploadToCloudinary(file.path);
 
-          // Remove local file after successful upload
-          await fs.unlink(file.path);
-
           return {
             url: result.secure_url,
             publicId: result.public_id,
