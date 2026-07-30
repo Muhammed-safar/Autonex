@@ -594,11 +594,11 @@ export const getAllUsers = async (req, res) => {
         ? {
             $or: [
               { _id: keyword },
-              { name: { $regex: keyword, $options: "i" } },
+              { fullName: { $regex: keyword, $options: "i" } },
             ],
           }
         : {
-            name: { $regex: keyword, $options: "i" },
+            fullName: { $regex: keyword, $options: "i" },
           };
     }
 
