@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom"; 
+import { useParams, Link } from "react-router-dom";
 import {
   Heart,
   Star,
@@ -19,7 +19,7 @@ import {
   Whatsapp,
 } from "../../assets/icon.js";
 import { useWishlist } from "../../context/WishlistContext.jsx";
-import { useProducts } from "../../hooks/products/useProducts.js"; 
+import { useProduct } from "../../hooks/products/useProduct.js";
 
 export default function ProductDetailsPage({ productId: propProductId }) {
   // 1. Get product ID from URL params (e.g., /product/:id) or props
@@ -28,7 +28,7 @@ export default function ProductDetailsPage({ productId: propProductId }) {
 
   // 2. Fetch active product and related catalog data
   // Pass the ID to fetch specific item, or query all products to locate & render related items
-  const { data, isLoading, isError } = useProducts({ limit: 10 });
+  const { data, isLoading, isError } = useProduct(productId);
 
   // UI Interactive States
   const [quantity, setQuantity] = useState(1);
@@ -40,8 +40,7 @@ export default function ProductDetailsPage({ productId: propProductId }) {
 
   // 3. Locate active product details from dynamic response or fallback
   const currentProduct = useMemo(() => {
-    const rawList = Array.isArray(data?.data) ? data.data : [];
-    const found = rawList.find((item) => item._id === productId);
+    const found = data?.data;
 
     if (found) {
       return {
@@ -53,9 +52,11 @@ export default function ProductDetailsPage({ productId: propProductId }) {
             ? found.price
             : null,
         rating: found.rating || 5,
-        category: typeof found.category === "object" ? found.category?.name : "General",
+        category:
+          typeof found.category === "object" ? found.category?.name : "General",
         brand: typeof found.brand === "object" ? found.brand?.name : "Generic",
-        images: found.images?.length > 0 ? found.images.map((img) => img.url) : [],
+        images:
+          found.images?.length > 0 ? found.images.map((img) => img.url) : [],
         description: found.description || "",
         inStock: (found.stock || 0) > 0,
         sku: found.sku || found._id?.substring(0, 10).toUpperCase(),
@@ -72,7 +73,8 @@ export default function ProductDetailsPage({ productId: propProductId }) {
       category: "Oils and fluids",
       brand: "Castrol",
       images: [],
-      description: "High-quality additives protect against leaks and won't harm gaskets...",
+      description:
+        "High-quality additives protect against leaks and won't harm gaskets...",
       inStock: true,
       sku: "UGW7674051",
     };
@@ -133,7 +135,9 @@ export default function ProductDetailsPage({ productId: propProductId }) {
             {currentProduct.category}
           </span>{" "}
           /
-          <span className="text-slate-600 truncate">{currentProduct.title}</span>
+          <span className="text-slate-600 truncate">
+            {currentProduct.title}
+          </span>
         </nav>
 
         {/* Product Heading Info */}
@@ -160,7 +164,8 @@ export default function ProductDetailsPage({ productId: propProductId }) {
             </div>
 
             <span className="text-slate-500">
-              Sku: <strong className="text-slate-800">{currentProduct.sku}</strong>
+              Sku:{" "}
+              <strong className="text-slate-800">{currentProduct.sku}</strong>
             </span>
 
             <span className="text-emerald-600 font-semibold flex items-center gap-1">
@@ -248,7 +253,9 @@ export default function ProductDetailsPage({ productId: propProductId }) {
                 </span>
                 <p className="leading-tight">
                   This product has been added to{" "}
-                  <strong className="text-orange-600 font-bold">3 people's</strong>{" "}
+                  <strong className="text-orange-600 font-bold">
+                    3 people's
+                  </strong>{" "}
                   carts.
                 </p>
               </div>
@@ -404,7 +411,10 @@ export default function ProductDetailsPage({ productId: propProductId }) {
             {activeTab === "description" && (
               <div>
                 <div className={!isExpanded ? "line-clamp-3" : ""}>
-                  <p>{currentProduct.description || "No full description provided."}</p>
+                  <p>
+                    {currentProduct.description ||
+                      "No full description provided."}
+                  </p>
                 </div>
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}

@@ -64,6 +64,8 @@ export const createProductValidation = Joi.object({
   isActive: Joi.boolean().optional(),
 
   isFeatured: Joi.boolean().optional(),
+
+  displayPriority: Joi.number().integer().min(0).default(0).optional(),
 });
 
 export const updateProductValidation = Joi.object({
@@ -94,4 +96,6 @@ export const updateProductValidation = Joi.object({
   isActive: Joi.boolean(),
 
   isFeatured: Joi.boolean(),
+
+  displayPriority: Joi.number().integer().min(0).default(0).optional(),
 }).min(1);

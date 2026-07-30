@@ -1,7 +1,7 @@
 import React from "react";
 import { Heart, Star, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useWishlist } from "../../context/WishlistContext"; // Adjust path if needed
+import { useWishlist } from "../../context/WishlistContext";
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const { toggleWishlist, isWishlisted } = useWishlist();

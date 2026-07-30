@@ -70,7 +70,7 @@ const App = () => {
               />
             }
           />
-          <Route path="/product/:sku" element={<ProductDetailsPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
 
           <Route element={<PublicRoute />}>
