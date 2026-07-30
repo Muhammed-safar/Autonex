@@ -13,7 +13,7 @@ import {
   Clock,
   IdCard,
 } from "lucide-react";
-import { useUser } from "../../hooks/mutations/useUser"; // Adjust import path as needed
+import { useUser } from "../../../hooks/mutations/useUser"; // Adjust import path as needed
 
 const UserDetailsModal = ({ userId, isOpen, onClose }) => {
   if (!isOpen || !userId) return null;

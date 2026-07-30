@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { useParams, Link } from "react-router-dom"; 
 import {
   Heart,
   Star,
@@ -17,9 +18,19 @@ import {
   Twitter,
   Whatsapp,
 } from "../../assets/icon.js";
-import { useWishlist } from "../../context/WishlistContext.jsx"; // Update path if needed
+import { useWishlist } from "../../context/WishlistContext.jsx";
+import { useProducts } from "../../hooks/products/useProducts.js"; 
 
-export default function ProductDetailsPage() {
+export default function ProductDetailsPage({ productId: propProductId }) {
+  // 1. Get product ID from URL params (e.g., /product/:id) or props
+  const params = useParams();
+  const productId = propProductId || params.id || "main-zeres-g05";
+
+  // 2. Fetch active product and related catalog data
+  // Pass the ID to fetch specific item, or query all products to locate & render related items
+  const { data, isLoading, isError } = useProducts({ limit: 10 });
+
+  // UI Interactive States
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [selectedImage, setSelectedImage] = useState(0);
@@ -27,89 +38,102 @@ export default function ProductDetailsPage() {
 
   const { toggleWishlist, isWishlisted } = useWishlist();
 
-  // Current page product representation
-  const currentProduct = {
-    id: "main-zeres-g05",
-    title: "Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA",
-    price: 33.43,
-    oldPrice: 48.55,
-    rating: 5,
-    category: "Oils and fluids",
-    image: "https://via.placeholder.com/300",
-    inStock: true,
-  };
+  // 3. Locate active product details from dynamic response or fallback
+  const currentProduct = useMemo(() => {
+    const rawList = Array.isArray(data?.data) ? data.data : [];
+    const found = rawList.find((item) => item._id === productId);
+
+    if (found) {
+      return {
+        id: found._id,
+        title: found.name || "Untitled Product",
+        price: found.price || 0,
+        oldPrice:
+          found.discountPrice > 0 && found.discountPrice < found.price
+            ? found.price
+            : null,
+        rating: found.rating || 5,
+        category: typeof found.category === "object" ? found.category?.name : "General",
+        brand: typeof found.brand === "object" ? found.brand?.name : "Generic",
+        images: found.images?.length > 0 ? found.images.map((img) => img.url) : [],
+        description: found.description || "",
+        inStock: (found.stock || 0) > 0,
+        sku: found.sku || found._id?.substring(0, 10).toUpperCase(),
+      };
+    }
+
+    // Fallback static mock object if fetching single ID directly or loading
+    return {
+      id: productId,
+      title: "Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA",
+      price: 33.43,
+      oldPrice: 48.55,
+      rating: 5,
+      category: "Oils and fluids",
+      brand: "Castrol",
+      images: [],
+      description: "High-quality additives protect against leaks and won't harm gaskets...",
+      inStock: true,
+      sku: "UGW7674051",
+    };
+  }, [data, productId]);
+
+  // Map images gallery from real product data or use placeholder frames
+  const imageGallery = useMemo(() => {
+    if (currentProduct.images && currentProduct.images.length > 0) {
+      return currentProduct.images;
+    }
+    return ["Asset 1", "Asset 2", "Asset 3"];
+  }, [currentProduct]);
+
+  // Extract related items (excluding current product)
+  const relatedProducts = useMemo(() => {
+    const rawList = Array.isArray(data?.data) ? data.data : [];
+    return rawList
+      .filter((item) => item._id !== productId)
+      .slice(0, 5)
+      .map((product) => ({
+        id: product._id,
+        sku: product.sku || product._id?.substring(0, 8),
+        title: product.name || "Untitled Product",
+        price: product.price ? `$${product.price}` : "$0.00",
+        oldPrice: product.discountPrice ? `$${product.discountPrice}` : null,
+        rating: product.rating || 4,
+        reviewsCount: product.reviewsCount || 0,
+        discount:
+          product.discountPrice && product.price
+            ? `${Math.round(((product.price - product.discountPrice) / product.price) * 100)}%`
+            : null,
+      }));
+  }, [data, productId]);
 
   const isCurrentWishlisted = isWishlisted(currentProduct.id);
 
-  const images = ["Thumb 1", "Thumb 2", "Thumb 3"];
-
-  const relatedProducts = [
-    {
-      id: 1,
-      sku: "UGW7674051",
-      title:
-        "Catalytic converter cleaner high quality pass emissions test cleans",
-      price: "$21.18",
-      oldPrice: "$38.45",
-      rating: 4.67,
-      reviewsCount: 3,
-      discount: "45%",
-    },
-    {
-      id: 2,
-      sku: "UGW7674052",
-      title: "Mobil 1 Advanced Fuel Economy Full Synthetic Motor Oil 0W-20, 5",
-      price: "$24.72",
-      oldPrice: "$28.99",
-      rating: 4.33,
-      reviewsCount: 6,
-      discount: "30%",
-    },
-    {
-      id: 3,
-      sku: "UGW7674053",
-      title: "Pennzoil Platinum Full Synthetic 0W-20 Motor Oil, 5 Quart",
-      price: "$26.96",
-      oldPrice: "$41.11",
-      rating: 3.33,
-      reviewsCount: 4,
-      discount: "43%",
-    },
-    {
-      id: 4,
-      sku: "UGW7674054",
-      title: "Rislone High Mileage Steering Stop Whine With Leak Repair 4934",
-      price: "$9.88",
-      oldPrice: "$15.88",
-      rating: 4.33,
-      reviewsCount: 3,
-      discount: "38%",
-    },
-    {
-      id: 5,
-      sku: "UGW7674055",
-      title: "Oil Filter - Compatible with 2011 - 2022 Ford",
-      price: "$65.33",
-      oldPrice: "$88.99",
-      rating: 4.33,
-      reviewsCount: 9,
-      discount: "25%",
-    },
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen max-w-6xl mx-auto p-6 flex items-center justify-center">
+        <div className="animate-pulse flex flex-col gap-4 w-full">
+          <div className="h-8 bg-slate-200 rounded w-1/3"></div>
+          <div className="h-96 bg-slate-100 rounded-2xl w-full"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-6 px-4 md:px-8 font-sans text-slate-600 antialiased">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl p-6">
         {/* Breadcrumbs */}
         <nav className="flex text-xs text-slate-400 mb-4 items-center gap-1.5">
-          <span className="hover:underline cursor-pointer">Home</span> /
+          <Link to="/" className="hover:underline cursor-pointer">
+            Home
+          </Link>{" "}
+          /
           <span className="hover:underline cursor-pointer shrink-0">
-            Oils and fluids
+            {currentProduct.category}
           </span>{" "}
           /
-          <span className="text-slate-600 truncate">
-            {currentProduct.title}
-          </span>
+          <span className="text-slate-600 truncate">{currentProduct.title}</span>
         </nav>
 
         {/* Product Heading Info */}
@@ -123,19 +147,25 @@ export default function ProductDetailsPage() {
                 <Star
                   key={i}
                   size={14}
-                  className="fill-current text-[#f5b300]"
+                  className={`fill-current ${
+                    i < Math.floor(currentProduct.rating)
+                      ? "text-[#f5b300]"
+                      : "text-slate-200"
+                  }`}
                 />
               ))}
-              <span className="text-slate-900 font-bold ml-1">3</span>
+              <span className="text-slate-900 font-bold ml-1">
+                {currentProduct.rating}
+              </span>
             </div>
 
             <span className="text-slate-500">
-              Sku: <strong className="text-slate-800">UGW7674051</strong>
+              Sku: <strong className="text-slate-800">{currentProduct.sku}</strong>
             </span>
 
             <span className="text-emerald-600 font-semibold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{" "}
-              In Stock
+              {currentProduct.inStock ? "In Stock" : "Out of Stock"}
             </span>
           </div>
         </div>
@@ -148,74 +178,79 @@ export default function ProductDetailsPage() {
               <span className="absolute top-4 left-4 bg-[#0062bd] text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-xs">
                 22%
               </span>
-              <div className="w-10/12 h-10/12 bg-slate-50 rounded-lg flex flex-col items-center justify-center text-slate-300 text-sm font-medium border border-slate-100 p-4 text-center">
-                <span className="text-lg font-bold text-slate-400 block mb-1">
-                  ZEREX BY VALVOLINE
-                </span>
-                Product Asset Large Image ({selectedImage + 1})
-              </div>
+
+              {imageGallery[selectedImage]?.startsWith("http") ? (
+                <img
+                  src={imageGallery[selectedImage]}
+                  alt={currentProduct.title}
+                  className="w-full h-full object-contain p-4"
+                />
+              ) : (
+                <div className="w-10/12 h-10/12 bg-slate-50 rounded-lg flex flex-col items-center justify-center text-slate-300 text-sm font-medium border border-slate-100 p-4 text-center">
+                  <span className="text-lg font-bold text-slate-400 block mb-1">
+                    {currentProduct.brand}
+                  </span>
+                  Product Asset Large Image ({selectedImage + 1})
+                </div>
+              )}
             </div>
 
             {/* Gallery Selector */}
-            <div className="flex gap-3">
-              {images.map((img, index) => (
+            <div className="flex gap-3 overflow-x-auto">
+              {imageGallery.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all ${
+                  className={`w-20 h-20 shrink-0 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all cursor-pointer ${
                     selectedImage === index
                       ? "border-[#006bc0] ring-1 ring-[#006bc0]"
                       : "border-slate-200"
                   }`}
                 >
-                  Asset {index + 1}
+                  {img?.startsWith("http") ? (
+                    <img
+                      src={img}
+                      alt="Thumbnail"
+                      className="w-full h-full object-cover rounded"
+                    />
+                  ) : (
+                    `Asset ${index + 1}`
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Right Column: Checkout Config Actions */}
+          {/* Right Column: Actions */}
           <div className="md:col-span-7 flex flex-col justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                High-quality additives protect against leaks and won't harm
-                gaskets, hoses, plastics or original vehicle finish
+              <p className="text-sm text-slate-600 mb-4 leading-relaxed line-clamp-3">
+                {currentProduct.description ||
+                  "High-quality additives protect against leaks and won't harm gaskets, hoses, plastics or original vehicle finish."}
               </p>
 
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-3xl font-bold text-[#00a062] tracking-tight">
-                  ${currentProduct.price.toFixed(2)}
+                  ${Number(currentProduct.price).toFixed(2)}
                 </span>
-                <span className="text-sm text-slate-400 line-through font-normal">
-                  ${currentProduct.oldPrice.toFixed(2)}
-                </span>
+                {currentProduct.oldPrice && (
+                  <span className="text-sm text-slate-400 line-through font-normal">
+                    ${Number(currentProduct.oldPrice).toFixed(2)}
+                  </span>
+                )}
               </div>
 
               {/* Live Status Box */}
-              <div className="flex bg-[#FFF1E6] text-orange-600 text-xs p-3 mb-4 items-center gap-2">
+              <div className="flex bg-[#FFF1E6] text-orange-600 text-xs p-3 mb-4 items-center gap-2 rounded-lg">
                 <span className="shrink-0 flex items-center">
                   <MiniCart size={14} />
                 </span>
                 <p className="leading-tight">
                   This product has been added to{" "}
-                  <strong className="text-orange-600 font-bold">
-                    3 people's
-                  </strong>{" "}
+                  <strong className="text-orange-600 font-bold">3 people's</strong>{" "}
                   carts.
                 </p>
-              </div>
-
-              {/* Vehicle Check Widget */}
-              <div className="bg-[#FFF1E6] border-b-2 border-orange-400 p-3 text-xs mb-5 flex items-center justify-between text-slate-700">
-                <span className="flex items-center gap-1.5">
-                  <span>
-                    <span className="underline font-medium cursor-pointer">
-                      Check
-                    </span>{" "}
-                    if this fits your vehicle.
-                  </span>
-                </span>
               </div>
 
               {/* Operations row */}
@@ -295,38 +330,20 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            {/* Direct Contact Banner */}
-            <div className="flex items-center gap-3 text-[#008552] rounded-xl p-3 mb-6 text-xs">
-              <div className="p-2 bg-white rounded-lg text-[#00a062] shrink-0 flex items-center">
-                <Call />
-              </div>
-              <div>
-                <p className="text-slate-500 text-[11px]">
-                  Our customer representative is waiting for you.
-                </p>
-                <p className="font-semibold text-slate-900 text-sm">
-                  Call for immediate assistance at{" "}
-                  <span className="text-black font-bold underline">
-                    1-212-600-0600
-                  </span>
-                </p>
-              </div>
-            </div>
-
             {/* Social Share Grid & Metadata Tags */}
             <div className="flex items-center justify-between text-xs border-t border-slate-100 pt-4">
               <div className="flex items-center gap-2">
                 <span className="text-slate-800">Share:</span>
-                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-600 transition-colors">
+                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors">
                   <Facebook />
                 </span>
-                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-600 transition-colors">
+                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors">
                   <Twitter />
                 </span>
-                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-600 transition-colors">
+                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors">
                   <Pinterest />
                 </span>
-                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-600 transition-colors">
+                <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors">
                   <Whatsapp />
                 </span>
               </div>
@@ -334,69 +351,26 @@ export default function ProductDetailsPage() {
                 <p>
                   <span className="text-slate-400">Category:</span>{" "}
                   <span className="font-semibold text-slate-800">
-                    Oils and fluids
+                    {currentProduct.category}
                   </span>
                 </p>
                 <p>
                   <span className="text-slate-400">Brand:</span>{" "}
-                  <span className="font-semibold text-slate-800">Castrol</span>
+                  <span className="font-semibold text-slate-800">
+                    {currentProduct.brand}
+                  </span>
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Triple Action Value Blocks */}
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-4 mb-10">
-          <div className="border border-slate-100 rounded-lg p-2 md:p-4 flex flex-col items-center text-center bg-slate-50/50">
-            <Truck
-              size={18}
-              className="text-slate-800 mb-1 md:mb-2 md:w-6 md:h-6"
-            />
-            <h5 className="text-[11px] md:text-xs font-bold text-slate-900 leading-tight md:mb-1">
-              Fast Shipping
-            </h5>
-            <p className="hidden md:block text-[11px] text-slate-400 max-w-xs leading-relaxed">
-              Integer mattis ultrices augue, ac bibendum arcu viverra vel. Etiam
-              eu facilisis velit.
-            </p>
-          </div>
-
-          <div className="border border-slate-100 rounded-lg p-2 md:p-4 flex flex-col items-center text-center bg-slate-50/50">
-            <RefreshCw
-              size={18}
-              className="text-slate-800 mb-1 md:mb-2 md:w-6 md:h-6"
-            />
-            <h5 className="text-[11px] md:text-xs font-bold text-slate-900 leading-tight md:mb-1">
-              Easy Return
-            </h5>
-            <p className="hidden md:block text-[11px] text-slate-400 max-w-xs leading-relaxed">
-              Integer mattis ultrices augue, ac bibendum arcu viverra vel. Etiam
-              eu facilisis velit.
-            </p>
-          </div>
-
-          <div className="border border-slate-100 rounded-lg p-2 md:p-4 flex flex-col items-center text-center bg-slate-50/50">
-            <ShieldCheck
-              size={18}
-              className="text-slate-800 mb-1 md:mb-2 md:w-6 md:h-6"
-            />
-            <h5 className="text-[11px] md:text-xs font-bold text-slate-900 leading-tight md:mb-1">
-              Warranty Policy
-            </h5>
-            <p className="hidden md:block text-[11px] text-slate-400 max-w-xs leading-relaxed">
-              Integer mattis ultrices augue, ac bibendum arcu viverra vel. Etiam
-              eu facilisis velit.
-            </p>
-          </div>
-        </div>
-
-        {/* Tabbed Interactive Information Workspace */}
+        {/* Tabbed Workspace */}
         <div className="border-t border-slate-200 pt-6 mb-12">
           <div className="flex gap-6 border-b border-slate-100 mb-4 text-sm font-medium">
             <button
               onClick={() => setActiveTab("description")}
-              className={`pb-2 transition-all ${
+              className={`pb-2 transition-all cursor-pointer ${
                 activeTab === "description"
                   ? "text-[#006bc0] border-b-2 border-[#006bc0] font-semibold"
                   : "text-slate-400 hover:text-slate-600"
@@ -406,7 +380,7 @@ export default function ProductDetailsPage() {
             </button>
             <button
               onClick={() => setActiveTab("info")}
-              className={`pb-2 transition-all ${
+              className={`pb-2 transition-all cursor-pointer ${
                 activeTab === "info"
                   ? "text-[#006bc0] border-b-2 border-[#006bc0] font-semibold"
                   : "text-slate-400 hover:text-slate-600"
@@ -416,7 +390,7 @@ export default function ProductDetailsPage() {
             </button>
             <button
               onClick={() => setActiveTab("reviews")}
-              className={`pb-2 transition-all ${
+              className={`pb-2 transition-all cursor-pointer ${
                 activeTab === "reviews"
                   ? "text-[#006bc0] border-b-2 border-[#006bc0] font-semibold"
                   : "text-slate-400 hover:text-slate-600"
@@ -426,33 +400,12 @@ export default function ProductDetailsPage() {
             </button>
           </div>
 
-          {/* Description Panel */}
           <div className="text-xs text-slate-500 leading-relaxed space-y-4">
             {activeTab === "description" && (
               <div>
-                <div className={!isExpanded ? "line-clamp-2" : ""}>
-                  <p className="mb-2">
-                    Quisque varius diam vel metus mattis, id aliquam diam
-                    rhoncus. Proin vitae magna in dui finibus malesuada et at
-                    nulla. Morbi elit ex, viverra vitae ante vel, blandit
-                    feugiat ligula. Fusce fermentum iaculis nibh, at sodales leo
-                    maximus a. Nullam ultricies sodales nunc, in pellentesque
-                    lorem mattis quis. Cras imperdiet est in nunc tristique
-                    lacinia. Nullam aliquam mauris eu accumsan tincidunt.
-                    Suspendisse velit ex, aliquet vel ornare vel, dignissim a
-                    tortor.
-                  </p>
-                  <p>
-                    Morbi ut sapien vitae odio accumsan gravida. Morbi vitae
-                    erat auctor, eleifend nunc a, lobortis neque. Praesent
-                    aliquam dissim viverra. Maecenas lacus odio, feugiat eu nunc
-                    sit amet, maximus sagittis dolor. Vivamus nisi sapien,
-                    elementum sit amet eros sit amet, ultricies cursus ipsum.
-                    Sed consequat luctus ligula. Curabitur laoreet rhoncus
-                    blandit.
-                  </p>
+                <div className={!isExpanded ? "line-clamp-3" : ""}>
+                  <p>{currentProduct.description || "No full description provided."}</p>
                 </div>
-
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
                   className="mt-2 text-[#006bc0] font-semibold hover:underline text-xs flex items-center gap-1 focus:outline-none cursor-pointer"
@@ -461,40 +414,39 @@ export default function ProductDetailsPage() {
                 </button>
               </div>
             )}
-
             {activeTab === "info" && (
               <p className="text-slate-600">
-                Product dimensions, manufacturing standards, and chemical safety
-                information listings reside here.
+                Specifications for SKU {currentProduct.sku} under category{" "}
+                {currentProduct.category}.
               </p>
             )}
-
             {activeTab === "reviews" && (
               <p className="text-slate-600">
-                Customer feedback profiles and historic validation logs are
-                listed within this area panel.
+                Customer feedback profiles and historic validation logs for{" "}
+                {currentProduct.title}.
               </p>
             )}
           </div>
         </div>
 
         {/* Related Products Section */}
-        <div>
-          <h3 className="text-base font-bold text-slate-900 mb-4">
-            Related products
-          </h3>
-
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin md:grid md:grid-cols-3 lg:grid-cols-5 md:overflow-visible md:pb-0">
-            {relatedProducts.map((prod) => (
-              <div
-                key={prod.id}
-                className="min-w-[220px] w-[20vw] sm:w-[260px] md:w-auto shrink-0 snap-start"
-              >
-                <ProductCard product={prod} viewMode="grid" />
-              </div>
-            ))}
+        {relatedProducts.length > 0 && (
+          <div>
+            <h3 className="text-base font-bold text-slate-900 mb-4">
+              Related products
+            </h3>
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin md:grid md:grid-cols-3 lg:grid-cols-5 md:overflow-visible md:pb-0">
+              {relatedProducts.map((prod) => (
+                <div
+                  key={prod.id}
+                  className="min-w-[220px] w-[20vw] sm:w-[260px] md:w-auto shrink-0 snap-start"
+                >
+                  <ProductCard product={prod} viewMode="grid" />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

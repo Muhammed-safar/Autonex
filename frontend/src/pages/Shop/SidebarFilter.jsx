@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { SlidersHorizontal, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useCategories } from "../../hooks/categories/useCategories.js";
+import { useBrands } from "../../hooks/brands/useBrands.js";
 
 export default function SidebarFilter({
   selectedCategories,
@@ -14,31 +16,11 @@ export default function SidebarFilter({
 }) {
   const [isOpenMobile, setIsOpenMobile] = useState(false);
 
-  const categories = [
-    "Air Condition", "Bearings", "Body", "Brakes", "Car Accessories", 
-    "Engine", "Engine cooling system", "Engine oil", "Filters", "Gearbox",
-    "Headlights & Lighting", "Oils and fluids", "Repair Kits", "Steering", 
-    "Tires & Wheels", "Tools & Equipment"
-  ];
+  const { data: categoryData } = useCategories();
+const { data: brandData } = useBrands();
 
-  const colors = [
-    { name: "Black", class: "bg-black", count: 8 },
-    { name: "Blue", class: "bg-blue-600", count: 5 },
-    { name: "Brown", class: "bg-amber-700", count: 5 },
-    { name: "Gray", class: "bg-slate-400", count: 3 },
-    { name: "Green", class: "bg-emerald-500", count: 3 },
-    { name: "Red", class: "bg-red-500", count: 5 },
-    { name: "Yellow", class: "bg-yellow-400", count: 6 },
-  ];
-
-  const brands = [
-    { name: "AKKON", count: 2 },
-    { name: "AutoShack", count: 4 },
-    { name: "Castrol", count: 2 },
-    { name: "Goodyear", count: 6 },
-    { name: "Spyder", count: 7 },
-    { name: "Yokohama", count: 3 }
-  ];
+const categories = categoryData?.data || [];
+const brands = brandData?.data || [];
 
   // Active filters count for mobile badge
   const activeFilterCount = 
@@ -48,20 +30,20 @@ export default function SidebarFilter({
     (statusFilters.onSale ? 1 : 0) + 
     (priceRange.min > 0 || priceRange.max < 860 ? 1 : 0);
 
-  const handleCategoryToggle = (category) => {
+  const handleCategoryToggle = (categoryId) => {
     setSelectedCategories((prev) => 
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(categoryId)
+        ? prev.filter((c) => c !== categoryId)
+        : [...prev, categoryId]
     );
     onFilterChange?.();
   };
 
-  const handleBrandToggle = (brandName) => {
+  const handleBrandToggle = (brandId) => {
     setSelectedBrands((prev) => 
-      prev.includes(brandName)
-        ? prev.filter((b) => b !== brandName)
-        : [...prev, brandName]
+      prev.includes(brandId)
+        ? prev.filter((b) => b !== brandId)
+        : [...prev, brandId]
     );
     onFilterChange?.();
   };
@@ -93,6 +75,7 @@ export default function SidebarFilter({
 
   const minPercent = (priceRange.min / 860) * 100;
   const maxPercent = (priceRange.max / 860) * 100;
+
 
   return (
     <div className="w-full select-none">
@@ -155,11 +138,11 @@ export default function SidebarFilter({
               <label key={idx} className="flex items-center gap-3 text-xs text-slate-600 cursor-pointer hover:text-[#006bc0] transition-colors">
                 <input 
                   type="checkbox" 
-                  checked={selectedCategories.includes(cat)}
-                  onChange={() => handleCategoryToggle(cat)}
+                  checked={selectedCategories.includes(cat._id)}
+                  onChange={() => handleCategoryToggle(cat._id)}
                   className="rounded border-slate-300 text-[#006bc0] focus:ring-[#006bc0]/20 w-3.5 h-3.5 cursor-pointer" 
                 />
-                <span className={`flex-1 ${selectedCategories.includes(cat) ? "text-[#006bc0] font-semibold" : ""}`}>{cat}</span>
+                <span className={`flex-1 ${selectedCategories.includes(cat._id) ? "text-[#006bc0] font-semibold" : ""}`}>{cat.name}</span>
               </label>
             ))}
           </div>
@@ -208,21 +191,7 @@ export default function SidebarFilter({
           </div>
         </div>
 
-        {/* Filter by Color */}
-        <div>
-          <h3 className="font-bold text-xs sm:text-sm text-slate-900 mb-3 pb-1 border-b border-slate-100">Filter by Color</h3>
-          <div className="space-y-2.5">
-            {colors.map((color, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs text-slate-600 cursor-pointer hover:text-[#006bc0] transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <span className={`w-3.5 h-3.5 rounded-full ${color.class} inline-block border border-black/5`}></span>
-                  <span>{color.name}</span>
-                </div>
-                <span className="text-[10px] text-slate-400">({color.count})</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      
 
         {/* Brands */}
         <div>
@@ -233,11 +202,11 @@ export default function SidebarFilter({
                 <div className="flex items-center gap-3">
                   <input 
                     type="checkbox" 
-                    checked={selectedBrands.includes(brand.name)}
-                    onChange={() => handleBrandToggle(brand.name)}
+                    checked={selectedBrands.includes(brand._id)}
+                    onChange={() => handleBrandToggle(brand._id)}
                     className="rounded border-slate-300 text-[#006bc0] focus:ring-[#006bc0]/20 w-3.5 h-3.5 cursor-pointer" 
                   />
-                  <span className={selectedBrands.includes(brand.name) ? "text-[#006bc0] font-semibold" : ""}>{brand.name}</span>
+                  <span className={selectedBrands.includes(brand._id) ? "text-[#006bc0] font-semibold" : ""}>{brand.name}</span>
                 </div>
                 <span className="text-[10px] text-slate-400">({brand.count})</span>
               </label>

@@ -8,9 +8,9 @@ import {
   X,
   Eye,
 } from "lucide-react";
-import { useUsers } from "../../hooks/mutations/useUsers";
-import useDebounce from "../../hooks/useDebounce"; // Adjust path as needed
-import DashboardSkeleton from "../layout.jsx/DashboardSkeleton";
+import { useUsers } from "../../../hooks/mutations/useUsers";
+import useDebounce from "../../../hooks/useDebounce"; // Adjust path as needed
+import DashboardSkeleton from "../../layout.jsx/DashboardSkeleton";
 import UserDetailsModal from "./UserDetailsModal"; // Import User Details Modal
 
 const UsersView = () => {

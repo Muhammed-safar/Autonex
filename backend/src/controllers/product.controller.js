@@ -74,74 +74,112 @@ export const getProducts = async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit = 12,
       search,
       category,
       brand,
       featured,
       active,
+      inStock,
+      onSale,
       minPrice,
       maxPrice,
-      sortBy = "createdAt",
+      sortBy = "displayPriority",
       order = "desc",
     } = req.query;
 
-    const currentPage = Number(page);
-    const pageLimit = Number(limit);
+    const currentPage = Math.max(1, Number(page) || 1);
+    const pageLimit = Math.max(1, Number(limit) || 12);
 
     const matchStage = {};
 
-    // Search
-    if (search) {
+    // 1. Text Search
+    if (search && search.trim() !== "") {
       matchStage.name = {
-        $regex: search,
+        $regex: search.trim(),
         $options: "i",
       };
     }
 
-    // Category
-    if (category) {
-      matchStage.category = new mongoose.Types.ObjectId(category);
+    // Helper function to safely cast valid Mongo ObjectIDs
+    const parseValidObjectIds = (param) => {
+      if (!param) return [];
+      const ids = Array.isArray(param) ? param : param.split(",");
+      return ids
+        .map((id) => id.trim())
+        .filter((id) => mongoose.Types.ObjectId.isValid(id))
+        .map((id) => new mongoose.Types.ObjectId(id));
+    };
+
+    // 2. Safe Category Filter (Single ID or Comma-Separated IDs)
+    const categoryIds = parseValidObjectIds(category);
+    if (categoryIds.length > 0) {
+      matchStage.category =
+        categoryIds.length === 1 ? categoryIds[0] : { $in: categoryIds };
     }
 
-    // Brand
-    if (brand) {
-      matchStage.brand = new mongoose.Types.ObjectId(brand);
+    // 3. Safe Brand Filter (Single ID or Comma-Separated IDs)
+    const brandIds = parseValidObjectIds(brand);
+    if (brandIds.length > 0) {
+      matchStage.brand =
+        brandIds.length === 1 ? brandIds[0] : { $in: brandIds };
     }
 
-    // Featured
-    if (featured !== undefined) {
+    // 4. Featured Flag
+    if (featured !== undefined && featured !== "") {
       matchStage.isFeatured = featured === "true";
     }
 
-    // Active
-    if (active !== undefined) {
+    // 5. Active Flag
+    if (active !== undefined && active !== "") {
       matchStage.isActive = active === "true";
     }
 
-    // Price Range
-    if (minPrice || maxPrice) {
-      matchStage.basePrice = {};
-
-      if (minPrice) {
-        matchStage.basePrice.$gte = Number(minPrice);
-      }
-
-      if (maxPrice) {
-        matchStage.basePrice.$lte = Number(maxPrice);
-      }
+    // 6. In-Stock Filter (Matches product stock > 0)
+    if (inStock === "true") {
+      matchStage.stock = { $gt: 0 };
     }
 
+    // 7. On-Sale Filter (Matches discountPrice > 0)
+    if (onSale === "true") {
+      matchStage.discountPrice = { $gt: 0 };
+    }
+
+    // 8. Safe Price Range Filter
+    const minP = Number(minPrice);
+    const maxP = Number(maxPrice);
+    if (!isNaN(minP) || !isNaN(maxP)) {
+      matchStage.price = {};
+      if (!isNaN(minP) && minP >= 0) matchStage.price.$gte = minP;
+      if (!isNaN(maxP) && maxP > 0) matchStage.price.$lte = maxP;
+    }
+
+    // 9. Sorting Stage
+    const allowedSortFields = [
+      "createdAt",
+      "price",
+      "rating",
+      "totalSold",
+      "name",
+      "displayPriority",
+    ];
+
+    const validSortBy = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : "displayPriority";
+
     const sortStage = {
-      [sortBy]: order === "asc" ? 1 : -1,
+      [validSortBy]: order === "asc" ? 1 : -1,
     };
 
-    const result = await Product.aggregate([
-      {
-        $match: matchStage,
-      },
+    // Fallback sort for consistent pagination
+    if (validSortBy !== "createdAt") {
+      sortStage.createdAt = -1;
+    }
 
-      // Brand Join
+    // 10. Execute Aggregation Pipeline
+    const result = await Product.aggregate([
+      { $match: matchStage },
       {
         $lookup: {
           from: "brands",
@@ -150,15 +188,12 @@ export const getProducts = async (req, res) => {
           as: "brand",
         },
       },
-
       {
         $unwind: {
           path: "$brand",
           preserveNullAndEmptyArrays: true,
         },
       },
-
-      // Category Join
       {
         $lookup: {
           from: "categories",
@@ -167,100 +202,40 @@ export const getProducts = async (req, res) => {
           as: "category",
         },
       },
-
       {
         $unwind: {
           path: "$category",
           preserveNullAndEmptyArrays: true,
         },
       },
-
       {
         $facet: {
           products: [
-            {
-              $sort: sortStage,
-            },
-            {
-              $skip: (currentPage - 1) * pageLimit,
-            },
-            {
-              $limit: pageLimit,
-            },
+            { $sort: sortStage },
+            { $skip: (currentPage - 1) * pageLimit },
+            { $limit: pageLimit },
           ],
-
-          totalCount: [
-            {
-              $count: "count",
-            },
-          ],
-
-          activeProducts: [
-            {
-              $match: {
-                isActive: true,
-              },
-            },
-            {
-              $count: "count",
-            },
-          ],
-
-          inactiveProducts: [
-            {
-              $match: {
-                isActive: false,
-              },
-            },
-            {
-              $count: "count",
-            },
-          ],
-
-          featuredProducts: [
-            {
-              $match: {
-                isFeatured: true,
-              },
-            },
-            {
-              $count: "count",
-            },
-          ],
+          totalCount: [{ $count: "count" }],
         },
       },
     ]);
 
-    const products = result[0].products;
-
-    const total = result[0].totalCount[0]?.count || 0;
-
-    const activeProducts = result[0].activeProducts[0]?.count || 0;
-
-    const inactiveProducts = result[0].inactiveProducts[0]?.count || 0;
-
-    const featuredProducts = result[0].featuredProducts[0]?.count || 0;
+    const facetData = result[0] || {};
+    const products = facetData.products || [];
+    const total = facetData.totalCount?.[0]?.count || 0;
 
     res.status(200).json({
       success: true,
-
-      stats: {
-        totalProducts: total,
-        activeProducts,
-        inactiveProducts,
-        featuredProducts,
-      },
-
       pagination: {
         total,
         currentPage,
-        totalPages: Math.ceil(total / pageLimit),
+        totalPages: Math.ceil(total / pageLimit) || 1,
         limit: pageLimit,
       },
-
       data: products,
     });
   } catch (error) {
+    console.error("Error in getProducts:", error);
     res.status(500).json({
       success: false,
       message: error.message,
