@@ -7,11 +7,12 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { useDashboardStats } from "../../hooks/dashboard/useDashboardStatus";
+import DashboardSkeleton from "../layout.jsx/DashboardSkeleton";
 
 export default function Dashboard() {
   const { data, isLoading, isError, error } = useDashboardStats();
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <DashboardSkeleton/>
 
   if (isError) return <p>{error.message}</p>;
 

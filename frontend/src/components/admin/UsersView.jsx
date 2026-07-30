@@ -7,6 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useUsers } from "../../hooks/mutations/useUsers";
+import DashboardSkeleton from "../layout.jsx/DashboardSkeleton";
 
 export default function UsersView() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +36,14 @@ export default function UsersView() {
       setCurrentPage(newPage);
     }
   };
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (error) {
+    return <h2>Failed to load categories.</h2>;
+  }
 
   return (
     <div className="space-y-4 sm:space-y-5 font-sans">

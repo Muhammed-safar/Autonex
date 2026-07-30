@@ -55,12 +55,18 @@ export const createCategory = async (req, res) => {
 
 export const getAllCategories = async (req, res) => {
   try {
-    const categories = await getAllCategoriesService();
+    const { page = 1, limit = 10, search = "" } = req.query;
+
+    const result = await getAllCategoriesService({
+      page: Number(page),
+      limit: Number(limit),
+      search,
+    });
 
     res.status(200).json({
       success: true,
-      count: categories.length,
-      data: categories,
+      data: result.categories,
+      pagination: result.pagination,
     });
   } catch (error) {
     res.status(500).json({

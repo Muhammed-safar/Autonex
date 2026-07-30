@@ -11,6 +11,7 @@ import {
 import { useBrands } from "../../hooks/brands/useBrands.js";
 import { useDeleteBrand } from "../../hooks/brands/useDeleteBrand.js";
 import BrandModal from "./BrandModal.jsx";
+import DashboardSkeleton from "../layout.jsx/DashboardSkeleton.jsx";
 
 const DEFAULT_LIMIT = 10;
 
@@ -59,7 +60,7 @@ export default function Brands() {
     }
   };
 
-  if (isLoading) return <h2>Loading...</h2>;
+  if (isLoading) return <DashboardSkeleton/>;
   if (error) return <h2>Failed to load brands.</h2>;
 
   return (

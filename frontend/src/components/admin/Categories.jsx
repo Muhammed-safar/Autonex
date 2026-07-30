@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
 import {
   Plus,
   FolderTree,
@@ -6,40 +6,49 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Search,
+  X,
 } from "lucide-react";
 
 import { useDeleteCategory } from "../../hooks/categories/useDeleteCategory.js";
 import { useCategories } from "../../hooks/categories/useCategories.js";
 import CategoryModal from "./CategoryModal.jsx";
+import DashboardSkeleton from "../layout.jsx/DashboardSkeleton.jsx";
+import useDebounce from "../../hooks/useDebounce.js";
 
-const ITEMS_PER_PAGE = 10;
 
 export default function Categories() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Pass current page to hook in case backend handles server-side pagination
-  const { data, isLoading, error } = useCategories({ page });
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
+  // Pass current page and search parameter to hook (in case backend handles both)
+  const { data, isLoading, error } = useCategories({
+    page,
+    search: debouncedSearch,
+  });
   const deleteMutation = useDeleteCategory();
 
   const categoriesList = data?.data || [];
 
-  // Calculate pagination stats (handles both server-side and client-side responses)
-  const totalItems =
-    data?.pagination?.total ?? data?.count ?? categoriesList.length;
-  const totalPages =
-    data?.pagination?.totalPages ??
-    Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-  const currentPage = data?.pagination?.currentPage ?? page;
+  const totalItems = data?.pagination?.total ?? 0;
+  const totalPages = data?.pagination?.totalPages ?? 1;
+  const currentPage = data?.pagination?.currentPage ?? 1;
 
-  // Perform client-side slicing ONLY if backend returns all items without pagination
-  const displayedCategories = data?.pagination
-    ? categoriesList
-    : categoriesList.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE,
-      );
+  const displayedCategories = categoriesList;
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(1); // Reset to page 1 on new search query
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
+  };
 
   const handleAddClick = () => {
     setEditingCategory(null);
@@ -64,7 +73,7 @@ export default function Categories() {
   };
 
   if (isLoading) {
-    return <h2>Loading...</h2>;
+    return <DashboardSkeleton />;
   }
 
   if (error) {
@@ -76,12 +85,37 @@ export default function Categories() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h3 className="font-bold text-slate-700 text-sm">Product Categories</h3>
-        <button
-          onClick={handleAddClick}
-          className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition"
-        >
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Search Bar */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="Search categories..."
+              className="w-full text-xs pl-9 pr-8 py-2 rounded-lg border border-slate-200 bg-white placeholder-slate-400 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0066B2]/20 focus:border-[#0066B2] transition"
+            />
+            {searchTerm && (
+              <button
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Add Category Button */}
+          <button
+            onClick={handleAddClick}
+            className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
       {/* Table Container */}
@@ -103,7 +137,9 @@ export default function Categories() {
                     colSpan={4}
                     className="p-8 text-center text-xs text-slate-500"
                   >
-                    No categories found.
+                    {searchTerm
+                      ? `No categories matching "${searchTerm}".`
+                      : "No categories found."}
                   </td>
                 </tr>
               ) : (

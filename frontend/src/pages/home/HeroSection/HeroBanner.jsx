@@ -2,16 +2,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const HeroBanner = () => {
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <div>
       <section className="relative bg-[#1A232E] text-white overflow-hidden py-12 lg:py-16">
         {/* Background Image Overlay */}
         <div
-          className="absolute inset-0 bg-cover bg-right bg-no-repeat opacity-25 pointer-events-none"
+          className="absolute inset-0 bg-cover bg-right bg-no-repeat  pointer-events-none"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=1200')`,
+            backgroundImage: `url('https://res.cloudinary.com/p61kdb2x/image/upload/v1785214232/banner-07.jpg_iihmve.jpg')`,
           }}
         />
 
@@ -34,9 +33,10 @@ const HeroBanner = () => {
               </p>
 
               <div>
-                <button 
-                onClick={()=> navigate("/shop")}
-                 className="bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm px-6 py-3 rounded-md transition-all shadow-md active:scale-95">
+                <button
+                  onClick={() => navigate("/shop")}
+                  className="bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-sm px-6 py-3 rounded-md transition-all shadow-md active:scale-95"
+                >
                   View All Products
                 </button>
               </div>
@@ -51,7 +51,6 @@ const HeroBanner = () => {
             </div>
 
             {/* Right Column: Vehicle Part Finder Form */}
-           
           </div>
         </div>
       </section>

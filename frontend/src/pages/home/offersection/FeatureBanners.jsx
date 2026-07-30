@@ -78,90 +78,121 @@ const FeatureBanners = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
-      {/* 
-        LAYOUT CONTROLLER:
-        - Mobile (< sm): 1 Card visible (w-full) + Scroll
-        - Tablet (md): 2 Cards visible (w-[calc(50%-8px)]) + Scroll
-        - Desktop (lg): 3 Columns Grid (lg:grid lg:grid-cols-3)
-      */}
-      <div
-        ref={scrollContainerRef}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => setIsPaused(false)}
-        className="flex lg:grid lg:grid-cols-3 gap-4 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory scroll-smooth no-scrollbar"
-      >
-        {banners.map((banner) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* CARD 1 */}
+        <div className="relative h-[520px] rounded-[28px] overflow-hidden shadow-lg group cursor-pointer">
+          {/* Background */}
           <div
-            key={banner.id}
-            /* 
-              Responsive Card Widths:
-              - Mobile: w-full (Fits 1 card)
-              - Tablet: md:w-[calc(50%-8px)] (Fits 2 cards)
-              - Desktop: lg:w-full (Grid mode)
-            */
-            className={`w-full md:w-[calc(50%-8px)] lg:w-full shrink-0 lg:shrink snap-start relative rounded-2xl overflow-hidden min-h-[380px] sm:min-h-[420px] flex flex-col justify-between p-6 sm:p-8 bg-gradient-to-b ${banner.bgGradient} shadow-sm border border-gray-100/10 group cursor-pointer`}
-          >
-            {/* Background Texture / Image Overlay */}
-            <div className="absolute inset-0 z-0 opacity-40 mix-blend-overlay group-hover:scale-105 transition-transform duration-700 ease-out">
-              <img
-                src={banner.image}
-                alt={banner.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage:
+                "url('https://res.cloudinary.com/p61kdb2x/image/upload/v1785218474/banner-10.jpg_fv2uku.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "top center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
 
-            {/* TOP CONTENT SECTION */}
-            <div className="relative z-10 space-y-3">
-              {/* Tagline */}
-              <p
-                className={`text-[10px] sm:text-xs font-bold tracking-wider uppercase ${banner.taglineColor}`}
-              >
-                {banner.tagline}
-              </p>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10" />
 
-              {/* Title */}
-              <h2
-                className={`text-2xl sm:text-3xl font-extrabold leading-tight whitespace-pre-line ${banner.textColor}`}
-              >
-                {banner.title}
-              </h2>
+          {/* Content */}
+          <div className="absolute inset-0 z-10 px-8 pt-8">
+            <p className="uppercase tracking-[3px] text-xs font-semibold text-slate-500">
+              YOUR RIDE, OUR PARTS
+            </p>
 
-              {/* Subtitle */}
-              <p
-                className={`text-xs sm:text-sm font-medium ${banner.subtitleColor}`}
-              >
-                {banner.subtitle}
-              </p>
+            <h2 className="mt-3 text-slate-900 font-black text-4xl leading-[1.1] max-w-[380px]">
+              Save Your Vehicle.
+              <br />
+              Shop Smarter.
+            </h2>
 
-              {/* CTA Button */}
-              <div className="pt-2">
-                <button
-                  className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all transform active:scale-95 shadow-sm ${banner.btnStyle}`}
-                >
-                  {banner.btnText}
-                </button>
-              </div>
-            </div>
+            <p className="mt-4 text-slate-700 text-[15px] leading-6">
+              Get the part. Make the fix. Enjoy the drive.
+            </p>
 
-            {/* BOTTOM IMAGE CONTAINER */}
-            <div className="relative z-10 w-full h-36 sm:h-44 mt-4 flex items-end justify-center">
-              <img
-                src={banner.image}
-                alt={banner.title}
-                className="max-h-full max-w-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500 ease-out"
-              />
-            </div>
+            <button className="mt-6 rounded-full bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700">
+              Shop Now
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* Pagination Indicator Dots (Mobile & Tablet only) */}
-      <div className="flex lg:hidden justify-center items-center gap-1.5 mt-4">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#0066CC]"></span>
-        <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-        <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+        <div className="relative h-[520px] rounded-[28px] overflow-hidden shadow-lg group cursor-pointer">
+          {/* Background */}
+          <div
+            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage:
+                "url('https://res.cloudinary.com/p61kdb2x/image/upload/v1785218782/banner-11.jpg_onsnvn.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "top center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10" />
+
+          {/* Content */}
+          <div className="absolute inset-0 z-10 px-8 pt-8">
+            <p className="uppercase tracking-[3px] text-xs font-semibold text-white">
+              YOUR RIDE, OUR PARTS
+            </p>
+
+            <h2 className="mt-3 text-white font-black text-4xl leading-[1.1] max-w-[380px]">
+              Save Your Vehicle.
+              <br />
+              Shop Smarter.
+            </h2>
+
+            <p className="mt-4 text-white  text-[15px] leading-6">
+              Get the part. Make the fix. Enjoy the drive.
+            </p>
+
+            <button className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200">
+              Shop Now
+            </button>
+          </div>
+        </div>
+
+        <div className="relative h-[520px] rounded-[28px] overflow-hidden shadow-lg group cursor-pointer">
+          {/* Background */}
+          <div
+            className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+            style={{
+              backgroundImage:
+                "url('https://res.cloudinary.com/p61kdb2x/image/upload/v1785218844/banner-12.jpg_vr9pha.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "top center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10" />
+
+          {/* Content */}
+          <div className="absolute inset-0 z-10 px-8 pt-8">
+            <p className="uppercase tracking-[3px] text-xs font-semibold text-white">
+              YOUR RIDE, OUR PARTS
+            </p>
+
+            <h2 className="mt-3 text-white font-black text-4xl leading-[1.1] max-w-[380px]">
+              Save Your Vehicle.
+              <br />
+              Shop Smarter.
+            </h2>
+
+            <p className="mt-4 text-white  text-[15px] leading-6">
+              Get the part. Make the fix. Enjoy the drive.
+            </p>
+
+            <button className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200">
+              Shop Now
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );

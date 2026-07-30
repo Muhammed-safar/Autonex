@@ -1,34 +1,40 @@
-import React from 'react';
-import { ArrowUpRight, Calendar, User } from 'lucide-react';
+import React from "react";
+import { ArrowUpRight, Calendar, User } from "lucide-react";
 
 const articles = [
   {
     id: 1,
     title: "Buying cheap used transmissions isn’t as risky as you think",
-    excerpt: "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+    excerpt:
+      "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
     author: "Sinan",
     date: "20 May 2025",
-    image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=800",
+    image:
+      "https://res.cloudinary.com/p61kdb2x/image/upload/v1785223498/Buying_cheap_used_transmissions_isn_t_as_risky_as_you_think_pom1yu.jpg",
     alt: "Changing wheel on a modern car",
     url: "#",
   },
   {
     id: 2,
     title: "What to Do When Your Car Parts Start Wearing Out",
-    excerpt: "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+    excerpt:
+      "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
     author: "Sinan",
     date: "20 May 2025",
-    image: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800",
+    image:
+      "https://res.cloudinary.com/p61kdb2x/image/upload/v1785223498/What_to_Do_When_Your_Car_Parts_Start_Wearing_Out_ju8xu5.jpg",
     alt: "Mechanic inspecting under car hood",
     url: "#",
   },
   {
     id: 3,
     title: "Top 10 Car Parts Every Driver Should Know About",
-    excerpt: "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+    excerpt:
+      "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
     author: "Sinan",
     date: "20 May 2025",
-    image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=80&w=800",
+    image:
+      "https://res.cloudinary.com/p61kdb2x/image/upload/v1785223497/304_aoit7a.jpg",
     alt: "Auto mechanic standing in garage",
     url: "#",
   },
@@ -61,7 +67,10 @@ export default function LatestNews() {
       {/* 1 column on mobile -> 2 columns on tablet -> 3 columns on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
         {articles.map((article) => (
-          <article key={article.id} className="group flex flex-col cursor-pointer">
+          <article
+            key={article.id}
+            className="group flex flex-col cursor-pointer"
+          >
             {/* Image Container with Zoom Effect */}
             <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-100 mb-4">
               <img
@@ -86,7 +95,10 @@ export default function LatestNews() {
               <div className="mt-4 pt-2 flex items-center gap-3 text-xs text-slate-400 font-medium">
                 <span className="inline-flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-slate-400" />
-                  by <strong className="font-semibold text-slate-700">{article.author}</strong>
+                  by{" "}
+                  <strong className="font-semibold text-slate-700">
+                    {article.author}
+                  </strong>
                 </span>
                 <span>&bull;</span>
                 <span className="inline-flex items-center gap-1.5">

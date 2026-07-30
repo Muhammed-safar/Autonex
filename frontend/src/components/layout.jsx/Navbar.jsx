@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -12,11 +11,10 @@ import {
   Car,
   X,
   Warehouse, // Placeholder if custom Garage icon is not available
-  LayoutDashboard,
 } from "lucide-react";
 import { Garage } from "../../assets/icon.js";
-
 import Logo from "../../assets/icons/AutonexLogo.png";
+import WhiteLogo from "../../assets/icons/WhiteLogo.png";
 
 const navItems = [
   {
@@ -48,22 +46,19 @@ const navItems = [
 ];
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-
   const [wishlistCount] = useState(0);
   const [cartCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="w-full bg-white font-sans">
       {/* ============ DESKTOP / TABLET ============ */}
 
       {/* 1. Top Utility Bar */}
-      <div className="hidden md:block bg-[#F3F5F7] border-b border-gray-200/60">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-[11px] text-gray-500 h-8">
+      <div className="hidden md:block bg-[#0067B2] border-b border-gray-200/60">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-[11px] text-white h-8">
           <div className="flex items-center gap-5">
             <Link to="/about" className="hover:text-gray-900 transition-colors">
               About Us
@@ -90,7 +85,7 @@ const Navbar = () => {
       </div>
 
       {/* 2. Main Header Row */}
-      <div className="hidden md:block bg-[#F3F5F7]">
+      <div className="hidden md:block bg-[#0067B2]">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-6">
           {/* Logo */}
           <Link
@@ -98,48 +93,34 @@ const Navbar = () => {
             className="flex h-10 w-32 overflow-hidden items-center gap-2 shrink-0"
           >
             <img
-              src={Logo}
+              src={WhiteLogo}
               alt="Autonex"
               className="h-30 w-auto object-cover"
             />
           </Link>
 
           {/* Add Vehicle / My Garage */}
-          <NavLink to="/MyGaragePage">
-            {({ isActive }) => (
-              <div className="hidden lg:flex items-center gap-2.5 shrink-0 text-left">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                    isActive
-                      ? "bg-blue-400 text-white"
-                      : "bg-gray-200/70 text-gray-600 hover:bg-gray-300/60"
-                  }`}
-                >
-                  <Warehouse size={18} />
-                </div>
-
-                <div className="text-xs">
-                  <span className="text-gray-400 block text-[10px] leading-tight">
-                    Add Vehicle
-                  </span>
-                  <span
-                    className={`font-bold text-xs transition-colors ${
-                      isActive ? "text-blue-500" : "text-gray-800"
-                    }`}
-                  >
-                    My Garage
-                  </span>
-                </div>
-              </div>
-            )}
-          </NavLink>
+          <button
+            onClick={() => navigate("/MyGaragePage")}
+            className="hidden lg:flex items-center gap-2.5 shrink-0 text-left"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#1977BB] border border-[#288ED8] flex items-center justify-center text-white">
+              <Warehouse size={18} />
+            </div>
+            <div className="text-xs">
+              <span className="text-white block text-[10px] leading-tight">
+                Add Vehicle
+              </span>
+              <span className="font-bold text-white text-xs">My Garage</span>
+            </div>
+          </button>
 
           {/* Search Bar */}
           <div className="flex-1 max-w-2xl relative">
             <input
               type="text"
               placeholder="Search popular products..."
-              className="w-full bg-white border border-gray-200 rounded-full py-2.5 pl-5 pr-11 text-xs text-gray-700 outline-none focus:border-blue-500 transition-colors shadow-sm"
+              className="w-full bg-white border border-gray-200 rounded-lg py-2.5 pl-5 pr-11 text-xs text-gray-700 outline-none focus:border-blue-500 transition-colors shadow-sm"
             />
             <button
               aria-label="Search"
@@ -152,14 +133,14 @@ const Navbar = () => {
           {/* Action Icons */}
           <div className="flex items-center gap-4 shrink-0">
             {/* Account */}
-            <NavLink to={isAuthenticated ? "/auth" : "/account"}>
+            <NavLink to="/account">
               {({ isActive }) => (
                 <div className="flex items-center gap-2 text-xs">
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                       isActive
-                        ? "bg-blue-400 text-white"
-                        : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                        ? "bg-[#288ED8] text-white"
+                        : "bg-[#1977BB] border border-[#288ED8] text-white hover:bg-gray-300/60"
                     }`}
                   >
                     <User size={18} />
@@ -168,7 +149,7 @@ const Navbar = () => {
                   <div className="text-left hidden xl:block">
                     <span
                       className={`block text-[10px] leading-tight ${
-                        isActive ? "text-blue-500" : "text-gray-400"
+                        isActive ? "text-blue-500" : "text-white"
                       }`}
                     >
                       Sign In
@@ -176,7 +157,7 @@ const Navbar = () => {
 
                     <span
                       className={`font-bold ${
-                        isActive ? "text-blue-600" : "text-gray-800"
+                        isActive ? "text-blue-600" : "text-white"
                       }`}
                     >
                       Account
@@ -192,8 +173,8 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                   isActive
-                    ? "bg-red-100 text-[#F43F5E]"
-                    : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-[#1977BB] border border-[#288ED8] text-white hover:bg-gray-300/60"
                 }`
               }
             >
@@ -201,7 +182,7 @@ const Navbar = () => {
                 <>
                   <Heart size={18} />
                   {!isActive && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-[#EAB308] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                       {wishlistCount}
                     </span>
                   )}
@@ -210,13 +191,14 @@ const Navbar = () => {
             </NavLink>
 
             {/* Compare */}
+            {/* Compare */}
             <NavLink
               to="/compare" // Change this to your route
               className={({ isActive }) =>
                 `relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                   isActive
                     ? "bg-blue-100 text-blue-600"
-                    : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                    : "bg-[#1977BB] border border-[#288ED8] text-white hover:bg-gray-300/60"
                 }`
               }
             >
@@ -233,8 +215,8 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                   isActive
-                    ? "bg-red-100 text-[#F43F5E]"
-                    : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-[#1977BB] border border-[#288ED8] text-white hover:bg-gray-300/60"
                 }`
               }
             >
@@ -243,7 +225,7 @@ const Navbar = () => {
                   <ShoppingCart size={18} />
 
                   {!isActive && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-[#EAB308] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
@@ -295,11 +277,11 @@ const Navbar = () => {
       {/* ============ MOBILE ============ */}
       <div className="md:hidden">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[#F3F5F7]">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#0067B2]">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="Open menu"
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-700"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-[#1977BB] border border-[#288ED8] text-white"
           >
             <Menu size={18} />
           </button>
@@ -309,7 +291,7 @@ const Navbar = () => {
             className="flex h-10 w-32 overflow-hidden items-center gap-2 shrink-0"
           >
             <img
-              src={Logo}
+              src={WhiteLogo}
               alt="Autonex"
               className="h-30 w-auto object-cover"
             />
@@ -320,8 +302,8 @@ const Navbar = () => {
             className={({ isActive }) =>
               `relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                 isActive
-                  ? "bg-red-100 text-[#F43F5E]"
-                  : "bg-gray-200/70 text-gray-700 hover:bg-gray-300/60"
+                  ? "bg-[#1977BB] border border-[#288ED8] text-white"
+                  : "bg-[#1977BB] border border-[#288ED8] text-white"
               }`
             }
           >
@@ -330,7 +312,7 @@ const Navbar = () => {
                 <ShoppingCart size={18} />
 
                 {!isActive && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-[#EAB308] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -340,8 +322,11 @@ const Navbar = () => {
         </div>
 
         {/* Quick action bar */}
-        <div className="grid grid-cols-2 divide-x divide-gray-200 border-y border-gray-200 text-xs font-semibold text-gray-700 bg-white">
-          <button className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50">
+        <div className="grid grid-cols-2 divide-x divide-gray-200 border-y border-gray-200 text-xs font-semibold text-[#0067B2] bg-white">
+          <button
+            onClick={() => navigate("/My-garage")}
+            className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50"
+          >
             <Warehouse size={15} />
             My Garage
           </button>
@@ -397,7 +382,7 @@ const Navbar = () => {
               <button
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close menu"
-                className="text-gray-500 hover:text-gray-800"
+                className="text-[#0067B2] hover:text-gray-800"
               >
                 <X size={20} />
               </button>
@@ -405,7 +390,7 @@ const Navbar = () => {
 
             <nav className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-1 text-xs text-gray-700">
               <NavLink
-                to={isAuthenticated ? "/auth" : "/account"}
+                to="/account"
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-3 py-2 font-medium"
               >

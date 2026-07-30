@@ -21,12 +21,11 @@ const ContactSection = () => {
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        
         {/* 1. LEFT PROMOTIONAL BANNER */}
         <div className="relative rounded-2xl overflow-hidden min-h-[420px] sm:min-h-[480px] flex flex-col justify-between p-6 sm:p-10 text-white shadow-sm">
           {/* Background Image */}
           <img
-            src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=1000"
+            src="https://res.cloudinary.com/p61kdb2x/image/upload/v1785223388/banner-13.jpg_yxm61k.jpg"
             alt="Spring Deals Banner"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
@@ -47,7 +46,8 @@ const ContactSection = () => {
             </h2>
 
             <p className="text-xs sm:text-sm text-gray-200 font-normal leading-relaxed pt-1">
-              Boost your vehicle's performance with top-tier parts made to last and built to move.
+              Boost your vehicle's performance with top-tier parts made to last
+              and built to move.
             </p>
           </div>
 
@@ -67,8 +67,9 @@ const ContactSection = () => {
                 Write us...
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed max-w-lg">
-                On dekande mydurtad mora även om skurkstat. Semirade timaheten rena.
-                Radiogen pasam inte loba även om prerade i garanterad traditionell specialitet till bebel.
+                On dekande mydurtad mora även om skurkstat. Semirade timaheten
+                rena. Radiogen pasam inte loba även om prerade i garanterad
+                traditionell specialitet till bebel.
               </p>
             </div>
 
@@ -146,7 +147,6 @@ const ContactSection = () => {
             </form>
           </div>
         </div>
-
       </div>
     </section>
   );

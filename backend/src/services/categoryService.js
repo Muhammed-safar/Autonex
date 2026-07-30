@@ -37,8 +37,8 @@ export const createCategoryService = async (data) => {
   });
 };
 
-export const getAllCategoriesService = async () => {
-  return await findAllCategories();
+export const getAllCategoriesService = async (filters) => {
+  return await findAllCategories(filters);
 };
 
 export const getActiveCategoriesService = async () => {

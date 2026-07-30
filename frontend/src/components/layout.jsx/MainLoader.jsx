@@ -12,7 +12,7 @@ const MainLoader = ({ onComplete }) => {
           clearInterval(timer);
           setTimeout(() => {
             setIsFading(true);
-            if (onComplete) setTimeout(onComplete, 500); // Trigger completion after fade transition
+            if (onComplete) setTimeout(onComplete, 500);
           }, 300);
           return 100;
         }

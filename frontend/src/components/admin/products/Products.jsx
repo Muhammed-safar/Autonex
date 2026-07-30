@@ -17,6 +17,7 @@ import { useDeleteProduct } from "../../../hooks/products/useDeleteProduct";
 
 import { useBrands } from "../../../hooks/brands/useBrands";
 import { useCategories } from "../../../hooks/categories/useCategories";
+import useDebounce from "../../../hooks/useDebounce.js";
 
 const Products = () => {
   const createProduct = useCreateProduct();
@@ -28,7 +29,12 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data: productsData } = useProducts({ search, page });
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { data: productsData } = useProducts({
+    search: debouncedSearch,
+    page,
+  });
   const { data: brandsData } = useBrands();
   const { data: categoriesData } = useCategories();
 
