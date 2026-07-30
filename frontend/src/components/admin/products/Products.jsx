@@ -6,9 +6,11 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 
 import ProductModal from "./ProductModal";
+import ProductDetailsModal from "./ProductDetailsModal"; // Import Details Modal
 
 import { useProducts } from "../../../hooks/products/useProducts";
 import { useCreateProduct } from "../../../hooks/products/useCreateProduct";
@@ -26,6 +28,11 @@ const Products = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+
+  // Details Modal State
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -54,6 +61,16 @@ const Products = () => {
     setPage(1); // Reset to first page on search
   };
 
+  const handleOpenDetails = (productId) => {
+    setSelectedProductId(productId);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedProductId(null);
+    setIsViewModalOpen(false);
+  };
+
   const handleSubmit = (values, removedImages) => {
     const formData = new FormData();
 
@@ -64,6 +81,7 @@ const Products = () => {
     formData.append("price", values.price);
     formData.append("discountPrice", values.discountPrice);
     formData.append("stock", values.stock);
+    formData.append("displayPriority", values.displayPriority);
     formData.append("brand", values.brand);
     formData.append("category", values.category);
     formData.append("isActive", values.isActive);
@@ -135,7 +153,7 @@ const Products = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col font-sans">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
             <thead className="bg-slate-50 border-b">
@@ -175,12 +193,26 @@ const Products = () => {
                 products.map((product) => (
                   <tr
                     key={product._id}
-                    className="border-b hover:bg-slate-50 text-xs"
+                    className="border-b hover:bg-slate-50 text-xs transition cursor-pointer"
+                    onClick={() => handleOpenDetails(product._id)}
                   >
                     <td className="p-4 font-medium text-slate-800">
-                      {product.name}
+                      <div className="flex items-center gap-2">
+                        {product.images?.[0]?.url && (
+                          <img
+                            src={product.images[0].url}
+                            alt=""
+                            className="w-7 h-7 rounded border border-slate-200 object-cover shrink-0"
+                          />
+                        )}
+                        <span className="hover:text-[#0066B2] transition font-semibold">
+                          {product.name}
+                        </span>
+                      </div>
                     </td>
-                    <td className="p-4 text-slate-600">{product.sku}</td>
+                    <td className="p-4 text-slate-600 font-mono text-[11px]">
+                      {product.sku}
+                    </td>
                     <td className="p-4 text-slate-600">
                       {product.category?.name || "-"}
                     </td>
@@ -190,19 +222,36 @@ const Products = () => {
                     <td className="p-4 text-slate-600">{product.stock}</td>
 
                     <td className="p-4">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
+                        {/* View Details Button */}
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDetails(product._id);
+                          }}
+                          title="View Details"
+                          className="p-2 hover:bg-slate-100 rounded text-slate-500 hover:text-[#0066B2] transition"
+                        >
+                          <Eye size={16} />
+                        </button>
+
+                        {/* Edit Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditingProduct(product);
                             setIsModalOpen(true);
                           }}
-                          className="p-2 hover:bg-slate-100 rounded text-slate-600"
+                          title="Edit Product"
+                          className="p-2 hover:bg-slate-100 rounded text-slate-600 transition"
                         >
                           <Edit size={16} />
                         </button>
 
+                        {/* Delete Button */}
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             if (
                               window.confirm(
                                 "Are you sure you want to delete this product?",
@@ -211,7 +260,8 @@ const Products = () => {
                               deleteProduct.mutate(product._id);
                             }
                           }}
-                          className="p-2 hover:bg-red-50 text-red-500 rounded"
+                          title="Delete Product"
+                          className="p-2 hover:bg-red-50 text-red-500 rounded transition"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -273,6 +323,7 @@ const Products = () => {
         )}
       </div>
 
+      {/* Product Form Modal (Create / Edit) */}
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -283,6 +334,13 @@ const Products = () => {
         initialData={editingProduct}
         brands={brands}
         categories={categories}
+      />
+
+      {/* Product Details Overview Modal */}
+      <ProductDetailsModal
+        productId={selectedProductId}
+        isOpen={isViewModalOpen}
+        onClose={handleCloseDetails}
       />
     </div>
   );

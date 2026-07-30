@@ -100,7 +100,7 @@ export const getAllUsers = async ({ page = 1, limit = 20, search = "" }) => {
 
 //get one 
 export const getUser = async (id) => {
-  const { data } = await API.get(`/users/${id}`);
+  const { data } = await API.get(`/auth/${id}`);
   return data;
 };
 

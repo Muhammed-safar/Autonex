@@ -95,11 +95,9 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    rating: {
+    displayPrioritydisplayPriority: {
       type: Number,
       default: 0,
-      min: 0,
-      max: 5,
     },
 
     images: [

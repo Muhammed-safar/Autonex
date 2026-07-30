@@ -24,7 +24,7 @@ const UserDetailsModal = ({ userId, isOpen, onClose }) => {
   const user = userResponse?.data || userResponse || {};
 
   // Extract avatar or build initials fallback
-  const avatarUrl = user.avatar?.url || user.avatar || user.profilePicture;
+  const avatarUrl = user.profile?.url;
   const fullName =
     user.fullName ||
     `${user.firstName || ""} ${user.lastName || ""}`.trim() ||

@@ -1,20 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Award, Wallet, Target } from "lucide-react";
+import {Medal , Affordable , WideVeriety } from "../../../assets/icon.js"
 
 // Feature Icons Section Data
 const features = [
   {
-    icon: Award,
+    icon: Medal,
     title: "Original Products",
     desc: "Vestibulum ante ipsum primis in faucibus.",
   },
   {
-    icon: Wallet,
+    icon: Affordable,
     title: "Affordable Rates",
     desc: "Vestibulum ante ipsum primis in faucibus.",
   },
   {
-    icon: Target,
+    icon: WideVeriety,
     title: "Wide variety",
     desc: "Vestibulum ante ipsum primis in faucibus.",
   },

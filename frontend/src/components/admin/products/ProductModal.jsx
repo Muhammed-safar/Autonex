@@ -31,6 +31,7 @@ const ProductModal = ({
       stock: 0,
       brand: "",
       category: "",
+      displayPriority: 0,
       isActive: true,
       isFeatured: false,
       images: [],
@@ -70,6 +71,7 @@ const ProductModal = ({
         ...initialData,
         brand: initialData.brand?._id || initialData.brand || "",
         category: initialData.category?._id || initialData.category || "",
+        displayPriority: initialData.displayPriority ?? 0,
         images: initialData.images || [],
       });
     } else {
@@ -80,6 +82,7 @@ const ProductModal = ({
         price: 0,
         discountPrice: 0,
         stock: 0,
+        displayPriority: 0,
         brand: brands[0]?._id || "",
         category: categories[0]?._id || "",
         isActive: true,
@@ -128,7 +131,7 @@ const ProductModal = ({
         {/* Form */}
         <form
           onSubmit={handleSubmit((values) => onSubmit(values, removedImages))}
-          className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar" 
+          className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar"
         >
           {/* Product Name */}
           <div>
@@ -192,7 +195,7 @@ const ProductModal = ({
           />
 
           {/* Price */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <input
               type="number"
               step="0.01"
@@ -226,6 +229,16 @@ const ProductModal = ({
             <input
               placeholder="SKU"
               {...register("sku")}
+              className="border rounded-xl p-3"
+            />
+
+            <input
+              type="number"
+              min={0}
+              placeholder="Priority"
+              {...register("displayPriority", {
+                valueAsNumber: true,
+              })}
               className="border rounded-xl p-3"
             />
           </div>
