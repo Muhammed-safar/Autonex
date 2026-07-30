@@ -66,7 +66,7 @@ const Wishlist = ({ onReturnToShop }) => {
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
                   <img
-                    src={item.image || "https://via.placeholder.com/150"}
+                    src={item.images?.[0]?.url  || "https://via.placeholder.com/150"}
                     alt={item.title || item.name}
                     className="w-full h-full object-cover"
                   />
