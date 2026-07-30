@@ -5,22 +5,29 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Search,
+  X,
 } from "lucide-react";
 import { useUsers } from "../../hooks/mutations/useUsers";
+import useDebounce from "../../hooks/useDebounce"; // Adjust path as needed
 import DashboardSkeleton from "../layout.jsx/DashboardSkeleton";
 
 export default function UsersView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
 
-  // Limit per page (matching your API default or setting to 10)
+  // Debounce search input by 500ms
+  const debouncedSearch = useDebounce(search, 500);
+
+  // Limit per page matching API default
   const LIMIT = 20;
 
+  // Pass debounced search term to hook
   const {
     data: apiResponse,
     isLoading,
     error,
-  } = useUsers(currentPage, LIMIT, search);
+  } = useUsers(currentPage, LIMIT, debouncedSearch);
 
   // Extract data array and pagination info from the API response structure
   const usersList = apiResponse?.data || [];
@@ -29,6 +36,16 @@ export default function UsersView() {
     currentPage: 1,
     totalPages: 1,
     limit: LIMIT,
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1); // Reset to page 1 whenever search query changes
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -42,11 +59,39 @@ export default function UsersView() {
   }
 
   if (error) {
-    return <h2>Failed to load categories.</h2>;
+    return (
+      <h2 className="p-4 text-red-500 font-semibold">Failed to load users.</h2>
+    );
   }
 
   return (
     <div className="space-y-4 sm:space-y-5 font-sans">
+      {/* Header & Search Bar Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 className="font-bold text-slate-700 text-sm">System Users</h3>
+
+        {/* Search Box */}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search users..."
+            className="w-full text-xs pl-9 pr-8 py-2 rounded-lg border border-slate-200 bg-white placeholder-slate-400 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0066B2]/20 focus:border-[#0066B2] transition"
+          />
+          {search && (
+            <button
+              onClick={handleClearSearch}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Table Container with Horizontal Scroll */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
         <div className="overflow-x-auto">
@@ -60,33 +105,16 @@ export default function UsersView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
-              {isLoading ? (
+              {usersList.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="p-8 text-center text-slate-400">
-                    <div className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-[#0066B2]" />
-                      <span>Loading users...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td
-                    colSpan="4"
-                    className="p-8 text-center text-red-500 font-semibold"
-                  >
-                    Failed to load users. Please try again.
-                  </td>
-                </tr>
-              ) : usersList.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="p-8 text-center text-slate-400">
-                    No users found.
+                    {debouncedSearch
+                      ? `No users found matching "${debouncedSearch}".`
+                      : "No users found."}
                   </td>
                 </tr>
               ) : (
                 usersList.map((u) => {
-                  // Fallback handling for _id or id
                   const userId = u._id || u.id;
 
                   return (

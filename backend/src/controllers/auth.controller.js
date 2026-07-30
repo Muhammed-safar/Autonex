@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import PendingRegistration from "../models/PendingRegistration.js";
 import User from "../models/User.js";
 import { sendOTPEmail } from "../services/mail.service.js";

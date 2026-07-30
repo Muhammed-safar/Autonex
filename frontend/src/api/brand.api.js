@@ -1,8 +1,14 @@
 import axios from "./axios";
 
 // GET /api/brands
-export const getBrands = async () => {
-  const { data } = await axios.get("/brands");
+export const getBrands = async ({ page = 1, search = "" } = {}) => {
+  const { data } = await axios.get("/brands", {
+    params: {
+      page,
+      search,
+    },
+  });
+
   return data;
 };
 

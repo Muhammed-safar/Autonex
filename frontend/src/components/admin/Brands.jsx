@@ -6,10 +6,13 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  Search,
+  X,
 } from "lucide-react";
 
 import { useBrands } from "../../hooks/brands/useBrands.js";
 import { useDeleteBrand } from "../../hooks/brands/useDeleteBrand.js";
+import useDebounce from "../../hooks/useDebounce.js"; // Adjust path as needed
 import BrandModal from "./BrandModal.jsx";
 import DashboardSkeleton from "../layout.jsx/DashboardSkeleton.jsx";
 
@@ -19,25 +22,44 @@ export default function Brands() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState(null);
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, error } = useBrands({ page });
+  // Debounce search input by 500ms
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
+  // Query hook receives current page and debounced search term
+  const { data, isLoading, error } = useBrands({
+    page,
+    search: debouncedSearch,
+  });
+
   const deleteMutation = useDeleteBrand();
 
   const brandsList = data?.data || [];
 
-  // Extract pagination variables from top-level response properties
+  // Extract pagination variables from response
   const totalItems = data?.total ?? data?.count ?? brandsList.length;
   const totalPages =
     data?.totalPages ?? Math.max(1, Math.ceil(totalItems / DEFAULT_LIMIT));
   const currentPage = data?.currentPage ?? page;
 
-  // Client-side fallback slice if server doesn't paginate
+  // Client-side fallback slice if backend returns all records without paginating
   const displayedBrands = data?.totalPages
     ? brandsList
     : brandsList.slice(
         (currentPage - 1) * DEFAULT_LIMIT,
         currentPage * DEFAULT_LIMIT,
       );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(1); // Reset page to 1 on new input
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
+  };
 
   const handleAddClick = () => {
     setEditingBrand(null);
@@ -60,23 +82,49 @@ export default function Brands() {
     }
   };
 
-  if (isLoading) return <DashboardSkeleton/>;
+  if (isLoading) return <DashboardSkeleton />;
   if (error) return <h2>Failed to load brands.</h2>;
 
   return (
     <div className="space-y-4 font-sans sm:space-y-5">
+      {/* Header Bar with Search Input */}
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <h3 className="text-sm font-bold text-slate-700">Automotive Brands</h3>
 
-        <button
-          onClick={handleAddClick}
-          className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#0066B2] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#005290]"
-        >
-          <Plus className="h-4 w-4" />
-          Add Brand
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="Search brands..."
+              className="w-full text-xs pl-9 pr-8 py-2 rounded-lg border border-slate-200 bg-white placeholder-slate-400 text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0066B2]/20 focus:border-[#0066B2] transition"
+            />
+            {searchTerm && (
+              <button
+                onClick={handleClearSearch}
+                aria-label="Clear search query"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Add Brand Button */}
+          <button
+            onClick={handleAddClick}
+            className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#0066B2] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#005290]"
+          >
+            <Plus className="h-4 w-4" />
+            Add Brand
+          </button>
+        </div>
       </div>
 
+      {/* Table Container */}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white text-xs shadow-sm flex flex-col">
         <div className="overflow-x-auto">
           <table className="min-w-[500px] w-full border-collapse">
@@ -160,7 +208,9 @@ export default function Brands() {
               {displayedBrands.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-10 text-center text-slate-500">
-                    No brands found.
+                    {debouncedSearch
+                      ? `No brands found matching "${debouncedSearch}".`
+                      : "No brands found."}
                   </td>
                 </tr>
               )}

@@ -1,11 +1,16 @@
 import axios from "./axios";
 
 // GET /api/categories
-export const getCategories = async () => {
-  const { data } = await axios.get("/category");
+export const getCategories = async ({ page = 1, search = "" }) => {
+  const { data } = await axios.get("/category", {
+    params: {
+      page,
+      search,
+    },
+  });
+
   return data;
 };
-
 // GET /api/categories/active
 export const getActiveCategories = async () => {
   const { data } = await axios.get("/category/active");
