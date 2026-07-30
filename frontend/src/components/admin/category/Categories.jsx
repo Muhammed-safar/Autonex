@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import {
   Plus,
   FolderTree,
@@ -8,24 +8,29 @@ import {
   ChevronRight,
   Search,
   X,
+  Eye,
 } from "lucide-react";
 
-import { useDeleteCategory } from "../../hooks/categories/useDeleteCategory.js";
-import { useCategories } from "../../hooks/categories/useCategories.js";
+import { useDeleteCategory} from "../../../hooks/categories/useDeleteCategory.js"
+import { useCategories } from "../../../hooks/categories/useCategories.js";
 import CategoryModal from "./CategoryModal.jsx";
-import DashboardSkeleton from "../layout.jsx/DashboardSkeleton.jsx";
-import useDebounce from "../../hooks/useDebounce.js";
-
+import CategoryDetailsModal from "./CategoryDetailsModal.jsx"; 
+import useDebounce from "../../../hooks/useDebounce.js";
+import DashboardSkeleton from "../../layout.jsx/DashboardSkeleton.jsx";
 
 export default function Categories() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+
+  // State for Category Details Modal
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 
   const debouncedSearch = useDebounce(searchTerm, 500);
 
-  // Pass current page and search parameter to hook (in case backend handles both)
   const { data, isLoading, error } = useCategories({
     page,
     search: debouncedSearch,
@@ -42,7 +47,7 @@ export default function Categories() {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setPage(1); // Reset to page 1 on new search query
+    setPage(1);
   };
 
   const handleClearSearch = () => {
@@ -55,9 +60,20 @@ export default function Categories() {
     setIsModalOpen(true);
   };
 
-  const handleEditClick = (cat) => {
+  const handleEditClick = (cat, e) => {
+    e.stopPropagation();
     setEditingCategory(cat);
     setIsModalOpen(true);
+  };
+
+  const handleCategoryClick = (id) => {
+    setSelectedCategoryId(id);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedCategoryId(null);
+    setIsDetailsOpen(false);
   };
 
   const handleCloseModal = () => {
@@ -65,7 +81,8 @@ export default function Categories() {
     setEditingCategory(null);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, e) => {
+    e.stopPropagation();
     if (!window.confirm("Are you sure you want to delete this category?"))
       return;
 
@@ -73,7 +90,7 @@ export default function Categories() {
   };
 
   if (isLoading) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton/>;
   }
 
   if (error) {
@@ -144,9 +161,12 @@ export default function Categories() {
                 </tr>
               ) : (
                 displayedCategories.map((cat) => (
-                  <tr key={cat._id} className="hover:bg-slate-50">
+                  <tr key={cat._id} className="hover:bg-slate-50 transition">
                     <td className="p-3.5 sm:p-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleCategoryClick(cat._id)}
+                        className="flex items-center gap-3 text-left hover:text-[#0066B2] transition group"
+                      >
                         {cat.icon ? (
                           <img
                             src={cat.icon}
@@ -170,28 +190,42 @@ export default function Categories() {
                           <FolderTree className="h-4 w-4 text-[#0066B2]" />
                         </div>
 
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-bold text-slate-800 group-hover:underline underline-offset-2">
                           {cat.name}
                         </span>
-                      </div>
+                      </button>
                     </td>
-                    <td className="p-3.5 sm:p-4 text-slate-400">{cat.slug}</td>
+                    <td className="p-3.5 sm:p-4 text-slate-400 font-mono">
+                      {cat.slug}
+                    </td>
                     <td className="p-3.5 sm:p-4 text-slate-600 whitespace-nowrap">
                       {cat.productsCount || 0} Products
                     </td>
                     <td className="p-3.5 sm:p-4 text-right">
                       <div className="flex justify-end gap-1.5 sm:gap-2">
                         <button
-                          onClick={() => handleEditClick(cat)}
+                          onClick={() => handleCategoryClick(cat._id)}
+                          aria-label="View category details"
+                          title="View Details"
+                          className="p-1.5 text-slate-400 hover:text-[#0066B2] rounded-md hover:bg-slate-100 transition"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={(e) => handleEditClick(cat, e)}
                           aria-label="Edit category"
-                          className="p-1.5 text-slate-400 hover:text-[#0066B2] rounded-md hover:bg-slate-100"
+                          title="Edit Category"
+                          className="p-1.5 text-slate-400 hover:text-[#0066B2] rounded-md hover:bg-slate-100 transition"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
+
                         <button
-                          onClick={() => handleDelete(cat._id)}
+                          onClick={(e) => handleDelete(cat._id, e)}
                           aria-label="Delete category"
-                          className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50"
+                          title="Delete Category"
+                          className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 transition"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -251,10 +285,18 @@ export default function Categories() {
         )}
       </div>
 
+      {/* Edit/Create Modal */}
       <CategoryModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         category={editingCategory}
+      />
+
+      {/* Category Details View Modal */}
+      <CategoryDetailsModal
+        categoryId={selectedCategoryId}
+        isOpen={isDetailsOpen}
+        onClose={handleCloseDetails}
       />
     </div>
   );

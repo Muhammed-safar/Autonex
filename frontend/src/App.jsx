@@ -16,11 +16,11 @@ import MyGaragePage from "./pages/garage/MyGaragePage";
 import ProfileLayout from "./pages/Login/profile/ProfileLayout";
 import ComparePage from "./pages/cart/ComparePage";
 import AdminLayout from "./components/admin/AdminLayout";
-import Categories from "./components/admin/Categories";
+import Categories from "./components/admin/category/Categories.jsx";
 import Products from "./components/admin/products/Products.jsx"
 import Brands from "./components/admin/brand/Brands.jsx";
 import Orders from "./components/admin/Orders";
-import UsersView from "./components/admin/UsersView";
+import UsersView from "./components/users/UsersView.jsx";
 import VerifyOTPPage from "./pages/Login/VerifyOTPPage";
 import ResetPassword from "./pages/Login/ResetPassword";
 import ForgotPassword from "./pages/Login/ForgotPassword";

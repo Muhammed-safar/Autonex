@@ -4,17 +4,22 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  Loader2,
   Search,
   X,
+  Eye,
 } from "lucide-react";
 import { useUsers } from "../../hooks/mutations/useUsers";
 import useDebounce from "../../hooks/useDebounce"; // Adjust path as needed
 import DashboardSkeleton from "../layout.jsx/DashboardSkeleton";
+import UserDetailsModal from "./UserDetailsModal"; // Import User Details Modal
 
-export default function UsersView() {
+const UsersView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+
+  // Modal State for User Details
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   // Debounce search input by 500ms
   const debouncedSearch = useDebounce(search, 500);
@@ -52,6 +57,18 @@ export default function UsersView() {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setCurrentPage(newPage);
     }
+  };
+
+  // Open modal
+  const handleUserClick = (userId) => {
+    setSelectedUserId(userId);
+    setIsDetailsOpen(true);
+  };
+
+  // Close modal
+  const handleCloseDetails = () => {
+    setSelectedUserId(null);
+    setIsDetailsOpen(false);
   };
 
   if (isLoading) {
@@ -95,19 +112,20 @@ export default function UsersView() {
       {/* Table Container with Horizontal Scroll */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[520px]">
+          <table className="w-full border-collapse min-w-[580px]">
             <thead className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
               <tr>
                 <th className="p-3.5 sm:p-4 text-left">User</th>
                 <th className="p-3.5 sm:p-4 text-left">Email</th>
                 <th className="p-3.5 sm:p-4 text-left">Role</th>
                 <th className="p-3.5 sm:p-4 text-left">Status</th>
+                <th className="p-3.5 sm:p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {usersList.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-slate-400">
+                  <td colSpan="5" className="p-8 text-center text-slate-400">
                     {debouncedSearch
                       ? `No users found matching "${debouncedSearch}".`
                       : "No users found."}
@@ -120,13 +138,19 @@ export default function UsersView() {
                   return (
                     <tr
                       key={userId}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      onClick={() => handleUserClick(userId)}
                     >
                       <td className="p-3.5 sm:p-4 text-slate-800 font-semibold whitespace-nowrap">
-                        <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleUserClick(userId)}
+                          className="flex items-center gap-2 text-left group hover:text-[#0066B2] transition"
+                        >
                           <UserCheck className="w-4 h-4 text-[#0066B2] shrink-0" />
-                          <span>{u.fullName || "N/A"}</span>
-                        </div>
+                          <span className="group-hover:underline underline-offset-2">
+                            {u.fullName || "N/A"}
+                          </span>
+                        </button>
                       </td>
                       <td className="p-3.5 sm:p-4 text-slate-500 whitespace-nowrap">
                         {u.email || "N/A"}
@@ -150,6 +174,19 @@ export default function UsersView() {
                         >
                           {u.status || "Active"}
                         </span>
+                      </td>
+                      <td className="p-3.5 sm:p-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUserClick(userId);
+                          }}
+                          aria-label="View user details"
+                          title="View User Details"
+                          className="p-1.5 text-slate-400 hover:text-[#0066B2] rounded-md hover:bg-slate-100 transition"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -223,6 +260,15 @@ export default function UsersView() {
           </div>
         )}
       </div>
+
+      {/* User Details View Modal */}
+      <UserDetailsModal
+        userId={selectedUserId}
+        isOpen={isDetailsOpen}
+        onClose={handleCloseDetails}
+      />
     </div>
   );
-}
+};
+
+export default UsersView;

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-import { useCreateCategory } from "../../hooks/categories/useCreateCategory";
-import { useUpdateCategory } from "../../hooks/categories/useUpdateCategory";
+import { useCreateCategory } from "../../../hooks/categories/useCreateCategory";
+import { useUpdateCategory } from "../../../hooks/categories/useUpdateCategory";
 
 const CategoryModal = ({ isOpen, onClose, category }) => {
   const createCategory = useCreateCategory();

@@ -98,6 +98,12 @@ export const getAllUsers = async ({ page = 1, limit = 20, search = "" }) => {
   return data;
 };
 
+//get one 
+export const getUser = async (id) => {
+  const { data } = await API.get(`/users/${id}`);
+  return data;
+};
+
 // Delete User
 export const deleteUser = async () => {
   const { data } = await API.delete("/auth/delete");

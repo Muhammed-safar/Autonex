@@ -14,6 +14,7 @@ import {
   refreshToken,
   logout,
   getAllUsers,
+  getUserById,
 } from "../controllers/auth.controller.js";
 
 import { protect } from "../middlewares/auth.middleware.js";
@@ -93,6 +94,8 @@ router.post("/refresh", refreshToken);
 router.post("/logout", protect, logout);
 
 router.get("/users", protect, adminOnly, getAllUsers);
+
+router.get("/:id", protect, adminOnly, getUserById);
 
 router.delete("/delete", protect, deleteUser);
 
