@@ -40,6 +40,8 @@ export const createProduct = async (req, res) => {
         req.files.map(async (file) => {
           const result = await uploadToCloudinary(file.path);
 
+          console.log(result);
+
           return {
             url: result.secure_url,
             publicId: result.public_id,

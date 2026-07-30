@@ -95,7 +95,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
 
-    displayPrioritydisplayPriority: {
+    displayPriority: {
       type: Number,
       default: 0,
     },
