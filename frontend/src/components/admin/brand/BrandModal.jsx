@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-import { useCreateBrand } from "../../hooks/brands/useCreateBrand.js";
-import { useUpdateBrand } from "../../hooks/brands/useUpdateBrand.js";
+import { useCreateBrand } from "../../../hooks/brands/useCreateBrand.js";
+import { useUpdateBrand } from "../../../hooks/brands/useUpdateBrand.js";
 
 const BrandModal = ({ isOpen, onClose, brand }) => {
   const createBrand = useCreateBrand();

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
 import Brand from "../models/Brand.js";
 import Product from "../models/Product.js";
@@ -107,10 +108,62 @@ export const getAllBrands = async (req, res) => {
       [sortBy]: order === "asc" ? 1 : -1,
     };
 
-    const [brands, total] = await Promise.all([
-      Brand.find(filter).sort(sortOptions).skip(skip).limit(pageSize),
-      Brand.countDocuments(filter),
+    const result = await Brand.aggregate([
+      {
+        $match: filter,
+      },
+
+      // Count linked products
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "brand",
+          as: "products",
+        },
+      },
+
+      // Add productsCount
+      {
+        $addFields: {
+          productsCount: {
+            $size: "$products",
+          },
+        },
+      },
+
+      // Don't return the whole products array
+      {
+        $project: {
+          products: 0,
+        },
+      },
+
+      {
+        $facet: {
+          brands: [
+            {
+              $sort: sortOptions,
+            },
+            {
+              $skip: skip,
+            },
+            {
+              $limit: pageSize,
+            },
+          ],
+
+          totalCount: [
+            {
+              $count: "count",
+            },
+          ],
+        },
+      },
     ]);
+
+    const brands = result[0].brands;
+    const total = result[0].totalCount[0]?.count || 0;
 
     res.status(200).json({
       success: true,

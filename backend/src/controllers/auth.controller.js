@@ -602,9 +602,6 @@ export const getAllUsers = async (req, res) => {
           };
     }
 
-    console.log("Search:", search);
-    console.log("Filter:", JSON.stringify(filter, null, 2));
-
     const [users, totalUsers, activeUsers, verifiedUsers, adminUsers] =
       await Promise.all([
         User.find(filter)

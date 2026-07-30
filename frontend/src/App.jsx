@@ -18,7 +18,7 @@ import ComparePage from "./pages/cart/ComparePage";
 import AdminLayout from "./components/admin/AdminLayout";
 import Categories from "./components/admin/Categories";
 import Products from "./components/admin/products/Products.jsx"
-import Brands from "./components/admin/Brands";
+import Brands from "./components/admin/brand/Brands.jsx";
 import Orders from "./components/admin/Orders";
 import UsersView from "./components/admin/UsersView";
 import VerifyOTPPage from "./pages/Login/VerifyOTPPage";
