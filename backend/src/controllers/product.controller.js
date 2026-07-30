@@ -41,27 +41,13 @@ export const createProduct = async (req, res) => {
           const result = await uploadToCloudinary(file.path);
 
           return {
-            url: result.secure_url,
-            publicId: result.public_id,
+            url: result.url,
+            publicId: result.publicId,
             alt: file.originalname,
           };
         }),
       );
     }
-
-    console.log("uploadedImages:", uploadedImages);
-
-    console.log(
-      "creating product:",
-      JSON.stringify(
-        {
-          ...req.body,
-          images: uploadedImages,
-        },
-        null,
-        2,
-      ),
-    );
 
     // Create Product
     const product = await Product.create({
