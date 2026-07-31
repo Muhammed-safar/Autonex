@@ -5,7 +5,7 @@ import {
   getUserAddressesService,
   setDefaultAddressService,
   updateAddressService,
-} from "../services/address.service";
+} from "../services/address.service.js";
 
 export const createAddress = async (req, res, next) => {
   try {
