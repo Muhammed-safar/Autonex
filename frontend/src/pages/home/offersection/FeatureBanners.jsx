@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const banners = [
   {
@@ -48,6 +49,7 @@ const banners = [
 const FeatureBanners = () => {
   const scrollContainerRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
+  const navidate = useNavigate();
 
   // AUTO-SCROLL FUNCTIONALITY (Active only on Mobile & Tablet)
   useEffect(() => {
@@ -112,7 +114,10 @@ const FeatureBanners = () => {
               Get the part. Make the fix. Enjoy the drive.
             </p>
 
-            <button className="mt-6 rounded-full bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700">
+            <button
+              onClick={() => navidate("/shop")}
+              className="mt-6 rounded-full bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700"
+            >
               Shop Now
             </button>
           </div>
@@ -150,7 +155,10 @@ const FeatureBanners = () => {
               Get the part. Make the fix. Enjoy the drive.
             </p>
 
-            <button className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200">
+            <button
+              onClick={() => navidate("/category/tires-wheels")}
+              className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200"
+            >
               Shop Now
             </button>
           </div>
@@ -188,7 +196,10 @@ const FeatureBanners = () => {
               Get the part. Make the fix. Enjoy the drive.
             </p>
 
-            <button className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200">
+            <button
+              onClick={() => navidate("/category/headlights-lighting")}
+              className="mt-6 rounded-full bg-white px-8 py-3 font-semibold text- transition hover:bg-gray-200"
+            >
               Shop Now
             </button>
           </div>

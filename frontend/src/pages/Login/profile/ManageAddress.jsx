@@ -30,7 +30,7 @@ const ManageAddress = () => {
       updateAddress(
         {
           id: editingAddress._id,
-          formData,
+          addressData: formData,
         },
         {
           onSuccess: () => {
@@ -100,19 +100,20 @@ const ManageAddress = () => {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-gray-900 text-sm">
-                        {address.name}
+                        {address.fullName}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded-md font-medium uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200">
+                     <div className="flex flex-col md:flex-row items-center space-y-2 md:space-x-2 md:space-y-0">
+                       <span className="text-xs px-2 py-0.5 rounded-md font-medium uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200">
                         {address.addressType}
                       </span>
+                      {isDefault && (
+                        <span className="text-xs bg-[#0067B2] text-white px-2.5 py-0.5 rounded-full font-semibold flex items-center space-x-1">
+                          <Check className="w-3 h-3 inline" />
+                          <span>Default</span>
+                        </span>
+                      )}
+                     </div>
                     </div>
-
-                    {isDefault && (
-                      <span className="text-xs bg-[#0067B2] text-white px-2.5 py-0.5 rounded-full font-semibold flex items-center space-x-1">
-                        <Check className="w-3 h-3 inline" />
-                        <span>Default</span>
-                      </span>
-                    )}
                   </div>
 
                   <div className="text-xs text-gray-600 space-y-1">
@@ -130,7 +131,6 @@ const ManageAddress = () => {
                     </p>
                     <p>{address.country}</p>
                     <p className="pt-1 text-gray-500">Phone: {address.phone}</p>
-                    <p className="text-gray-500">Email: {address.email}</p>
                   </div>
                 </div>
 
