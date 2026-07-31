@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Garage } from "../../assets/icon.js";
 import Logo from "../../assets/icons/AutonexLogo.png";
-import WhiteLogo from "../../assets/icons/WhiteLogo.png";
+import WhiteLogo from "../../assets/icons/whiteLogo.png";
 
 const navItems = [
   {
