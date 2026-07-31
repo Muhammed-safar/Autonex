@@ -48,6 +48,7 @@ export const getAddressById = async (req, res, next) => {
 
 export const updateAddress = async (req, res, next) => {
   try {
+    console.log("BODY:", req.body);
     const address = await updateAddressService(
       req.params.id,
       req.user.id,
