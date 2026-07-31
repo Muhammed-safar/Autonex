@@ -68,7 +68,7 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 overflow-y-auto">
+    <div className="fixed  inset-0 z-50 flex items-start sm:items-center justify-center bg-black/40 backdrop-blur-xs p-4 overflow-y-auto hide-scrollbar">
       <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-gray-100 my-8">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
@@ -99,22 +99,6 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
                 required
                 className="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#0067B2] focus:ring-2 focus:ring-[#0067B2]/20"
                 placeholder="John Doe"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#0067B2] focus:ring-2 focus:ring-[#0067B2]/20"
-                placeholder="john.doe@example.com"
               />
             </div>
           </div>

@@ -1,9 +1,11 @@
 import {
   createAddressService,
-  getUserAddressesService,
-  updateAddressService,
   deleteAddressService,
-} from "../services/address.service.js";
+  getAddressByIdService,
+  getUserAddressesService,
+  setDefaultAddressService,
+  updateAddressService,
+} from "../services/address.service";
 
 export const createAddress = async (req, res, next) => {
   try {
@@ -29,15 +31,6 @@ export const getAddresses = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-export const setDefaultAddress = async (req, res) => {
-  const address = await setDefaultAddressService(req.params.id, req.user.id);
-
-  res.status(200).json({
-    success: true,
-    data: address,
-  });
 };
 
 export const getAddressById = async (req, res, next) => {
@@ -77,6 +70,19 @@ export const deleteAddress = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Address deleted",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setDefaultAddress = async (req, res, next) => {
+  try {
+    const address = await setDefaultAddressService(req.params.id, req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: address,
     });
   } catch (error) {
     next(error);

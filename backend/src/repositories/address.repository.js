@@ -13,48 +13,35 @@ export const getUserAddressesRepo = (userId) => {
 export const getAddressByIdRepo = (id) => {
   return Address.findOne({
     _id: id,
-    isDeleted: false,
   });
 };
 
-export const getAddressByIdAndUserRepo = (
-  addressId,
-  userId
-) => {
+export const getAddressByIdAndUserRepo = (addressId, userId) => {
   return Address.findOne({
     _id: addressId,
     user: userId,
-    isDeleted: false,
   });
 };
 
 export const updateAddressRepo = (id, data) => {
   return Address.findByIdAndUpdate(id, data, {
     new: true,
+    runValidators: true,
   });
 };
 
+// Changed to hard delete
 export const deleteAddressRepo = (id) => {
-  return Address.findByIdAndUpdate(
-    id,
-    {
-      isDeleted: true,
-      deletedAt: new Date(),
-    },
-    {
-      new: true,
-    }
-  );
+  return Address.findByIdAndDelete(id);
 };
 
 export const resetDefaultAddressRepo = (userId) => {
   return Address.updateMany(
     {
       user: userId,
-      isDeleted: false,
     },
     {
       isDefault: false,
-    }
+    },
   );
 };
