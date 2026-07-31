@@ -1,42 +1,35 @@
 import React, { useState } from "react";
 import { ShoppingCart, X, Plus, Minus, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../../hooks/cart/useCart";
+import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
+import { useRemoveCartItem } from "../../hooks/cart/useRemoveCartItem";
+import { useClearCart } from "../../hooks/cart/useClearCart";
 
 const CartPage = () => {
   const navigate = useNavigate();
-  // Sample initial state matching image 2
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Zerex G05 Phosphate Free Antifreeze/Coolant Concentrate 1 GA",
-      price: 23.43,
-      quantity: 1,
-      image: "https://via.placeholder.com/60",
-    },
-    {
-      id: 2,
-      name: "Anzo USA - 111630A FORD F-150 15-17 FULL LED PROJECTOR PLANK STYLE HEADLIGHTS",
-      price: 117.25,
-      quantity: 1,
-      image: "https://via.placeholder.com/60",
-    },
-    {
-      id: 3,
-      name: "Spyder BMW E90 3-Series 06-08 4DR Headlights - Halogen Model Only - Black PRO",
-      price: 186.99,
-      quantity: 1,
-      image: "https://via.placeholder.com/60",
-    },
-  ]);
+  const { data, isLoading } = useCart();
+  const { mutate: updateCart } = useUpdateCartItem();
+  const { mutate: removeCartItem } = useRemoveCartItem();
+  const { mutate: clearCart } = useClearCart();
+
+  const cart = data?.data;
 
   const [couponCode, setCouponCode] = useState("");
   const [shippingMethod, setShippingMethod] = useState("flat_rate");
 
-  // Calculations
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  const cartItems =
+    cart?.items?.map((item) => ({
+      id: item._id,
+      productId: item.productId._id,
+      name: item.productId.name,
+      image: item.productId.images?.[0]?.url,
+      price: item.priceAtAdded,
+      quantity: item.quantity,
+      stock: item.productId.stock,
+    })) || [];
+
+  const subtotal = cart?.totalPrice || 0;
   const shippingCost = shippingMethod === "flat_rate" ? 15.0 : 0.0;
   const total = subtotal + shippingCost;
 
@@ -52,24 +45,19 @@ const CartPage = () => {
   );
 
   // Handlers
-  const handleQuantityChange = (id, delta) => {
-    setCartItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
-        }
-        return item;
-      }),
-    );
+  const handleQuantityChange = (item, delta) => {
+    updateCart({
+      itemId: item.id,
+      quantity: item.quantity + delta,
+    });
   };
 
-  const handleRemoveItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemoveItem = (itemId) => {
+    removeCartItem(itemId);
   };
 
   const handleClearCart = () => {
-    setCartItems([]);
+    clearCart();
   };
 
   return (
@@ -96,7 +84,7 @@ const CartPage = () => {
             </div>
 
             <button
-              onClick={() => navigate("/shop")} // Customize as needed
+              onClick={() => navigate("/shop")} 
               className="bg-[#0066b2] hover:bg-[#005290] text-white text-sm font-medium py-2.5 px-6 rounded-md transition-colors"
             >
               Return to shop
@@ -169,7 +157,7 @@ const CartPage = () => {
                         <td className="py-4 px-4">
                           <div className="flex items-center justify-center border border-gray-200 rounded w-20 mx-auto bg-white">
                             <button
-                              onClick={() => handleQuantityChange(item.id, -1)}
+                              onClick={() => handleQuantityChange(item, -1)}
                               className="p-1 text-gray-500 hover:text-black"
                             >
                               <Minus className="w-3 h-3" />
@@ -178,7 +166,7 @@ const CartPage = () => {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => handleQuantityChange(item.id, 1)}
+                              onClick={() => handleQuantityChange(item, 1)}
                               className="p-1 text-gray-500 hover:text-black"
                             >
                               <Plus className="w-3 h-3" />
@@ -294,8 +282,10 @@ const CartPage = () => {
                 </div>
 
                 {/* Checkout Button */}
-                <button className="w-full bg-[#0066b2] hover:bg-[#005290] text-white text-xs font-semibold py-3 px-4 rounded transition-colors mt-4"
-                 onClick={()=> navigate("/cart/checkout")}>
+                <button
+                  className="w-full bg-[#0066b2] hover:bg-[#005290] text-white text-xs font-semibold py-3 px-4 rounded transition-colors mt-4"
+                  onClick={() => navigate("/cart/checkout")}
+                >
                   Proceed to checkout
                 </button>
               </div>

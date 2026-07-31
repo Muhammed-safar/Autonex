@@ -1,51 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { X, Check } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X, Check } from "lucide-react";
 
 const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: '',
-    landmark: '',
-    addressType: 'home',
+    fullName: "",
+    email: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "",
+    landmark: "",
+    addressType: "home",
     isDefault: false,
   });
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        name: initialData.name || '',
-        email: initialData.email || '',
-        phone: initialData.phone || '',
-        addressLine1: initialData.addressLine1 || '',
-        addressLine2: initialData.addressLine2 || '',
-        city: initialData.city || '',
-        state: initialData.state || '',
-        postalCode: initialData.postalCode || '',
-        country: initialData.country || '',
-        landmark: initialData.landmark || '',
-        addressType: initialData.addressType || 'home',
+        fullName: initialData.name || "",
+        email: initialData.email || "",
+        phone: initialData.phone || "",
+        addressLine1: initialData.addressLine1 || "",
+        addressLine2: initialData.addressLine2 || "",
+        city: initialData.city || "",
+        state: initialData.state || "",
+        postalCode: initialData.postalCode || "",
+        country: initialData.country || "",
+        landmark: initialData.landmark || "",
+        addressType: initialData.addressType || "home",
         isDefault: initialData.isDefault || false,
       });
     } else {
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: '',
-        landmark: '',
-        addressType: 'home',
+        fullName: "",
+        email: "",
+        phone: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: "",
+        landmark: "",
+        addressType: "home",
         isDefault: false,
       });
     }
@@ -57,7 +58,7 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -72,7 +73,7 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
           <h3 className="text-lg font-bold text-gray-900">
-            {initialData ? 'Edit Address' : 'Add New Address'}
+            {initialData ? "Edit Address" : "Add New Address"}
           </h3>
           <button
             onClick={onClose}
@@ -92,8 +93,8 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
               </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleChange}
                 required
                 className="w-full border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-[#0067B2] focus:ring-2 focus:ring-[#0067B2]/20"
@@ -277,7 +278,10 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
               onChange={handleChange}
               className="w-4 h-4 text-[#0067B2] accent-[#0067B2] rounded border-gray-300 focus:ring-[#0067B2]"
             />
-            <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer">
+            <label
+              htmlFor="isDefault"
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
               Set as default address
             </label>
           </div>
@@ -296,7 +300,7 @@ const AddressForm = ({ isOpen, onClose, onSave, initialData }) => {
               className="flex items-center space-x-2 bg-[#0067B2] hover:bg-[#00528e] text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-colors shadow-xs"
             >
               <Check className="w-4 h-4" />
-              <span>{initialData ? 'Update Address' : 'Save Address'}</span>
+              <span>{initialData ? "Update Address" : "Save Address"}</span>
             </button>
           </div>
         </form>

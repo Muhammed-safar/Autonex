@@ -2,10 +2,19 @@ import React from "react";
 import { Heart, Star, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useWishlist } from "../../context/WishlistContext";
+import { useAddToCart } from "../../hooks/cart/useAddToCart";
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const { mutate: addToCart } = useAddToCart();
   const active = isWishlisted(product.id);
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      quantity: 1,
+    });
+  };
 
   const rawPrice =
     typeof product.price === "string"
@@ -41,7 +50,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             />
           </button>
 
-          <Link to={`/product/${product.id}`} className="w-full h-full flex items-center justify-center">
+          <Link
+            to={`/product/${product.id}`}
+            className="w-full h-full flex items-center justify-center"
+          >
             <img
               src={product.image || "https://via.placeholder.com/150"}
               alt={product.title}
@@ -54,7 +66,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         <div className="flex flex-col flex-1 justify-between w-full h-full py-1">
           <div>
             <div className="flex items-center gap-1 mb-1">
-              <Star size={12} className="fill-amber-400 text-amber-400 shrink-0" />
+              <Star
+                size={12}
+                className="fill-amber-400 text-amber-400 shrink-0"
+              />
               <span className="text-xs font-semibold text-slate-700">
                 {product.rating}
               </span>
@@ -88,7 +103,11 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               )}
             </div>
 
-            <button className="bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold text-xs py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-2xs w-full sm:w-auto cursor-pointer">
+            <button
+              onClick={handleAddToCart}
+              disabled={isPending || !product.inStock}
+              className="bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold text-xs py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-2xs w-full sm:w-auto cursor-pointer"
+            >
               <ShoppingCart size={14} />
               <span>Add to cart</span>
             </button>
@@ -124,7 +143,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           />
         </button>
 
-        <Link to={`/product/${product.id}`} className="w-full h-full flex items-center justify-center">
+        <Link
+          to={`/product/${product.id}`}
+          className="w-full h-full flex items-center justify-center"
+        >
           <img
             src={product.image || "https://via.placeholder.com/150"}
             alt={product.title}
@@ -137,7 +159,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       <div className="flex flex-col flex-1 justify-between">
         <div>
           <div className="flex items-center gap-1 mb-0.5">
-            <Star size={11} className="fill-amber-400 text-amber-400 shrink-0" />
+            <Star
+              size={11}
+              className="fill-amber-400 text-amber-400 shrink-0"
+            />
             <span className="text-[10px] font-semibold text-slate-700 leading-none">
               {product.rating}
             </span>
@@ -166,7 +191,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             )}
           </div>
 
-          <button className="w-full bg-[#006bc0] hover:bg-[#005aa3] active:bg-[#004a87] text-white font-semibold text-[11px] sm:text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-2xs cursor-pointer">
+          <button
+            onClick={handleAddToCart}
+            className="w-full bg-[#006bc0] hover:bg-[#005aa3] active:bg-[#004a87] text-white font-semibold text-[11px] sm:text-xs py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-2xs cursor-pointer"
+          >
             <ShoppingCart size={13} className="hidden sm:inline-block" />
             <span>Add to cart</span>
           </button>

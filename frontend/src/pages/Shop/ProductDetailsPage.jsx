@@ -20,15 +20,15 @@ import {
 } from "../../assets/icon.js";
 import { useWishlist } from "../../context/WishlistContext.jsx";
 import { useProduct } from "../../hooks/products/useProduct.js";
+import { useAddToCart } from "../../hooks/cart/useAddToCart";
 
-export default function ProductDetailsPage({ productId: propProductId }) {
-  // 1. Get product ID from URL params (e.g., /product/:id) or props
+const ProductDetailsPage = ({ productId: propProductId }) => {
   const params = useParams();
-  const productId = propProductId || params.id || "main-zeres-g05";
+  const productId = propProductId || params.id;
 
-  // 2. Fetch active product and related catalog data
-  // Pass the ID to fetch specific item, or query all products to locate & render related items
   const { data, isLoading, isError } = useProduct(productId);
+
+  const { mutate: addToCart, isPending } = useAddToCart();
 
   // UI Interactive States
   const [quantity, setQuantity] = useState(1);
@@ -110,6 +110,13 @@ export default function ProductDetailsPage({ productId: propProductId }) {
   }, [data, productId]);
 
   const isCurrentWishlisted = isWishlisted(currentProduct.id);
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: currentProduct.id,
+      quantity,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -279,8 +286,12 @@ export default function ProductDetailsPage({ productId: propProductId }) {
                     <Plus size={14} />
                   </button>
                 </div>
-                <button className="flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs cursor-pointer">
-                  Add to cart
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isPending || !currentProduct.inStock}
+                  className="flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs cursor-pointer"
+                >
+                  {isPending ? "Adding..." : "Add to cart"}
                 </button>
               </div>
 
@@ -460,4 +471,5 @@ export default function ProductDetailsPage({ productId: propProductId }) {
       </div>
     </div>
   );
-}
+};
+export default ProductDetailsPage;

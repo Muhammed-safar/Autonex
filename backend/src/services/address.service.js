@@ -13,7 +13,6 @@ import {
 export const createAddressService = async (userId, addressData) => {
   const count = await Address.countDocuments({
     user: userId,
-    isDeleted: false,
   });
 
   if (count >= 10) {

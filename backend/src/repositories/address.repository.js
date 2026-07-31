@@ -7,7 +7,6 @@ export const createAddressRepo = (data) => {
 export const getUserAddressesRepo = (userId) => {
   return Address.find({
     user: userId,
-    isDeleted: false,
   }).sort({ isDefault: -1, createdAt: -1 });
 };
 
