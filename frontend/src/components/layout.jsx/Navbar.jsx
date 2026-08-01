@@ -51,7 +51,6 @@ const Navbar = () => {
   const { data: cart } = useCart();
   const { data: wishlist } = useWishlist();
 
-  const [wishlistCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const navigate = useNavigate();
