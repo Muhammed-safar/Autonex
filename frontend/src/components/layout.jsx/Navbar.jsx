@@ -16,6 +16,7 @@ import { Garage } from "../../assets/icon.js";
 import Logo from "../../assets/icons/AutonexLogo.png";
 import WhiteLogo from "../../assets/icons/whiteLogo.png";
 import { useCart } from "../../hooks/cart/useCart.js";
+import {useWishlist} from "../../hooks/wishlist/useWishlist.js";
 
 const navItems = [
   {
@@ -48,6 +49,7 @@ const navItems = [
 
 const Navbar = () => {
   const { data: cart } = useCart();
+  const { data: wishlist } = useWishlist();
 
   const [wishlistCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,6 +58,9 @@ const Navbar = () => {
 
   const cartCount =
     cart?.data?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
+
+    const wishlistCount =
+    wishlist?.products?.length || 0;
 
   return (
     <header className="w-full bg-white font-sans">
