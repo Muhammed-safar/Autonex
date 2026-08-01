@@ -3,7 +3,7 @@ import { Heart, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
 import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
 import { useClearWishlist } from "../../hooks/wishlist/useClearWishlist.js";
-import CartSkeleton from "./cartSkelton";
+import CartSkeleton from "./CartSkeleton.jsx";
 
 const Wishlist = ({ onReturnToShop }) => {
   const { data, isLoading } = useWishlist();
