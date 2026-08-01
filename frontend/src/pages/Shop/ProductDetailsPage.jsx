@@ -120,20 +120,20 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen max-w-6xl mx-auto p-6 flex items-center justify-center">
+      <div className="min-h-screen max-w-6xl mx-auto p-4 sm:p-6 flex items-center justify-center">
         <div className="animate-pulse flex flex-col gap-4 w-full">
-          <div className="h-8 bg-slate-200 rounded w-1/3"></div>
-          <div className="h-96 bg-slate-100 rounded-2xl w-full"></div>
+          <div className="h-6 sm:h-8 bg-slate-200 rounded w-1/2 sm:w-1/3"></div>
+          <div className="h-64 sm:h-96 bg-slate-100 rounded-2xl w-full"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-6 px-4 md:px-8 font-sans text-slate-600 antialiased">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl p-6">
+    <div className="min-h-screen py-4 sm:py-6 px-3 sm:px-6 md:px-8 font-sans text-slate-600 antialiased">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl p-4 sm:p-6 shadow-xs">
         {/* Breadcrumbs */}
-        <nav className="flex text-xs text-slate-400 mb-4 items-center gap-1.5">
+        <nav className="flex text-xs text-slate-400 mb-4 items-center gap-1.5 flex-wrap">
           <Link to="/" className="hover:underline cursor-pointer">
             Home
           </Link>{" "}
@@ -142,17 +142,17 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
             {currentProduct.category}
           </span>{" "}
           /
-          <span className="text-slate-600 truncate">
+          <span className="text-slate-600 truncate max-w-[200px] sm:max-w-xs">
             {currentProduct.title}
           </span>
         </nav>
 
         {/* Product Heading Info */}
         <div className="mb-6 border-b border-slate-200 pb-4">
-          <h1 className="text-2xl font-semibold text-slate-900 mb-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2 leading-tight">
             {currentProduct.title}
           </h1>
-          <div className="flex items-center gap-6 text-xs">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs">
             <div className="flex items-center text-amber-400 gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -183,11 +183,11 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
         </div>
 
         {/* Core Layout Split */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 mb-10">
           {/* Left Column: Image Area */}
           <div className="md:col-span-5 flex flex-col gap-4">
             <div className="w-full border border-slate-100 aspect-square bg-white rounded-md flex items-center justify-center overflow-hidden relative">
-              <span className="absolute top-4 left-4 bg-[#0062bd] text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-xs">
+              <span className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-[#0062bd] text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-xs z-10">
                 22%
               </span>
 
@@ -208,15 +208,15 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
             </div>
 
             {/* Gallery Selector */}
-            <div className="flex gap-3 overflow-x-auto">
+            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
               {imageGallery.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`w-20 h-20 shrink-0 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all cursor-pointer ${
+                  className={`w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg bg-white overflow-hidden p-1 flex items-center justify-center text-[10px] text-slate-300 transition-all cursor-pointer ${
                     selectedImage === index
-                      ? "border-[#006bc0] ring-1 ring-[#006bc0]"
-                      : "border-slate-200"
+                      ? "border-2 border-[#006bc0] ring-1 ring-[#006bc0]"
+                      : "border border-slate-200"
                   }`}
                 >
                   {img?.startsWith("http") ? (
@@ -236,18 +236,18 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
           {/* Right Column: Actions */}
           <div className="md:col-span-7 flex flex-col justify-between">
             <div>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed line-clamp-3">
+              <p className="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed line-clamp-3">
                 {currentProduct.description ||
                   "High-quality additives protect against leaks and won't harm gaskets, hoses, plastics or original vehicle finish."}
               </p>
 
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
-                <span className="text-3xl font-bold text-[#00a062] tracking-tight">
+                <span className="text-2xl sm:text-3xl font-bold text-[#00a062] tracking-tight">
                   ${Number(currentProduct.price).toFixed(2)}
                 </span>
                 {currentProduct.oldPrice && (
-                  <span className="text-sm text-slate-400 line-through font-normal">
+                  <span className="text-xs sm:text-sm text-slate-400 line-through font-normal">
                     ${Number(currentProduct.oldPrice).toFixed(2)}
                   </span>
                 )}
@@ -268,8 +268,8 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
               </div>
 
               {/* Operations row */}
-              <div className="flex gap-3 mb-5">
-                <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden">
+              <div className="flex flex-col sm:flex-row gap-3 mb-5">
+                <div className="flex items-center justify-between sm:justify-start border border-slate-200 rounded-lg bg-white overflow-hidden">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="p-3 text-slate-500 hover:bg-slate-50 transition-colors"
@@ -289,7 +289,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
                 <button
                   onClick={handleAddToCart}
                   disabled={isPending || !currentProduct.inStock}
-                  className="flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs cursor-pointer"
+                  className="w-full sm:flex-1 bg-[#006bc0] hover:bg-[#005aa3] text-white font-semibold py-3 px-6 rounded-lg text-sm transition-colors shadow-xs cursor-pointer"
                 >
                   {isPending ? "Adding..." : "Add to cart"}
                 </button>
@@ -320,7 +320,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
             </div>
 
             {/* Delivery / Guarantee Badges */}
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col gap-3 text-xs mb-6">
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 sm:p-4 flex flex-col gap-3 text-xs mb-6">
               <div className="flex gap-2.5 items-start">
                 <Truck size={16} className="text-slate-700 shrink-0 mt-0.5" />
                 <div>
@@ -349,7 +349,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
             </div>
 
             {/* Social Share Grid & Metadata Tags */}
-            <div className="flex items-center justify-between text-xs border-t border-slate-100 pt-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs border-t border-slate-100 pt-4">
               <div className="flex items-center gap-2">
                 <span className="text-slate-800">Share:</span>
                 <span className="p-1.5 rounded-full border border-slate-200 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors">
@@ -365,7 +365,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
                   <Whatsapp />
                 </span>
               </div>
-              <div className="flex flex-col gap-1 items-end text-right text-[11px]">
+              <div className="flex sm:flex-col gap-3 sm:gap-1 items-start sm:items-end text-left sm:text-right text-[11px]">
                 <p>
                   <span className="text-slate-400">Category:</span>{" "}
                   <span className="font-semibold text-slate-800">
@@ -385,7 +385,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
 
         {/* Tabbed Workspace */}
         <div className="border-t border-slate-200 pt-6 mb-12">
-          <div className="flex gap-6 border-b border-slate-100 mb-4 text-sm font-medium">
+          <div className="flex gap-4 sm:gap-6 border-b border-slate-100 mb-4 text-xs sm:text-sm font-medium overflow-x-auto whitespace-nowrap scrollbar-none">
             <button
               onClick={() => setActiveTab("description")}
               className={`pb-2 transition-all cursor-pointer ${
@@ -456,11 +456,11 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
             <h3 className="text-base font-bold text-slate-900 mb-4">
               Related products
             </h3>
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin md:grid md:grid-cols-3 lg:grid-cols-5 md:overflow-visible md:pb-0">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-thin sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:overflow-visible sm:pb-0">
               {relatedProducts.map((prod) => (
                 <div
                   key={prod.id}
-                  className="min-w-[220px] w-[20vw] sm:w-[260px] md:w-auto shrink-0 snap-start"
+                  className="min-w-[220px] sm:min-w-0 sm:w-auto shrink-0 snap-start"
                 >
                   <ProductCard product={prod} viewMode="grid" />
                 </div>
@@ -472,4 +472,5 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
     </div>
   );
 };
+
 export default ProductDetailsPage;

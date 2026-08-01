@@ -329,7 +329,7 @@ const Navbar = () => {
         {/* Quick action bar */}
         <div className="grid grid-cols-2 divide-x divide-gray-200 border-y border-gray-200 text-xs font-semibold text-[#0067B2] bg-white">
           <button
-            onClick={() => navigate("/My-garage")}
+            onClick={() => navigate("/MyGaragePage")}
             className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50"
           >
             <Warehouse size={15} />
