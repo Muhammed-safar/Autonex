@@ -1,18 +1,48 @@
 import React from "react";
 import { Heart, Star, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useWishlist } from "../../context/WishlistContext";
-import { useAddToCart } from "../../hooks/cart/useAddToCart";
+import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
+import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist.js";
+import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
+import { useAddToCart } from "../../hooks/cart/useAddToCart.js";
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
-  const { toggleWishlist, isWishlisted } = useWishlist();
-  const { mutate: addToCart } = useAddToCart();
-  const active = isWishlisted(product.id);
+  const { data: wishlistData } = useWishlist();
+  const { mutate: addWishlist } = useAddWishlist();
+  const { mutate: removeWishlist } = useRemoveWishlist();
+  const { mutate: addToCart, isPending } = useAddToCart();
+
+  const active =
+    wishlistData?.products?.some((item) => item._id === product.id) ?? false;
 
   const handleAddToCart = () => {
     addToCart({
       productId: product.id,
       quantity: 1,
+    });
+  };
+
+  const handleWishlist = () => {
+    if (active) {
+      removeWishlist(product.id);
+      return;
+    }
+
+    addWishlist({
+      _id: product.id,
+      name: product.title,
+      price: Number(rawPrice),
+      discountPrice: product.oldPrice
+        ? Number(String(product.oldPrice).replace(/^\$+/, ""))
+        : 0,
+      stock: product.inStock ? 1 : 0,
+      images: [
+        {
+          url: product.image,
+        },
+      ],
+      brand: product.brand,
+      category: product.category,
     });
   };
 
@@ -39,7 +69,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              toggleWishlist(product);
+              handleWishlist();
             }}
             aria-label="Add to wishlist"
             className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-white transition-all z-10 shadow-xs cursor-pointer"
@@ -51,7 +81,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </button>
 
           <Link
-            to={`/product/${product.id}`}
+            to={`/product/${product._id}`}
             className="w-full h-full flex items-center justify-center"
           >
             <img
@@ -78,7 +108,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               </span>
             </div>
 
-            <Link to={`/product/${product.id}`}>
+            <Link to={`/product/${product._id}`}>
               <h3 className="text-sm font-semibold text-slate-800 hover:text-[#006bc0] transition-colors mb-2">
                 {product.title}
               </h3>
@@ -132,7 +162,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            toggleWishlist(product);
+            handleWishlist();
           }}
           aria-label="Add to wishlist"
           className="absolute top-1.5 right-1.5 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/90 backdrop-blur-md border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-white transition-all z-10 shadow-xs cursor-pointer"

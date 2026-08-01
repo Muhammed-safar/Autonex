@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Tag, Info, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useGetDefaultAddress } from "../../hooks/address/useGetDefaultAddress";
-import { useCart } from "../../hooks/cart/useCart";
+import { useGetDefaultAddress } from "../../hooks/address/useGetDefaultAddress.js";
+import { useCart } from "../../hooks/cart/useCart.js";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();

@@ -18,13 +18,21 @@ import {
   Twitter,
   Whatsapp,
 } from "../../assets/icon.js";
-import { useWishlist } from "../../context/WishlistContext.jsx";
+import { useWishlist } from "../../hooks/wishlist/useWishlist";
+import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist";
+import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist";
 import { useProduct } from "../../hooks/products/useProduct.js";
 import { useAddToCart } from "../../hooks/cart/useAddToCart";
 
 const ProductDetailsPage = ({ productId: propProductId }) => {
   const params = useParams();
   const productId = propProductId || params.id;
+
+  const { data: wishlistData } = useWishlist();
+
+  const { mutate: addToWishlist } = useAddWishlist();
+
+  const { mutate: removeFromWishlist } = useRemoveWishlist();
 
   const { data, isLoading, isError } = useProduct(productId);
 
@@ -35,8 +43,6 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
   const [activeTab, setActiveTab] = useState("description");
   const [selectedImage, setSelectedImage] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const { toggleWishlist, isWishlisted } = useWishlist();
 
   // 3. Locate active product details from dynamic response or fallback
   const currentProduct = useMemo(() => {
@@ -95,8 +101,8 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
       .filter((item) => item._id !== productId)
       .slice(0, 5)
       .map((product) => ({
-        id: product._id,
-        sku: product.sku || product._id?.substring(0, 8),
+        id: product.id,
+        sku: product.sku || product.id?.substring(0, 8),
         title: product.name || "Untitled Product",
         price: product.price ? `$${product.price}` : "$0.00",
         oldPrice: product.discountPrice ? `$${product.discountPrice}` : null,
@@ -109,7 +115,9 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
       }));
   }, [data, productId]);
 
-  const isCurrentWishlisted = isWishlisted(currentProduct.id);
+  const isCurrentWishlisted = wishlistData?.products?.some(
+    (item) => item._id === currentProduct.id,
+  );
 
   const handleAddToCart = () => {
     addToCart({
@@ -298,7 +306,23 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
               {/* Secondary Utility Links */}
               <div className="flex items-center gap-6 text-xs text-slate-600 mb-6 border-b border-slate-100 pb-4">
                 <button
-                  onClick={() => toggleWishlist(currentProduct)}
+                  onClick={() => {
+                    if (isCurrentWishlisted) {
+                      removeFromWishlist(currentProduct.id);
+                    } else {
+                      addToWishlist({
+                        _id: currentProduct.id,
+                        name: currentProduct.title,
+                        price: currentProduct.price,
+                        discountPrice: currentProduct.oldPrice || 0,
+                        stock: currentProduct.inStock ? 1 : 0,
+                        images:
+                          currentProduct.images?.map((url) => ({ url })) || [],
+                        brand: currentProduct.brand,
+                        category: currentProduct.category,
+                      });
+                    }
+                  }}
                   className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
                     isCurrentWishlisted
                       ? "text-red-500 font-semibold"
@@ -311,7 +335,8 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
                       isCurrentWishlisted ? "fill-red-500 text-red-500" : ""
                     }
                   />
-                  {isCurrentWishlisted ? "In Wishlist" : "Add to wishlist"}
+
+                  {isCurrentWishlisted ? "In Wishlist" : "Add to Wishlist"}
                 </button>
                 <button className="flex items-center gap-1.5 hover:text-[#006bc0] transition-colors cursor-pointer">
                   <RefreshCw size={14} /> Compare

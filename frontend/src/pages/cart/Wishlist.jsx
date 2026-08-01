@@ -1,9 +1,22 @@
 import React from "react";
 import { Heart, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
-import { useWishlist } from "../../context/WishlistContext";
+import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
+import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
+import { useClearWishlist } from "../../hooks/wishlist/useClearWishlist.js";
+import CartSkeleton from "./cartSkelton";
 
 const Wishlist = ({ onReturnToShop }) => {
-  const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist();
+  const { data, isLoading } = useWishlist();
+
+  const { mutate: removeFromWishlist } = useRemoveWishlist();
+
+  const { mutate: clearWishlist } = useClearWishlist();
+
+  const wishlistItems = data?.products || [];
+
+  if (isLoading) {
+    return <CartSkeleton />;
+  }
 
   // Empty State
   if (wishlistItems.length === 0) {
@@ -53,31 +66,31 @@ const Wishlist = ({ onReturnToShop }) => {
       <div className="divide-y divide-gray-100 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-xs max-h-[500px] overflow-y-auto hide-scrollbar">
         {wishlistItems.map((item) => {
           const numPrice =
-            typeof item.price === "number"
-              ? item.price
-              : parseFloat(item.price) || 0;
+            item.discountPrice > 0 ? item.discountPrice : item.price;
 
           return (
             <div
-              key={item.id}
+              key={item._id}
               className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 gap-4 hover:bg-gray-50/50 transition-colors"
             >
               {/* Product Details */}
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
                   <img
-                    src={item.images?.[0]?.url  || "https://via.placeholder.com/150"}
-                    alt={item.title || item.name}
+                    src={
+                      item.images?.[0]?.url || "https://via.placeholder.com/150"
+                    }
+                    alt={item.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                    {item.category || "General"}
+                    {item.category?.name || "General"}
                   </span>
                   <h4 className="text-sm font-bold text-gray-900">
-                    {item.title || item.name}
+                    {item.name}
                   </h4>
                   <div className="flex items-center space-x-3 mt-1">
                     <span className="text-sm font-semibold text-[#0067B2]">
@@ -85,12 +98,12 @@ const Wishlist = ({ onReturnToShop }) => {
                     </span>
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-md ${
-                        item.inStock !== false
+                        item.stock > 0
                           ? "bg-emerald-50 text-emerald-700"
                           : "bg-rose-50 text-rose-700"
                       }`}
                     >
-                      {item.inStock !== false ? "In Stock" : "Out of Stock"}
+                      {item.stock > 0 ? "In Stock" : "Out of Stock"}
                     </span>
                   </div>
                 </div>
@@ -108,7 +121,7 @@ const Wishlist = ({ onReturnToShop }) => {
 
                 <button
                   type="button"
-                  onClick={() => removeFromWishlist(item.id)}
+                  onClick={() => removeFromWishlist(item._id)}
                   className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
                   title="Remove item"
                 >
