@@ -45,3 +45,10 @@ export const resetDefaultAddressRepo = (userId) => {
     },
   );
 };
+
+export const getDefaultAddressRepo = (userId) => {
+  return Address.findOne({
+    user: userId,
+    isDefault: true,
+  });
+};

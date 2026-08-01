@@ -2,6 +2,7 @@ import {
   createAddressService,
   deleteAddressService,
   getAddressByIdService,
+  getDefaultAddressService,
   getUserAddressesService,
   setDefaultAddressService,
   updateAddressService,
@@ -80,6 +81,19 @@ export const deleteAddress = async (req, res, next) => {
 export const setDefaultAddress = async (req, res, next) => {
   try {
     const address = await setDefaultAddressService(req.params.id, req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: address,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDefaultAddress = async (req, res, next) => {
+  try {
+    const address = await getDefaultAddressService(req.user.id);
 
     res.status(200).json({
       success: true,

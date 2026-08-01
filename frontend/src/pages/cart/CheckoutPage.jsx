@@ -1,83 +1,153 @@
-import React, { useState } from 'react';
-import { Tag, Info } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Tag, Info, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useGetDefaultAddress } from "../../hooks/address/useGetDefaultAddress";
+import { useCart } from "../../hooks/cart/useCart";
 
 const CheckoutPage = () => {
+  const navigate = useNavigate();
+
+  // Custom Hooks Data
+  const { data: defaultAddress } = useGetDefaultAddress();
+  const { data: cartData, isLoading: isCartLoading } = useCart();
+
+  const cart = cartData?.data;
+
   // Coupon toggle state
   const [showCouponInput, setShowCouponInput] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    country: 'United States (US)',
-    streetAddress1: '',
-    streetAddress2: '',
-    city: '',
-    state: 'California',
-    zipCode: '',
-    phone: '',
-    email: '',
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "Kerala",
+    PinCod: "",
+    country: "India",
+    landmark: "",
+    addressType: "Home",
     createAccount: false,
     shipToDifferentAddress: false,
-    orderNotes: '',
+    orderNotes: "",
   });
 
-  // Payment method state
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
-  const [shippingMethod, setShippingMethod] = useState('flat_rate');
+  // Payment & Shipping method state
+  const [paymentMethod, setPaymentMethod] = useState("bank_transfer");
+  const [shippingMethod, setShippingMethod] = useState("flat_rate");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // Cart summary data
-  const orderItems = [
-    {
-      id: 1,
-      name: 'Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1 GA',
-      quantity: 1,
-      price: 23.43,
-    },
-    {
-      id: 2,
-      name: 'Anzo USA - 111630A FORD F-150 15-17 FULL LED PROJECTOR PLANK STYLE HEADLIGHTS',
-      quantity: 1,
-      price: 117.25,
-    },
-    {
-      id: 3,
-      name: 'Spyder BMW E90 3-Series 06-08 4DR Headlights - Halogen Model Only - Black PRO',
-      quantity: 1,
-      price: 186.99,
-    },
-  ];
+  // Sync default address into formData when loaded
+  useEffect(() => {
+    if (!defaultAddress) return;
 
-  const subtotal = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingCost = shippingMethod === 'flat_rate' ? 15.00 : 0.00;
+    setFormData((prev) => ({
+      ...prev,
+      fullName: defaultAddress.fullName || defaultAddress.firstName || "",
+      phone: defaultAddress.phone || "",
+      addressLine1:
+        defaultAddress.streetAddress1 || defaultAddress.addressLine1 || "",
+      addressLine2:
+        defaultAddress.streetAddress2 || defaultAddress.addressLine2 || "",
+      city: defaultAddress.city || "",
+      state: defaultAddress.state || "Kerala",
+      PinCod: defaultAddress.zipCode || defaultAddress.PinCod || "",
+      country: defaultAddress.country || "India",
+      landmark: defaultAddress.landmark || "",
+      addressType: defaultAddress.addressType || "Home",
+    }));
+  }, [defaultAddress]);
+
+  // Dynamic Cart Calculation
+  const cartItems =
+    cart?.items?.map((item) => ({
+      id: item._id,
+      name: item.productId?.name || "Product",
+      quantity: item.quantity,
+      price: item.priceAtAdded || 0,
+    })) || [];
+
+  const subtotal = cart?.totalPrice || 0;
+  const shippingCost = shippingMethod === "flat_rate" ? 15.0 : 0.0;
   const total = subtotal + shippingCost;
+
+  // Free shipping banner logic
+  const freeShippingThreshold = 500;
+  const amountNeededForFreeShipping = Math.max(
+    0,
+    freeShippingThreshold - subtotal,
+  );
+  const progressPercentage = Math.min(
+    100,
+    (subtotal / freeShippingThreshold) * 100,
+  );
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!agreedToTerms) {
-      alert('Please accept the terms and conditions to proceed.');
+      alert("Please accept the terms and conditions to proceed.");
       return;
     }
-    console.log('Order submitted:', { formData, paymentMethod, shippingMethod, total });
+
+    const payload = {
+      shippingAddress: formData,
+      paymentMethod,
+      shippingMethod,
+      orderItems: cartItems,
+      subtotal,
+      shippingCost,
+      total,
+    };
+
+    console.log("Order submitted:", payload);
   };
+
+  if (isCartLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-xs text-gray-500">
+        Loading checkout details...
+      </div>
+    );
+  }
+
+  if (!cartItems.length) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-16 px-4 flex flex-col items-center justify-center text-center">
+        <ShoppingCart className="w-16 h-16 text-gray-400 mb-4 stroke-[1.25]" />
+        <h2 className="text-base font-semibold text-gray-800 mb-2">
+          Your cart is empty
+        </h2>
+        <p className="text-xs text-gray-500 mb-6">
+          Add items to your cart before proceeding to checkout.
+        </p>
+        <button
+          onClick={() => navigate("/shop")}
+          className="bg-[#0066b2] hover:bg-[#005290] text-white text-xs font-medium py-2.5 px-6 rounded transition-colors"
+        >
+          Return to shop
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto">
-        
         {/* Breadcrumb */}
         <nav className="text-xs text-gray-500 mb-6">
-          <a href="#" className="hover:underline">Home</a>
+          <a href="#" className="hover:underline">
+            Home
+          </a>
           <span className="mx-1">/</span>
           <span className="text-gray-800 font-medium">Checkout</span>
         </nav>
@@ -87,7 +157,7 @@ const CheckoutPage = () => {
           <div className="flex items-center gap-2">
             <Tag className="w-4 h-4 text-gray-500" />
             <span>
-              Have a coupon?{' '}
+              Have a coupon?{" "}
               <button
                 type="button"
                 onClick={() => setShowCouponInput(!showCouponInput)}
@@ -123,49 +193,52 @@ const CheckoutPage = () => {
           <div className="flex items-center gap-2 text-xs text-red-600 mb-2">
             <Info className="w-4 h-4 text-red-500 flex-shrink-0" />
             <span>
-              Add <strong className="font-bold">$162.33</strong> to cart and get free shipping!
+              {amountNeededForFreeShipping > 0 ? (
+                <>
+                  Add{" "}
+                  <strong className="font-bold">
+                    ${amountNeededForFreeShipping.toFixed(2)}
+                  </strong>{" "}
+                  to cart and get free shipping!
+                </>
+              ) : (
+                <strong className="font-bold">
+                  You qualify for Free Shipping!
+                </strong>
+              )}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-red-500 h-1.5 w-[67.5%] transition-all duration-300" />
+            <div
+              className="bg-red-500 h-1.5 transition-all duration-300"
+              style={{ width: `${progressPercentage}%` }}
+            />
           </div>
         </div>
 
         {/* Main Form & Order Summary Layout */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        >
           {/* Billing Details (Left Column) */}
           <div className="lg:col-span-7 space-y-6">
-            <h2 className="text-lg font-bold text-gray-900 border-b pb-2">Billing details</h2>
+            <h2 className="text-lg font-bold text-gray-900 border-b pb-2">
+              Billing details
+            </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  First name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  required
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Last name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  required
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="fullName"
+                required
+                value={formData.fullName}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              />
             </div>
 
             <div>
@@ -178,6 +251,7 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-2.5 text-xs bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
               >
+                <option value="India">India</option>
                 <option value="United States (US)">United States (US)</option>
                 <option value="Canada">Canada</option>
                 <option value="United Kingdom">United Kingdom</option>
@@ -190,90 +264,91 @@ const CheckoutPage = () => {
               </label>
               <input
                 type="text"
-                name="streetAddress1"
+                name="addressLine1"
                 placeholder="House number and street name"
                 required
-                value={formData.streetAddress1}
+                value={formData.addressLine1}
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
               <input
                 type="text"
-                name="streetAddress2"
+                name="addressLine2"
                 placeholder="Apartment, suite, unit, etc. (optional)"
-                value={formData.streetAddress2}
+                value={formData.addressLine2}
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Town / City <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="city"
-                required
-                value={formData.city}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Town / City <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  required
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Landmark (optional)
+                </label>
+                <input
+                  type="text"
+                  name="landmark"
+                  value={formData.landmark}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  State <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="state"
+                  required
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  PIN / ZIP Code <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="PinCod"
+                  required
+                  value={formData.PinCod}
+                  onChange={handleInputChange}
+                  className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                State <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="state"
-                value={formData.state}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2.5 text-xs bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              >
-                <option value="California">California</option>
-                <option value="New York">New York</option>
-                <option value="Texas">Texas</option>
-                <option value="Florida">Florida</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                ZIP Code <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="zipCode"
-                required
-                value={formData.zipCode}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Phone (optional)
+                Phone <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Email address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
                 required
-                value={formData.email}
+                value={formData.phone}
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-2.5 text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
@@ -327,12 +402,18 @@ const CheckoutPage = () => {
                 Your order
               </h2>
 
-              {/* Order Items Table */}
+              {/* Order Items List */}
               <div className="divide-y divide-gray-100 text-xs">
-                {orderItems.map((item) => (
-                  <div key={item.id} className="py-3 flex justify-between items-start gap-4">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="py-3 flex justify-between items-start gap-4"
+                  >
                     <span className="text-gray-600 leading-snug">
-                      {item.name} <strong className="text-gray-800 font-semibold">× {item.quantity}</strong>
+                      {item.name}{" "}
+                      <strong className="text-gray-800 font-semibold">
+                        × {item.quantity}
+                      </strong>
                     </span>
                     <span className="font-semibold text-gray-800 whitespace-nowrap">
                       ${(item.price * item.quantity).toFixed(2)}
@@ -346,7 +427,9 @@ const CheckoutPage = () => {
               {/* Subtotal */}
               <div className="flex justify-between items-center text-xs text-gray-600">
                 <span>Subtotal</span>
-                <span className="font-semibold text-gray-800">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-gray-800">
+                  ${subtotal.toFixed(2)}
+                </span>
               </div>
 
               <hr className="border-gray-100" />
@@ -357,13 +440,15 @@ const CheckoutPage = () => {
                   <span>Shipping</span>
                   <div className="text-right space-y-1">
                     <label className="flex items-center gap-2 justify-end cursor-pointer">
-                      <span>Flat rate: <strong>$15.00</strong></span>
+                      <span>
+                        Flat rate: <strong>$15.00</strong>
+                      </span>
                       <input
                         type="radio"
                         name="shipping"
                         value="flat_rate"
-                        checked={shippingMethod === 'flat_rate'}
-                        onChange={() => setShippingMethod('flat_rate')}
+                        checked={shippingMethod === "flat_rate"}
+                        onChange={() => setShippingMethod("flat_rate")}
                         className="text-blue-600 focus:ring-0"
                       />
                     </label>
@@ -373,8 +458,8 @@ const CheckoutPage = () => {
                         type="radio"
                         name="shipping"
                         value="pickup"
-                        checked={shippingMethod === 'pickup'}
-                        onChange={() => setShippingMethod('pickup')}
+                        checked={shippingMethod === "pickup"}
+                        onChange={() => setShippingMethod("pickup")}
                         className="text-blue-600 focus:ring-0"
                       />
                     </label>
@@ -399,16 +484,19 @@ const CheckoutPage = () => {
                       type="radio"
                       name="payment"
                       value="bank_transfer"
-                      checked={paymentMethod === 'bank_transfer'}
-                      onChange={() => setPaymentMethod('bank_transfer')}
+                      checked={paymentMethod === "bank_transfer"}
+                      onChange={() => setPaymentMethod("bank_transfer")}
                       className="text-blue-600 focus:ring-0"
                     />
                     <span>Direct Bank Transfer</span>
                   </label>
 
-                  {paymentMethod === 'bank_transfer' && (
+                  {paymentMethod === "bank_transfer" && (
                     <div className="bg-gray-50 p-3 rounded text-[11px] text-gray-500 leading-relaxed border border-gray-100">
-                      Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
+                      Make your payment directly into our bank account. Please
+                      use your Order ID as the payment reference. Your order
+                      will not be shipped until the funds have cleared in our
+                      account.
                     </div>
                   )}
                 </div>
@@ -420,8 +508,8 @@ const CheckoutPage = () => {
                       type="radio"
                       name="payment"
                       value="check"
-                      checked={paymentMethod === 'check'}
-                      onChange={() => setPaymentMethod('check')}
+                      checked={paymentMethod === "check"}
+                      onChange={() => setPaymentMethod("check")}
                       className="text-blue-600 focus:ring-0"
                     />
                     <span>Check Payments</span>
@@ -435,8 +523,8 @@ const CheckoutPage = () => {
                       type="radio"
                       name="payment"
                       value="cod"
-                      checked={paymentMethod === 'cod'}
-                      onChange={() => setPaymentMethod('cod')}
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
                       className="text-blue-600 focus:ring-0"
                     />
                     <span>Cash On Delivery</span>
@@ -446,8 +534,13 @@ const CheckoutPage = () => {
 
               {/* Privacy Policy Notice */}
               <p className="text-[11px] text-gray-500 leading-normal pt-2">
-                Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our{' '}
-                <a href="#" className="text-gray-800 font-semibold underline">privacy policy</a>.
+                Your personal data will be used to process your order, support
+                your experience throughout this website, and for other purposes
+                described in our{" "}
+                <a href="#" className="text-gray-800 font-semibold underline">
+                  privacy policy
+                </a>
+                .
               </p>
 
               {/* Terms and Conditions Checkbox */}
@@ -460,10 +553,10 @@ const CheckoutPage = () => {
                     className="mt-0.5 rounded text-blue-600 focus:ring-0"
                   />
                   <span>
-                    I have read and agree to the website{' '}
+                    I have read and agree to the website{" "}
                     <a href="#" className="text-blue-600 underline">
                       terms and conditions
-                    </a>{' '}
+                    </a>{" "}
                     <span className="text-red-500">*</span>
                   </span>
                 </label>
@@ -478,7 +571,6 @@ const CheckoutPage = () => {
               </button>
             </div>
           </div>
-
         </form>
       </div>
     </div>

@@ -4,6 +4,7 @@ import {
   createAddress,
   deleteAddress,
   getAddresses,
+  getDefaultAddress,
   setDefaultAddress,
   updateAddress,
 } from "../controllers/address.controller.js";
@@ -15,6 +16,8 @@ const router = express.Router();
 router.post("/", protect, createAddress);
 
 router.get("/", protect, getAddresses);
+
+router.get("/default", protect, getDefaultAddress);
 
 router.get("/:id", protect, getAddressByIdRepo);
 

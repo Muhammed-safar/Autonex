@@ -6,6 +6,7 @@ import {
   updateAddressRepo,
   deleteAddressRepo,
   resetDefaultAddressRepo,
+  getDefaultAddressRepo,
 } from "../repositories/address.repository.js";
 
 export const createAddressService = async (userId, addressData) => {
@@ -89,4 +90,14 @@ export const deleteAddressService = async (addressId, userId) => {
   }
 
   return deleteAddressRepo(addressId);
+};
+
+export const getDefaultAddressService = async (userId) => {
+  const address = await getDefaultAddressRepo(userId);
+
+  if (!address) {
+    throw new Error("Default address not found");
+  }
+
+  return address;
 };

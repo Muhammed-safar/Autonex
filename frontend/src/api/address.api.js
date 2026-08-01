@@ -35,3 +35,8 @@ export const setDefaultAddress = async (id) => {
   const { data } = await API.patch(`/address/${id}/default`);
   return data;
 };
+
+export const getDefaultAddress = async () => {
+  const { data } = await API.get("/address/default");
+  return data.data;
+};
