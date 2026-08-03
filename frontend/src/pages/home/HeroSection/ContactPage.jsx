@@ -32,10 +32,20 @@ const ContactPage = () => {
         <div className="grid lg:grid-cols-2 gap-10 items-start">
           {/* About */}
 
-          <div className="space-y-8">
-            {/* Heading */}
-            <div>
-              <span className="inline-flex items-center gap-2 text-[#0066CC] text-sm font-bold uppercase tracking-[0.25em]">
+        
+
+          <div className="relative rounded-2xl overflow-hidden min-h-[420px] sm:min-h-[480px] flex flex-col justify-between p-6 sm:p-10 text-white shadow-sm">
+
+          <img
+            src="https://res.cloudinary.com/p61kdb2x/image/upload/v1785223388/banner-13.jpg_yxm61k.jpg"
+            alt="Spring Deals Banner"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent" />
+
+          <div className="relative z-10 space-y-4 max-w-md">
+           <span className="inline-flex items-center gap-2 text-[#0066CC] text-sm font-bold uppercase tracking-[0.25em]">
                 <span className="w-10 h-[2px] bg-[#0066CC]"></span>
                 About AutoNex
               </span>
@@ -45,10 +55,9 @@ const ContactPage = () => {
                 <br />
                 <span className="text-[#0066CC]">For Premium Auto Parts</span>
               </h2>
-            </div>
+            
 
-            {/* Highlight Box */}
-            <div className="bg-white border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
+             <div className="bg-white border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
               <p className="text-slate-700 leading-8">
                 AutoNex is dedicated to providing high-quality automotive parts
                 and accessories for every journey. From routine maintenance to
@@ -56,22 +65,10 @@ const ContactPage = () => {
                 confidence.
               </p>
             </div>
-
-            {/* Description */}
-            <div className="space-y-4 text-slate-600 leading-8">
-              <p>
-                Whether you're searching for genuine replacement parts,
-                performance upgrades, or accessories, our team is committed to
-                delivering quality products backed by reliable customer support.
-              </p>
-
-              <p>
-                Have questions about product compatibility, shipping, or your
-                order? Fill out the contact form and we'll respond as quickly as
-                possible.
-              </p>
-            </div>
           </div>
+
+         
+        </div>
 
           {/* Form */}
 
