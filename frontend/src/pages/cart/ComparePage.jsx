@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useCompare } from "../../context/CompareContext.jsx";
 import {
   ShoppingCart,
   Trash2,
@@ -8,89 +9,34 @@ import {
   Plus,
   GitCompare,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const initialProducts = [
-  {
-    id: 1,
-    name: "Anzo USA - 111530A FORD F-150 15-17 FULL LED PROJECTOR HEADLIGHTS",
-    image: "https://via.placeholder.com/200x200?text=Anzo+Headlights",
-    price: "$117.25",
-    originalPrice: "$145.00",
-    rating: 4.8,
-    reviewsCount: 24,
-    availability: "In Stock",
-    sku: "ANZ-111530A",
-    brand: "Anzo USA",
-    category: "Headlights & Lighting",
-    fitment: "2015-2017 Ford F-150",
-    warranty: "2 Years Limited",
-    specs: {
-      "Light Source": "Full LED",
-      "Housing Color": "Black",
-      "Lens Color": "Clear",
-      Voltage: "12V",
-      "SAE/DOT Compliant": "Yes",
-      "Waterproof Rating": "IP67",
-    },
-  },
-  {
-    id: 2,
-    name: "Spyder BMW E90 3-Series 06-08 4DR Headlights - Halogen Model Only",
-    image: "https://via.placeholder.com/200x200?text=Spyder+Headlights",
-    price: "$188.99",
-    originalPrice: "$210.00",
-    rating: 4.5,
-    reviewsCount: 18,
-    availability: "In Stock",
-    sku: "SPY-PRO-E90",
-    brand: "Spyder Auto",
-    category: "Headlights & Lighting",
-    fitment: "2006-2008 BMW 3-Series",
-    warranty: "1 Year Limited",
-    specs: {
-      "Light Source": "Halogen / LED Halo",
-      "Housing Color": "Black",
-      "Lens Color": "Clear",
-      Voltage: "12V",
-      "SAE/DOT Compliant": "Yes",
-      "Waterproof Rating": "IP65",
-    },
-  },
-];
+const ComparePage = () => {
+  const navigate = useNavigate()
+  const { compareProducts, removeFromCompare, clearCompare } = useCompare();
 
-const ComparePage =() => {
-  // Store products by slot index (e.g. up to 4 comparison slots)
   const MAX_SLOTS = 2;
-  const [slots, setSlots] = useState(() => {
-    const filled = [...initialProducts];
-    while (filled.length < MAX_SLOTS) {
-      filled.push(null);
-    }
-    return filled;
-  });
 
-  const handleRemoveSlot = (index) => {
-    const updated = [...slots];
-    updated[index] = null;
-    setSlots(updated);
-  };
-
-  const handleClearAll = () => {
-    setSlots(Array(MAX_SLOTS).fill(null));
-  };
+  const slots = [compareProducts[0] || null, compareProducts[1] || null];
 
   const activeProducts = slots.filter(Boolean);
 
+  const handleRemoveSlot = (index) => {
+    if (slots[index]) {
+      removeFromCompare(slots[index].id);
+    }
+  };
+
   // Extract all unique spec keys from present products
   const specKeys = Array.from(
-    new Set(activeProducts.flatMap((p) => Object.keys(p.specs || {})))
+    new Set(activeProducts.flatMap((p) => Object.keys(p.specs || {}))),
   );
 
   return (
     <div className="min-h-screen bg-gray-50 text-slate-800 font-sans">
       {/* ----------------- BREADCRUMBS ----------------- */}
       <div className="max-w-7xl mx-auto px-4 py-3 text-xs text-gray-400">
-        <span>Home</span> <span className="mx-1">/</span>{" "}
+        <span onClick={()=>navigate("/shop")}>Shop</span> <span className="mx-1">/</span>{" "}
         <span className="text-gray-600 font-medium">Compare Products</span>
       </div>
 
@@ -100,7 +46,7 @@ const ComparePage =() => {
           <h1 className="text-2xl font-bold text-gray-800">Compare Products</h1>
           {activeProducts.length > 0 && (
             <button
-              onClick={handleClearAll}
+              onClick={clearCompare}
               className="text-xs text-red-500 hover:underline flex items-center gap-1 font-medium"
             >
               <Trash2 className="w-3.5 h-3.5" /> Clear All Comparison
@@ -118,7 +64,9 @@ const ComparePage =() => {
             <p className="text-sm text-gray-500 mt-1">
               Add items from the store to compare their features and specs.
             </p>
-            <button className="mt-4 bg-[#0066B2] hover:bg-[#005290] text-white text-xs font-bold px-5 py-2.5 rounded transition">
+            <button
+            onClick={()=>navigate("/shop")}
+             className="mt-4 bg-[#0066B2] hover:bg-[#005290] text-white text-xs font-bold px-5 py-2.5 rounded transition">
               Continue Shopping
             </button>
           </div>
@@ -196,7 +144,9 @@ const ComparePage =() => {
                       ) : (
                         /* Empty Slot Placeholder */
                         <div className="h-full min-h-[260px] flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-6 bg-gray-50/50 hover:bg-gray-50 transition">
-                          <div className="w-10 h-10 rounded-full bg-blue-50 text-[#0066B2] flex items-center justify-center mb-2">
+                          <div
+                          onClick={()=>navigate("/shop")}
+                           className="w-10 h-10 rounded-full bg-blue-50 text-[#0066B2] flex items-center justify-center mb-2">
                             <Plus className="w-5 h-5" />
                           </div>
                           <span className="text-xs font-semibold text-gray-600 mb-1">
@@ -205,7 +155,9 @@ const ComparePage =() => {
                           <p className="text-[11px] text-gray-400 text-center mb-3">
                             Select an item to compare side-by-side
                           </p>
-                          <button className="border border-[#0066B2] text-[#0066B2] hover:bg-blue-50 text-xs font-semibold px-3 py-1.5 rounded transition">
+                          <button 
+                          onClick={()=>navigate("/shop")}
+                           className="border border-[#0066B2] text-[#0066B2] hover:bg-blue-50 text-xs font-semibold px-3 py-1.5 rounded transition">
                             Browse Products
                           </button>
                         </div>
@@ -317,6 +269,6 @@ const ComparePage =() => {
       </main>
     </div>
   );
-}
+};
 
-export default ComparePage
+export default ComparePage;

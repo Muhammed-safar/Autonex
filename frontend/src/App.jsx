@@ -31,6 +31,7 @@ import AdminRoute from "./routes/AdminRoute";
 import Dashboard from "./components/admin/Dashboard.jsx";
 import MainLoader from "./components/layout.jsx/MainLoader.jsx";
 import ContactPage from "./pages/home/HeroSection/ContactPage.jsx";
+import Blog from "./pages/home/HeroSection/Blog.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -67,6 +68,7 @@ const App = () => {
 
             <Route path="/cart/checkout" element={<CheckoutPage />} />
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/contact" element={<ContactPage />} />
           </Route>
 

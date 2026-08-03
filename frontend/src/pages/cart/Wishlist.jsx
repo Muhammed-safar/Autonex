@@ -4,15 +4,24 @@ import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
 import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
 import { useClearWishlist } from "../../hooks/wishlist/useClearWishlist.js";
 import CartSkeleton from "./CartSkeleton.jsx";
+import { useAddToCart } from "../../hooks/cart/useAddToCart.js";
 
 const Wishlist = ({ onReturnToShop }) => {
   const { data, isLoading } = useWishlist();
 
   const { mutate: removeFromWishlist } = useRemoveWishlist();
-
   const { mutate: clearWishlist } = useClearWishlist();
+  const { mutate: addToCart, isPending } = useAddToCart();
 
   const wishlistItems = data?.products || [];
+
+  const handleAddToCart = (item) => {
+    addToCart({
+      productId: item._id,
+      variantId: item.variantId,
+      quantity: 1,
+    });
+  };
 
   if (isLoading) {
     return <CartSkeleton />;
@@ -113,7 +122,9 @@ const Wishlist = ({ onReturnToShop }) => {
               <div className="flex items-center space-x-3 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
                 <button
                   type="button"
-                  className="flex-1 sm:flex-initial flex items-center justify-center space-x-2 bg-[#0067B2] hover:bg-[#00528e] text-white px-4 py-2 rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+                  onClick={() => handleAddToCart(item)}
+                  disabled={isPending || item.stock <= 0}
+                  className="flex-1 sm:flex-initial flex items-center justify-center space-x-2 bg-[#0067B2] hover:bg-[#00528e] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-xl text-xs font-semibold transition-colors shadow-xs cursor-pointer"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Add to Cart</span>
@@ -148,3 +159,4 @@ const Wishlist = ({ onReturnToShop }) => {
 };
 
 export default Wishlist;
+

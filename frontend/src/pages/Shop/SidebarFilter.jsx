@@ -28,7 +28,7 @@ const brands = brandData?.data || [];
     selectedBrands.length + 
     (statusFilters.inStock ? 1 : 0) + 
     (statusFilters.onSale ? 1 : 0) + 
-    (priceRange.min > 0 || priceRange.max < 860 ? 1 : 0);
+    (priceRange.min > 0 || priceRange.max < 20000 ? 1 : 0);
 
   const handleCategoryToggle = (categoryId) => {
     setSelectedCategories((prev) => 
