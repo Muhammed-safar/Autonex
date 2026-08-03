@@ -134,7 +134,7 @@ const ContactPage = () => {
             allowfullscreen=""
             loading="lazy"
             referrerpolicy="strict-origin-when-cross-origin"
-          ></iframe>
+          />
         </div>
       </section>
     </div>
