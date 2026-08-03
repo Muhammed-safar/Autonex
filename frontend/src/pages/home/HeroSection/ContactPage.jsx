@@ -71,41 +71,6 @@ const ContactPage = () => {
                 possible.
               </p>
             </div>
-
-            {/* Feature Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-[#0066CC] hover:shadow-md transition-all">
-                <div className="text-2xl mb-3">🚗</div>
-
-                <h4 className="font-bold text-slate-900">Genuine Parts</h4>
-
-                <p className="text-sm text-slate-500 mt-2">
-                  Premium quality parts from trusted manufacturers.
-                </p>
-              </div>
-
-              
-
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-[#0066CC] hover:shadow-md transition-all">
-                <div className="text-2xl mb-3">🛡️</div>
-
-                <h4 className="font-bold text-slate-900">Secure Shopping</h4>
-
-                <p className="text-sm text-slate-500 mt-2">
-                  Shop confidently with trusted payments and secure ordering.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-[#0066CC] hover:shadow-md transition-all">
-                <div className="text-2xl mb-3">💬</div>
-
-                <h4 className="font-bold text-slate-900">Expert Support</h4>
-
-                <p className="text-sm text-slate-500 mt-2">
-                  Friendly assistance whenever you need help choosing parts.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Form */}
