@@ -58,7 +58,7 @@ const ContactPage = () => {
             
 
              <div className="bg-white/20 border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
-              <p className="text-[#0066CC] leading-8">
+              <p className="text-white leading-8">
                 AutoNex is dedicated to providing high-quality automotive parts
                 and accessories for every journey. From routine maintenance to
                 performance upgrades, we help you find the right products with
