@@ -127,13 +127,14 @@ const ContactPage = () => {
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="rounded-2xl overflow-hidden shadow-lg">
           <iframe
+            title="AutoNex Location"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3914.4728734555133!2d75.892471!3d11.1525815!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba6502f41ef4e8b%3A0xf4c653a7548cccd!2sKinfra%20Techno%20Industrial%20Park!5e0!3m2!1sen!2sin!4v1785739625773!5m2!1sen!2sin"
-            width="600"
+            width="100%"
             height="450"
-            style="border:0;"
-            allowfullscreen=""
+            style={{ border: 0 }}
+            allowFullScreen
             loading="lazy"
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
           />
         </div>
       </section>
