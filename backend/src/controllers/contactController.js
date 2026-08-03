@@ -3,7 +3,7 @@ import Contact from "../models/Contact.js";
 import {
   sendAdminContactEmail,
   sendUserContactConfirmation,
-} from "../Services/mail.service.js";
+} from "../services/mail.service.js";
 
 export const sendContactMessage = async (req, res) => {
   try {

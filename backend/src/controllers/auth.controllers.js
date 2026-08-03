@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import PendingRegistration from "../models/PendingRegistration.js";
 import User from "../models/User.js";
-import { sendOTPEmail } from "../Services/mail.service.js";
+import { sendOTPEmail } from "../services/mail.service.js";
 import { generateOTP } from "../utils/GenerateOtp.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 import {
