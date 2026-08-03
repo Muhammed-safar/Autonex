@@ -1,74 +1,89 @@
-import React, { useState } from "react";
-import { Heart, Star } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Heart, Star, AlertCircle, RefreshCw } from "lucide-react";
+import { useProducts } from "../../../hooks/products/useProducts.js";
+import { Link } from "react-router-dom";
+import { useAddWishlist } from "../../../hooks/wishlist/useAddWishlist.js";
+import { useRemoveWishlist } from "../../../hooks/wishlist/useRemoveWishlist.js";
+import { useWishlist } from "../../../hooks/wishlist/useWishlist.js";
+import { useCategories } from "../../../hooks/categories/useCategories.js";
 
-const products = [
+// Tab definitions with the exact category names as stored in DB
+const CATEGORY_TABS = [
   {
     id: 1,
-    discount: "32%",
-    title: "Zerex G05 Phosphate Free Antifreeze Coolant Concentrate 1",
-    rating: 4.33,
-    reviews: 3,
-    price: "$33.43",
-    originalPrice: "$48.55",
-    image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=300",
+    name: "Oils & Fluids",
+    categoryNames: ["Engine Oil", "Brake Fluid", "Transmission Oil"],
   },
   {
     id: 2,
-    discount: "39%",
-    title: "Rislone High Mileage Steering Stop Whine with Leak Repair 4604",
-    rating: 4.33,
-    reviews: 3,
-    price: "$9.88",
-    originalPrice: "$15.99",
-    image:
-      "https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?auto=format&fit=crop&q=80&w=300",
+    name: "Tires & Wheels",
+    categoryNames: ["Tyre", "Wheel"],
   },
   {
     id: 3,
-    discount: "43%",
-    title: "Pennzoil Platinum Full Synthetic 0W-20 Motor Oil, 5 Quart",
-    rating: 3.33,
-    reviews: 3,
-    price: "$26.96",
-    originalPrice: "$47.11",
-    image:
-      "https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=300",
-  },
-  {
-    id: 4,
-    discount: "28%",
-    title: "Oil Filter - Compatible with 2011 - 2022 Ford",
-    rating: 4.33,
-    reviews: 3,
-    price: "$65.33",
-    originalPrice: "$89.99",
-    image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=300",
-  },
-  {
-    id: 5,
-    discount: "39%",
-    title: "Mobil 1 Advanced Fuel Economy Full Synthetic Motor Oil 0W-20, 5",
-    rating: 4.33,
-    reviews: 3,
-    price: "$24.72",
-    originalPrice: "$39.99",
-    image:
-      "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=80&w=300",
+    name: "Tools & Equipment",
+    categoryNames: ["Spark Plug", "Lifting Equipment", "Brake System"],
   },
 ];
 
-const categories = ["Oils and fluids", "Tires & Wheels", "Tools & Equipment"];
-
 const BestSeller = () => {
-  const [activeCategory, setActiveCategory] = useState("Oils and fluids");
-  const [wishlist, setWishlist] = useState([]);
+  const { mutate: addWishlist } = useAddWishlist();
+  const { mutate: removeWishlist } = useRemoveWishlist();
+  const { data: wishlistData } = useWishlist();
 
-  const toggleWishlist = (id) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  const [activeTab, setActiveTab] = useState(CATEGORY_TABS[0]);
+
+  // Fetch all categories to resolve names → IDs
+  const { data: categoryData } = useCategories({ page: 1, search: "" });
+  const allCategories = categoryData?.data || [];
+
+  // Find category IDs matching the active tab's category names (case-insensitive)
+  const activeCategoryIds = useMemo(() => {
+    if (!allCategories.length) return [];
+    return allCategories
+      .filter((cat) =>
+        activeTab.categoryNames.some(
+          (name) => name.toLowerCase() === cat.name?.toLowerCase()
+        )
+      )
+      .map((cat) => cat._id);
+  }, [allCategories, activeTab]);
+
+  // Join the IDs as a comma-separated string for the API (backend parses CSV IDs)
+  const categoryParam = activeCategoryIds.join(",") || undefined;
+
+  const { data, isLoading, isError, error, refetch } = useProducts({
+    category: categoryParam,
+    limit: 5,
+  });
+
+  const wishlistItems = wishlistData?.data || [];
+  const products = Array.isArray(data) ? data : data?.data || [];
+
+  // Fixed handleWishlist — now correctly receives the product object
+  const handleWishlist = (product) => {
+    const id = product._id || product.id;
+    const isLiked = wishlistItems.some(
+      (item) => item._id === id || item.product?._id === id
     );
+
+    if (isLiked) {
+      removeWishlist(id);
+      return;
+    }
+
+    addWishlist({
+      _id: id,
+      name: product.name || product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      stock: product.stock ?? (product.inStock ? 1 : 0),
+      images: product.images?.length
+        ? product.images
+        : [{ url: product.image || "" }],
+      brand: product.brand,
+      category: product.category,
+    });
   };
 
   return (
@@ -82,17 +97,17 @@ const BestSeller = () => {
 
           {/* Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {categories.map((cat) => (
+            {CATEGORY_TABS.map((tab) => (
               <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
+                key={tab.id}
+                onClick={() => setActiveTab(tab)}
                 className={`px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors border ${
-                  activeCategory === cat
+                  activeTab.id === tab.id
                     ? "border-[#0066CC] text-[#0066CC] bg-blue-50/50"
                     : "border-gray-200 text-gray-500 hover:border-gray-300"
                 }`}
               >
-                {cat}
+                {tab.name}
               </button>
             ))}
           </div>
@@ -107,91 +122,153 @@ const BestSeller = () => {
         </a>
       </div>
 
-      {/* PRODUCTS CONTAINER: 
-          Mobile (xs/sm): 2 cards per view + scroll
-          Tablet (md): 3 cards per view + scroll
-          Desktop (lg): Grid 5 cols
-      */}
-      <div className="flex lg:grid lg:grid-cols-5 gap-3 sm:gap-4 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory scroll-smooth no-scrollbar">
-        {products.map((product) => {
-          const isLiked = wishlist.includes(product.id);
-
-          return (
+      {/* PRODUCTS CONTAINER */}
+      {isLoading ? (
+        // Skeleton Loader (5 Items)
+        <div className="flex lg:grid lg:grid-cols-5 gap-3 sm:gap-4 overflow-x-auto pb-4 lg:pb-0 no-scrollbar">
+          {[...Array(5)].map((_, i) => (
             <div
-              key={product.id}
-              /* 
-                - Mobile: w-[calc(50%-6px)] -> Fits 2 cards exactly
-                - Tablet: md:w-[calc(33.333%-11px)] -> Fits 3 cards exactly
-                - Desktop: lg:w-full -> Fits 5 in grid
-              */
-              className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] lg:w-full shrink-0 lg:shrink snap-start bg-white rounded-xl border border-gray-100 p-2.5 sm:p-3 flex flex-col justify-between hover:shadow-md transition-shadow group relative"
+              key={i}
+              className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] lg:w-full shrink-0 lg:shrink bg-white rounded-xl border border-gray-100 p-2.5 sm:p-3 animate-pulse"
             >
-              {/* Image & Badges Container */}
-              <div className="relative w-full aspect-square bg-gray-50 rounded-lg p-2 flex items-center justify-center mb-2">
-                {/* Discount Badge */}
-                <span className="absolute top-1.5 left-1.5 bg-[#0066CC] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded">
-                  {product.discount}
-                </span>
+              <div className="w-full aspect-square bg-gray-200 rounded-lg mb-3" />
+              <div className="h-3 bg-gray-200 rounded w-1/2 mb-2" />
+              <div className="h-4 bg-gray-200 rounded w-full mb-1" />
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-3" />
+              <div className="h-5 bg-gray-200 rounded w-1/3" />
+            </div>
+          ))}
+        </div>
+      ) : isError ? (
+        // Error State
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <AlertCircle className="text-red-500 mb-2" size={32} />
+          <p className="text-sm font-medium text-gray-700">
+            Failed to load products.
+          </p>
+          <p className="text-xs text-gray-400 mb-4">
+            {error?.message || "Something went wrong."}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#0066CC] bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            <RefreshCw size={12} /> Try Again
+          </button>
+        </div>
+      ) : products.length === 0 ? (
+        // Empty State
+        <div className="py-12 text-center text-gray-500 text-sm">
+          No best sellers found for "{activeTab.name}".
+        </div>
+      ) : (
+        // Products Display Grid/Carousel
+        <div className="flex lg:grid lg:grid-cols-5 gap-3 sm:gap-4 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory scroll-smooth no-scrollbar">
+          {products.slice(0, 5).map((product) => {
+            const id = product._id || product.id;
 
-                {/* Wishlist Button */}
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className="absolute top-1.5 right-1.5 p-1 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm"
-                  aria-label="Add to wishlist"
-                >
-                  <Heart
-                    size={13}
-                    className={isLiked ? "fill-red-500 text-red-500" : ""}
-                  />
-                </button>
+            const isLiked = wishlistItems.some(
+              (item) => item._id === id || item.product?._id === id
+            );
+            const title = product.title || product.name;
+            const image =
+              product.image ||
+              product.images?.[0]?.url ||
+              product.images?.[0] ||
+              "https://via.placeholder.com/300";
+            const price =
+              typeof product.price === "number"
+                ? `$${product.price.toFixed(2)}`
+                : product.price;
+            const originalPrice =
+              typeof product.originalPrice === "number"
+                ? `$${product.originalPrice.toFixed(2)}`
+                : product.originalPrice;
+            const rating = product.rating || 4.5;
+            const reviews = product.reviews || product.reviewCount || 0;
+            const discount = product.discountPrice || null;
 
-                {/* Product Image */}
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="max-h-full max-w-full object-contain transition-transform duration-300"
-                />
-              </div>
-
-              {/* Product Info */}
-              <div className="space-y-1.5 flex-1 flex flex-col justify-between">
-                <div>
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-gray-500 mb-1">
-                    <div className="flex items-center text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={10} fill="currentColor" />
-                      ))}
-                    </div>
-                    <span className="font-semibold text-gray-800 ml-0.5">
-                      {product.rating}
+            return (
+              <Link
+                to={`/product/${id}`}
+                key={id}
+                className="w-[calc(50%-6px)] md:w-[calc(33.333%-11px)] lg:w-full shrink-0 lg:shrink snap-start bg-white rounded-xl border border-gray-100 p-2.5 sm:p-3 flex flex-col justify-between hover:shadow-md transition-shadow group relative"
+              >
+                {/* Image & Badges Container */}
+                <div className="relative w-full aspect-square bg-gray-50 rounded-lg p-2 flex items-center justify-center mb-2">
+                  {/* Discount Badge */}
+                  {discount && (
+                    <span className="absolute top-1.5 left-1.5 bg-[#0066CC] text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded z-10">
+                      {discount}
                     </span>
-                    <span className="text-gray-400">({product.reviews})</span>
+                  )}
+
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleWishlist(product);
+                    }}
+                    className="absolute top-1.5 right-1.5 p-1 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm z-10"
+                    aria-label="Add to wishlist"
+                  >
+                    <Heart
+                      size={13}
+                      className={isLiked ? "fill-red-500 text-red-500" : ""}
+                    />
+                  </button>
+
+                  {/* Product Image */}
+                  <img
+                    src={image}
+                    alt={title}
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Product Info */}
+                <div className="space-y-1.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    {/* Rating */}
+                    <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-gray-500 mb-1">
+                      <div className="flex items-center text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={10} fill="currentColor" />
+                        ))}
+                      </div>
+                      <span className="font-semibold text-gray-800 ml-0.5">
+                        {rating}
+                      </span>
+                      <span className="text-gray-400">({reviews})</span>
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      className="text-[11px] sm:text-xs font-medium sm:font-semibold text-gray-800 line-clamp-2 leading-snug"
+                      title={title}
+                    >
+                      {title}
+                    </h3>
                   </div>
 
-                  {/* Title */}
-                  <h3
-                    className="text-[11px] sm:text-xs font-medium sm:font-semibold text-gray-800 line-clamp-2 leading-snug"
-                    title={product.title}
-                  >
-                    {product.title}
-                  </h3>
+                  {/* Price */}
+                  <div className="flex items-baseline gap-1.5 pt-1">
+                    <span className="text-sm sm:text-base font-bold text-[#00A651]">
+                      {price}
+                    </span>
+                    {originalPrice && (
+                      <span className="text-[10px] sm:text-xs text-gray-400 line-through">
+                        {originalPrice}
+                      </span>
+                    )}
+                  </div>
                 </div>
-
-                {/* Price */}
-                <div className="flex items-baseline gap-1.5 pt-1">
-                  <span className="text-sm sm:text-base font-bold text-[#00A651]">
-                    {product.price}
-                  </span>
-                  <span className="text-[10px] sm:text-xs text-gray-400 line-through">
-                    {product.originalPrice}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {/* Pagination Indicator Dots for Mobile & Tablet */}
       <div className="flex lg:hidden justify-center items-center gap-1.5 mt-3">

@@ -1,93 +1,51 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Heart, Star } from "lucide-react";
-
-// Left & Right Grid Products Data
-const sideProducts = {
-  left: [
-    {
-      id: 1,
-      discount: "-28%",
-      title: "Vauxhall Zafira MK2 2008-2014 Tail Back Rear Light Lamp Lens",
-      price: "$64.95",
-      originalPrice: "$89.15",
-      available: 3,
-      sold: 4,
-      image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 2,
-      discount: "-25%",
-      title: "TYPE S - Remote-Controlled 194_T10 Multicolor LED Mini Bul",
-      price: "$7.55",
-      originalPrice: "$9.99",
-      available: 12,
-      sold: 10,
-      image: "https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 3,
-      discount: "-30%",
-      title: "Sylvania H11 SilverStar ULTRA Halogen Headlight Bulb, 2 Pack",
-      price: "$20.19",
-      originalPrice: "$28.66",
-      available: 11,
-      sold: 30,
-      image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=80&w=300",
-    },
-  ],
-  right: [
-    {
-      id: 4,
-      discount: "-24%",
-      title: "ATK Engines HP32C Replace High Performance 350HP Complete",
-      price: "$759.25",
-      originalPrice: "$998.29",
-      available: 5,
-      sold: 12,
-      image: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 5,
-      discount: "-19%",
-      title: "Crate Engine - SBC 396 491HP Dressed Model",
-      price: "$745.99",
-      originalPrice: "$917.77",
-      available: 20,
-      sold: 15,
-      image: "https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 6,
-      discount: "-9%",
-      title: "SBC 383 Crate Engine - Base Dressed w/Alm Heads",
-      price: "$855.26",
-      originalPrice: "$936.86",
-      available: 20,
-      sold: 21,
-      image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300",
-    },
-  ],
-};
-
-// Center Spotlight Product Data
-const featuredSpotlight = {
-  id: 99,
-  title: "AKKON - For Dodge Grand Caravan Black Headlights Head Lamps Driver",
-  rating: 4.0,
-  reviews: 3,
-  price: "$129.99",
-  image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=600",
-};
+import { Heart, Star, AlertCircle, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useProducts } from "../../../hooks/products/useProducts.js";
+import { useAddWishlist } from "../../../hooks/wishlist/useAddWishlist.js";
+import { useRemoveWishlist } from "../../../hooks/wishlist/useRemoveWishlist.js";
+import { useWishlist } from "../../../hooks/wishlist/useWishlist.js";
 
 const FeaturedProducts = () => {
-  const [wishlist, setWishlist] = useState([]);
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  const toggleWishlist = (id) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  const { mutate: addWishlist } = useAddWishlist();
+  const { mutate: removeWishlist } = useRemoveWishlist();
+  const { data: wishlistData } = useWishlist();
+
+  // Fetch first 7 featured products
+  const { data, isLoading, isError, error, refetch } = useProducts({
+    featured: "true",
+    limit: 7,
+  });
+
+  const wishlistItems = wishlistData?.data || [];
+  const products = Array.isArray(data) ? data : data?.data || [];
+
+  const handleWishlist = (product) => {
+    const id = product._id || product.id;
+    const isLiked = wishlistItems.some(
+      (item) => item._id === id || item.product?._id === id
     );
+
+    if (isLiked) {
+      removeWishlist(id);
+      return;
+    }
+
+    addWishlist({
+      _id: id,
+      name: product.name || product.title,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      stock: product.stock ?? 0,
+      images: product.images?.length
+        ? product.images
+        : [{ url: product.image || "" }],
+      brand: product.brand,
+      category: product.category,
+    });
   };
 
   // Auto-scroll logic for mobile
@@ -115,22 +73,68 @@ const FeaturedProducts = () => {
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  // Reusable Horizontal Side Card
+  // Horizontal product card (for left/right side columns — uses first 3 and last 3)
   const HorizontalCard = ({ product }) => {
-    const total = product.available + product.sold;
-    const progressPercent = (product.sold / total) * 100;
+    const id = product._id || product.id;
+    const title = product.name || product.title;
+    const image =
+      product.images?.[0]?.url ||
+      product.images?.[0] ||
+      product.image ||
+      "https://via.placeholder.com/300";
+    const price =
+      typeof product.price === "number"
+        ? `$${product.price.toFixed(2)}`
+        : product.price || "";
+    const originalPrice =
+      typeof product.discountPrice === "number" && product.discountPrice > 0
+        ? `$${product.discountPrice.toFixed(2)}`
+        : null;
+    const available = product.stock ?? 0;
+    const sold = product.totalSold ?? 0;
+    const total = available + sold || 1;
+    const progressPercent = Math.min((sold / total) * 100, 100);
+
+    const discountPct =
+      product.discountPrice > 0 && product.price > 0
+        ? `-${Math.round(((product.price - product.discountPrice) / product.price) * 100)}%`
+        : null;
+
+    const isLiked = wishlistItems.some(
+      (item) => item._id === id || item.product?._id === id
+    );
 
     return (
-      <div className="bg-white rounded-xl border border-gray-100 p-2 flex items-center gap-2.5 hover:shadow-md transition-shadow group h-full w-full min-h-0 overflow-hidden">
+      <Link
+        to={`/product/${id}`}
+        className="bg-white rounded-xl border border-gray-100 p-2 flex items-center gap-2.5 hover:shadow-md transition-shadow group h-full w-full min-h-0 overflow-hidden"
+      >
         {/* Thumbnail Box */}
         <div className="relative w-24 sm:w-28 h-full bg-[#F8FAFC] rounded-lg shrink-0 flex items-center justify-center p-1.5 min-h-0">
           {/* Discount Badge */}
-          <span className="absolute -top-1 -left-1 bg-[#F43F5E] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm z-10">
-            {product.discount}
-          </span>
+          {discountPct && (
+            <span className="absolute -top-1 -left-1 bg-[#F43F5E] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm z-10">
+              {discountPct}
+            </span>
+          )}
+          {/* Wishlist Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleWishlist(product);
+            }}
+            className="absolute top-1 right-1 p-0.5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm z-10"
+            aria-label="Add to wishlist"
+          >
+            <Heart
+              size={11}
+              className={isLiked ? "fill-red-500 text-red-500" : ""}
+            />
+          </button>
           <img
-            src={product.image}
-            alt={product.title}
+            src={image}
+            alt={title}
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -139,16 +143,18 @@ const FeaturedProducts = () => {
         <div className="flex-1 min-w-0 flex flex-col justify-between h-full py-0.5">
           <div className="min-h-0">
             <h3 className="text-[11px] sm:text-xs font-semibold text-gray-800 line-clamp-2 leading-tight">
-              {product.title}
+              {title}
             </h3>
 
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-xs sm:text-sm font-extrabold text-[#00A651]">
-                {product.price}
+                {price}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-gray-400 line-through">
-                {product.originalPrice}
-              </span>
+              {originalPrice && (
+                <span className="text-[9px] sm:text-[10px] text-gray-400 line-through">
+                  {originalPrice}
+                </span>
+              )}
             </div>
           </div>
 
@@ -162,17 +168,88 @@ const FeaturedProducts = () => {
             </div>
             <div className="flex justify-between items-center text-[9px] sm:text-[10px] text-gray-400 font-medium">
               <span>
-                Available:<strong className="text-gray-700 ml-0.5">{product.available}</strong>
+                Available:<strong className="text-gray-700 ml-0.5">{available}</strong>
               </span>
               <span>
-                Sold:<strong className="text-gray-700 ml-0.5">{product.sold}</strong>
+                Sold:<strong className="text-gray-700 ml-0.5">{sold}</strong>
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </Link>
     );
   };
+
+  // ─── Loading State ────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <section className="w-full max-w-7xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-3">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Featured Products</h2>
+        </div>
+        <div className="lg:grid lg:grid-cols-3 gap-3 lg:h-[75vh] hidden">
+          {[...Array(3)].map((_, col) => (
+            <div key={col} className="flex flex-col gap-2 h-full">
+              {[...Array(3)].map((_, row) => (
+                <div key={row} className="flex-1 bg-white rounded-xl border border-gray-100 p-2 animate-pulse flex items-center gap-2">
+                  <div className="w-24 bg-gray-200 rounded-lg h-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-3/4" />
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // ─── Error State ──────────────────────────────────────────────────
+  if (isError) {
+    return (
+      <section className="w-full max-w-7xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between pb-2 border-b border-gray-100 mb-3">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Featured Products</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <AlertCircle className="text-red-500 mb-2" size={32} />
+          <p className="text-sm font-medium text-gray-700">Failed to load featured products.</p>
+          <p className="text-xs text-gray-400 mb-4">{error?.message || "Something went wrong."}</p>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#0066CC] bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            <RefreshCw size={12} /> Try Again
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  // Distribute: left (3), center spotlight (1), right (3)
+  const leftProducts = products.slice(0, 3);
+  const spotlightProduct = products[3] || null;
+  const rightProducts = products.slice(4, 7);
+
+  // Spotlight product derived values
+  const spotlightId = spotlightProduct?._id || spotlightProduct?.id;
+  const spotlightTitle = spotlightProduct?.name || spotlightProduct?.title || "";
+  const spotlightImage =
+    spotlightProduct?.images?.[0]?.url ||
+    spotlightProduct?.images?.[0] ||
+    spotlightProduct?.image ||
+    "https://via.placeholder.com/600";
+  const spotlightPrice =
+    typeof spotlightProduct?.price === "number"
+      ? `$${spotlightProduct.price.toFixed(2)}`
+      : spotlightProduct?.price || "";
+  const spotlightRating = spotlightProduct?.rating || 4.5;
+  const spotlightReviews = spotlightProduct?.reviewCount || spotlightProduct?.reviews || 0;
+  const spotlightIsLiked = wishlistItems.some(
+    (item) => item._id === spotlightId || item.product?._id === spotlightId
+  );
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-4">
@@ -186,111 +263,134 @@ const FeaturedProducts = () => {
             Our most ordered products.
           </span>
         </div>
-        <a
-          href="#"
+        <Link
+          to="/shop"
           className="text-xs font-semibold text-[#0066CC] hover:underline"
         >
           View All
-        </a>
+        </Link>
       </div>
 
-      {/* 
-        MAIN GRID/CAROUSEL CONTAINER
-        - Desktop height fixed to 75% of viewport height (75vh) without overflow
-      */}
-      <div
-        ref={scrollRef}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => setIsPaused(false)}
-        className="flex lg:grid lg:grid-cols-3 gap-3 overflow-x-auto pb-2 lg:pb-0 snap-x snap-mandatory scroll-smooth no-scrollbar lg:h-[75vh]"
-      >
-        {/* LEFT COLUMN (3 Cards stacked evenly inside 75vh) */}
-        <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start flex flex-col justify-between gap-2 h-[480px] lg:h-full min-h-0">
-          {sideProducts.left.map((item) => (
-            <div key={item.id} className="flex-1 min-h-0">
-              <HorizontalCard product={item} />
-            </div>
-          ))}
+      {products.length === 0 ? (
+        <div className="py-12 text-center text-gray-500 text-sm">
+          No featured products available right now.
         </div>
-
-        {/* CENTER COLUMN (Spotlight Card) */}
-        <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start bg-[#fff5f7] rounded-2xl border-2 border-[#F43F5E] p-3 sm:p-4 flex flex-col justify-between shadow-sm relative group 
-        h-[480px] lg:h-full min-h-0 overflow-hidden shadow-[0_0_20px_rgba(244,63,94,0.12)]">
-          {/* Wishlist Button */}
-          <button
-            onClick={() => toggleWishlist(featuredSpotlight.id)}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm z-10"
-            aria-label="Add to wishlist"
+      ) : (
+        <>
+          {/*
+            MAIN GRID/CAROUSEL CONTAINER
+            - Desktop height fixed to 75% of viewport height (75vh) without overflow
+          */}
+          <div
+            ref={scrollRef}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            className="flex lg:grid lg:grid-cols-3 gap-3 overflow-x-auto pb-2 lg:pb-0 snap-x snap-mandatory scroll-smooth no-scrollbar lg:h-[75vh]"
           >
-            <Heart
-              size={15}
-              className={
-                wishlist.includes(featuredSpotlight.id)
-                  ? "fill-red-500 text-red-500"
-                  : ""
-              }
-            />
-          </button>
-
-          {/* Product Image Area */}
-          <div className="relative w-full flex-1 bg-[#F8FAFC] rounded-xl p-3 flex items-center justify-center mb-2 min-h-0 overflow-hidden">
-            <img
-              src={featuredSpotlight.image}
-              alt={featuredSpotlight.title}
-              className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-
-          {/* Product Info & CTA */}
-          <div className="space-y-1.5 shrink-0">
-            {/* Rating */}
-            <div className="flex items-center gap-1 text-[11px] text-gray-500">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={12} fill="currentColor" />
+            {/* LEFT COLUMN (3 Cards stacked evenly inside 75vh) */}
+            <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start flex flex-col justify-between gap-2 h-[480px] lg:h-full min-h-0">
+              {leftProducts.map((product) => (
+                <div key={product._id || product.id} className="flex-1 min-h-0">
+                  <HorizontalCard product={product} />
+                </div>
+              ))}
+              {/* Fill empty slots if fewer than 3 */}
+              {leftProducts.length < 3 &&
+                [...Array(3 - leftProducts.length)].map((_, i) => (
+                  <div key={`empty-left-${i}`} className="flex-1 min-h-0" />
                 ))}
+            </div>
+
+            {/* CENTER COLUMN (Spotlight Card) */}
+            {spotlightProduct ? (
+              <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start bg-[#fff5f7] rounded-2xl border-2 border-[#F43F5E] p-3 sm:p-4 flex flex-col justify-between relative group h-[480px] lg:h-full min-h-0 overflow-hidden shadow-[0_0_20px_rgba(244,63,94,0.12)]">
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => handleWishlist(spotlightProduct)}
+                  className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 transition-colors shadow-sm z-10"
+                  aria-label="Add to wishlist"
+                >
+                  <Heart
+                    size={15}
+                    className={spotlightIsLiked ? "fill-red-500 text-red-500" : ""}
+                  />
+                </button>
+
+                {/* Product Image Area */}
+                <Link
+                  to={`/product/${spotlightId}`}
+                  className="relative w-full flex-1 bg-[#F8FAFC] rounded-xl p-3 flex items-center justify-center mb-2 min-h-0 overflow-hidden"
+                >
+                  <img
+                    src={spotlightImage}
+                    alt={spotlightTitle}
+                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                </Link>
+
+                {/* Product Info & CTA */}
+                <div className="space-y-1.5 shrink-0">
+                  {/* Rating */}
+                  <div className="flex items-center gap-1 text-[11px] text-gray-500">
+                    <div className="flex items-center text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={12} fill="currentColor" />
+                      ))}
+                    </div>
+                    <span className="font-bold text-gray-800 ml-1">
+                      {spotlightRating}
+                    </span>
+                    <span className="text-gray-400">({spotlightReviews})</span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight">
+                    {spotlightTitle}
+                  </h3>
+
+                  {/* Price */}
+                  <div className="text-base sm:text-lg font-black text-gray-900">
+                    {spotlightPrice}
+                  </div>
+
+                  {/* View Product Button */}
+                  <Link
+                    to={`/product/${spotlightId}`}
+                    className="block w-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-bold text-xs py-2 rounded-lg transition-colors shadow-sm text-center"
+                  >
+                    View Product
+                  </Link>
+                </div>
               </div>
-              <span className="font-bold text-gray-800 ml-1">
-                {featuredSpotlight.rating.toFixed(2)}
-              </span>
-              <span className="text-gray-400">({featuredSpotlight.reviews})</span>
+            ) : (
+              <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start" />
+            )}
+
+            {/* RIGHT COLUMN (3 Cards stacked evenly inside 75vh) */}
+            <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start flex flex-col justify-between gap-2 h-[480px] lg:h-full min-h-0">
+              {rightProducts.map((product) => (
+                <div key={product._id || product.id} className="flex-1 min-h-0">
+                  <HorizontalCard product={product} />
+                </div>
+              ))}
+              {/* Fill empty slots if fewer than 3 */}
+              {rightProducts.length < 3 &&
+                [...Array(3 - rightProducts.length)].map((_, i) => (
+                  <div key={`empty-right-${i}`} className="flex-1 min-h-0" />
+                ))}
             </div>
-
-            {/* Title */}
-            <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 leading-tight">
-              {featuredSpotlight.title}
-            </h3>
-
-            {/* Price */}
-            <div className="text-base sm:text-lg font-black text-gray-900">
-              {featuredSpotlight.price}
-            </div>
-
-            {/* Add to Cart Button */}
-            <button className="w-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-bold text-xs py-2 rounded-lg transition-colors shadow-sm active:scale-98">
-              Add to cart
-            </button>
           </div>
-        </div>
 
-        {/* RIGHT COLUMN (3 Cards stacked evenly inside 75vh) */}
-        <div className="w-[280px] sm:w-[340px] lg:w-full shrink-0 lg:shrink snap-start flex flex-col justify-between gap-2 h-[480px] lg:h-full min-h-0">
-          {sideProducts.right.map((item) => (
-            <div key={item.id} className="flex-1 min-h-0">
-              <HorizontalCard product={item} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Mobile Pagination Indicator Dots */}
-      <div className="flex lg:hidden justify-center items-center gap-1.5 mt-2">
-        <span className="w-2 h-2 rounded-full bg-[#0066CC]"></span>
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-      </div>
+          {/* Mobile Pagination Indicator Dots */}
+          <div className="flex lg:hidden justify-center items-center gap-1.5 mt-2">
+            <span className="w-2 h-2 rounded-full bg-[#0066CC]"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          </div>
+        </>
+      )}
     </section>
   );
 };

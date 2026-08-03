@@ -1,52 +1,50 @@
 import React from "react";
 import DealCard from "./DealCard";
+import { useProducts } from "../../../hooks/products/useProducts";
+import { useCategories } from "../../../hooks/categories/useCategories";
 
 const DealList = () => {
-  const deals = [
-    {
-      id: 1,
-      discount: "-20%",
-      title: "Yokohama Geolandar X-CV All Season 255_45R20 105W XL",
-      price: "$252.96",
-      originalPrice: "$314.56",
-      available: 27,
-      sold: 10,
-      image:
-        "https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 2,
-      discount: "-30%",
-      title: "Touren TR60-3260 16x7 5X112_5X120 42Et 72.62Cb Matt",
-      price: "$131.87",
-      originalPrice: "$187.16",
-      available: 8,
-      sold: 4,
-      image:
-        "https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?auto=format&fit=crop&q=80&w=300",
-    },
-    {
-      id: 3,
-      discount: "-18%",
-      title: "Touren TR9-3190 18x8 5X112_5X120 40Et 74.1Cb",
-      price: "$153.36",
-      originalPrice: "$186.25",
-      available: 14,
-      sold: 20,
-      image:
-        "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=300",
-    },
-  ];
+ const { data: categoryData } = useCategories();
 
+  const alloyCategory = categoryData?.data?.find(
+    (category) => category.name === "Wheel",
+  );
+
+  const { data, isLoading, isError } = useProducts({
+    category: alloyCategory?._id,
+    limit: 3,
+  });
+
+  const deals = data?.data || [];
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError) {
+    return <p>Failed to load products.</p>;
+  }
   return (
     <div>
-      <div className="lg:col-span-5 space-y-4">
-        {deals.map((item) =>(
-          <DealCard key={item.id} item={item} />
+    <div className="lg:col-span-5 space-y-4">
+        {deals.map((products) => (
+          <DealCard
+            key={products._id}
+            item={{
+              id: products._id,
+              title: products.name,
+              image: products.images?.[0]?.url || "",
+              price: products.price,
+              discountPrice: products.discountPrice,
+              available: products.stock,
+              sold: products.totalSold,
+            }}
+          />
         ))}
       </div>
     </div>
   );
 };
+
 
 export default DealList;

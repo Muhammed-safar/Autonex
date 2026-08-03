@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import {Medal , Affordable , WideVeriety } from "../../../assets/icon.js"
+import Airconditioner from "../../../assets/folder/airconditioner.png"
+import Bearings from "../../../assets/folder/Bearings.png"
+import Brakes from "../../../assets/folder/Brakes.png"
+import CarAccessories from "../../../assets/folder/Car-Accessories.png"
+import Engine from "../../../assets/folder/Engine.png"
+import EngineCoolingSystem from "../../../assets/folder/Engine-Cooling-System.png"
 
 // Feature Icons Section Data
 const features = [
@@ -26,43 +32,37 @@ const categories = [
     id: 1,
     title: "Air Condition",
     count: 1,
-    image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=300",
+    image:Airconditioner,
   },
   {
     id: 2,
     title: "Bearings",
     count: 2,
-    image:
-      "https://images.unsplash.com/photo-1611821064430-0d40291d0f0b?auto=format&fit=crop&q=80&w=300",
+    image:Bearings,
   },
   {
     id: 3,
     title: "Brakes",
     count: 5,
-    image:
-      "https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=300",
+    image: Brakes,
   },
   {
     id: 4,
     title: "Car Accessories",
     count: 5,
-    image:
-      "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=80&w=300",
+    image:  CarAccessories,
   },
   {
     id: 5,
     title: "Engine",
     count: 4,
-    image:
-      "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=300",
-  },
+    image:Engine
+    },
   {
     id: 6,
     title: "Engine cooling system",
     count: 2,
-    image:
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=300",
+    image:EngineCoolingSystem,
   },
 ];
 
@@ -209,4 +209,4 @@ const CategorySection = () => {
   );
 };
 
-export default CategorySection;
+export default CategorySection; 

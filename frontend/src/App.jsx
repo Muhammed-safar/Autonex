@@ -52,24 +52,6 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
           <Route path="/shop" element={<Shop />} />
-          <Route
-            path="/category/tires-wheels"
-            element={
-              <Shop
-                pageTitle="Tires & Wheels"
-                defaultCategory="Tires & Wheels"
-              />
-            }
-          />
-          <Route
-            path="/category/headlights-lighting"
-            element={
-              <Shop
-                pageTitle="Headlights & Lighting"
-                defaultCategory="Headlights & Lighting"
-              />
-            }
-          />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
 

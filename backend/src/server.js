@@ -18,7 +18,7 @@
   import dashboardRoutes from "./routes/dashboard.routes.js"
   import app from "./app.js";
   import { errorHandler } from "./middlewares/error.middleware.js";
-
+import contactRoutes from "../src/routes/contact.routes.js";
   connectDB();
 
   app.use(cors(corsOptions));
@@ -36,6 +36,7 @@
   app.use("/api/whishlist", wishRoutes);
   app.use("/api/address", addressRoutes);
   app.use("/api/dashboard", dashboardRoutes );
+  app.use("/api/contact", contactRoutes);
 
 
   app.use(errorHandler);

@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { sendContactMessage } from "../../../services/contactService.js";
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -7,15 +10,34 @@ const ContactSection = () => {
     subject: "",
     message: "",
   });
-
+  const Navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
+
+    setLoading(true);
+
+    try {
+      const res = await sendContactMessage(formData);
+
+      toast.success(res.message);
+
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +74,10 @@ const ContactSection = () => {
           </div>
 
           <div className="relative z-10 pt-6">
-            <button className="bg-white text-slate-900 font-bold text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-gray-100 transition-all duration-200 shadow-sm active:scale-95">
+            <button
+              onClick={() => Navigate("/shop")}
+              className="bg-white text-slate-900 font-bold text-xs sm:text-sm px-6 py-2.5 rounded-full hover:bg-gray-100 transition-all duration-200 shadow-sm active:scale-95"
+            >
               Shop Now
             </button>
           </div>
@@ -127,6 +152,7 @@ const ContactSection = () => {
                   Your message
                 </label>
                 <textarea
+                  required
                   name="message"
                   rows={4}
                   value={formData.message}
@@ -139,9 +165,10 @@ const ContactSection = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="bg-[#0066CC] hover:bg-[#0052A3] text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-lg transition-colors shadow-sm active:scale-98"
+                  disabled={loading}
+                  className="bg-[#0066CC] hover:bg-[#0052A3] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-lg transition-colors shadow-sm active:scale-98"
                 >
-                  Send Message
+                  {loading ? "Sending..." : "Send Message"}
                 </button>
               </div>
             </form>

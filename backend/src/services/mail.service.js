@@ -74,3 +74,99 @@ export const sendOTPEmail = async (email, otp) => {
     throw new Error("Failed to send OTP email.");
   }
 };
+
+export const sendAdminContactEmail = async ({
+  name,
+  email,
+  subject,
+  message,
+  contactId,
+}) => {
+  try {
+    await brevoAPI.post("/smtp/email", {
+      sender: {
+        name: process.env.SENDER_NAME || "Autonex",
+        email: process.env.SENDER_EMAIL,
+      },
+
+      to: [
+        {
+          email: process.env.ADMIN_EMAIL,
+        },
+      ],
+
+      subject: `📩 New Contact Form - ${subject}`,
+
+      htmlContent: `
+        <h2>New Contact Form Submission</h2>
+
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+
+        <hr>
+
+        <p>${message}</p>
+
+        <hr>
+
+        <small>Contact ID: ${contactId}</small>
+      `,
+    });
+
+  } catch (error) {
+    console.error(
+      "❌ Contact Email Error:",
+      error.response?.data || error.message
+    );
+
+    throw new Error("Failed to send admin contact email.");
+  }
+};
+
+export const sendUserContactConfirmation = async ({
+  name,
+  email,
+}) => {
+  try {
+    await brevoAPI.post("/smtp/email", {
+      sender: {
+        name: process.env.SENDER_NAME || "Autonex",
+        email: process.env.SENDER_EMAIL,
+      },
+
+      to: [
+        {
+          email,
+        },
+      ],
+
+      subject: "We've received your enquiry",
+
+      htmlContent: `
+        <h2>Hello ${name},</h2>
+
+        <p>Thank you for contacting <strong>AutoNex</strong>.</p>
+
+        <p>We have received your enquiry.</p>
+
+        <p>Our team will get back to you shortly.</p>
+
+        <br>
+
+        <p>
+          Regards,<br>
+          <strong>AutoNex Team</strong>
+        </p>
+      `,
+    });
+
+  } catch (error) {
+    console.error(
+      "❌ Confirmation Email Error:",
+      error.response?.data || error.message
+    );
+
+    throw new Error("Failed to send confirmation email.");
+  }
+};

@@ -4,16 +4,31 @@ import SidebarFilter from "../Shop/SidebarFilter.jsx";
 import ProductGridHeader from "../Shop/ProductGridHeader.jsx";
 import ProductCard from "../Shop/ProductCard.jsx";
 import Pagination from "../Shop/Pagination.jsx";
+import { useSearchParams } from "react-router-dom";
 import { useProducts } from "../../hooks/products/useProducts.js";
+import { useCategories } from "../../hooks/categories/useCategories.js";
 
-export default function ProductListingPage({
-  pageTitle = "Shop",
-  defaultCategory = null,
-}) {
+export default function ProductListingPage({ pageTitle = "Shop" }) {
+  const { data: categoryData } = useCategories({
+    page: 1,
+    search: "",
+  });
+
+  const allCategories = categoryData?.data || [];
+
+  const [searchParams] = useSearchParams();
+
+  // Get category from URL (comma-separated names)
+  const categoryParam = searchParams.get("category");
+
+  const categoryNames = useMemo(() => {
+    return categoryParam
+      ? categoryParam.split(",").map((name) => name.trim())
+      : [];
+  }, [categoryParam]);
+
   // --- Filter States ---
-  const [selectedCategories, setSelectedCategories] = useState(
-    defaultCategory ? [defaultCategory] : []
-  );
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 860 });
   const [debouncedPrice, setDebouncedPrice] = useState(priceRange);
@@ -27,6 +42,26 @@ export default function ProductListingPage({
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Convert category names from the URL into their corresponding IDs
+  const categoryIdsFromUrl = useMemo(() => {
+    if (!allCategories.length) return [];
+    return allCategories
+      .filter((cat) =>
+        categoryNames.some(
+          (name) => name.toLowerCase() === cat.name.toLowerCase()
+        )
+      )
+      .map((cat) => cat._id);
+  }, [allCategories, categoryNames]);
+
+  // Sync URL categories to selectedCategories once categories have loaded
+  useEffect(() => {
+    if (!allCategories.length) return;
+
+    setSelectedCategories(categoryParam ? categoryIdsFromUrl : []);
+    setCurrentPage(1);
+  }, [allCategories, categoryParam, categoryIdsFromUrl]);
 
   // Debounce price slider updates to prevent excessive API hits while sliding
   useEffect(() => {
@@ -52,7 +87,7 @@ export default function ProductListingPage({
       case "rating":
         return { sortBy: "rating", order: "desc" };
       default:
-        return { sortBy: "createdAt", order: "desc" };
+        return { sortBy: "default", order: "desc" };
     }
   }, [sortOption]);
 
@@ -107,16 +142,7 @@ export default function ProductListingPage({
       title: product.name || "Untitled Product",
       image: product.images?.[0]?.url || "",
       price: product.price || 0,
-      oldPrice:
-        product.discountPrice > 0 && product.discountPrice < product.price
-          ? product.price
-          : null,
-      discount:
-        product.discountPrice > 0 && product.price > 0
-          ? `${Math.round(
-              ((product.price - product.discountPrice) / product.price) * 100
-            )}% OFF`
-          : null,
+      discountPrice: product.discountPrice,
       rating: product.rating || 0,
       reviewsCount: product.reviewsCount || 0,
       description: product.description || "",
@@ -138,10 +164,7 @@ export default function ProductListingPage({
 
   const indexOfFirstProduct =
     totalResults === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const indexOfLastProduct = Math.min(
-    currentPage * itemsPerPage,
-    totalResults
-  );
+  const indexOfLastProduct = Math.min(currentPage * itemsPerPage, totalResults);
 
   return (
     <div className="bg-white min-h-screen text-slate-800 font-sans antialiased overflow-x-hidden">
@@ -210,8 +233,8 @@ export default function ProductListingPage({
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 mt-4 sm:mt-6"
-                    : "flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6"
+                    ? "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6 mt-4 sm:mt-6 overflow-y-auto hide-scrollbar"
+                    : "flex flex-col gap-3 sm:gap-4 mt-4 sm:mt-6 overflow-y-auto hide-scrollbar"
                 }
               >
                 {products.map((product) => (

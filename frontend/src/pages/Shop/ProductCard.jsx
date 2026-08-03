@@ -1,10 +1,10 @@
 import React from "react";
 import { Heart, Star, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
-import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist.js";
-import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
-import { useAddToCart } from "../../hooks/cart/useAddToCart.js";
+import { useWishlist } from "../../hooks/wishlist/useWishlist";
+import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist";
+import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist";
+import { useAddToCart } from "../../hooks/cart/useAddToCart";
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const { data: wishlistData } = useWishlist();
@@ -31,10 +31,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     addWishlist({
       _id: product.id,
       name: product.title,
-      price: Number(rawPrice),
-      discountPrice: product.oldPrice
-        ? Number(String(product.oldPrice).replace(/^\$+/, ""))
-        : 0,
+      price: product.price,
+      discountPrice: product.discountPrice,
       stock: product.inStock ? 1 : 0,
       images: [
         {
@@ -46,12 +44,18 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     });
   };
 
-  const rawPrice =
-    typeof product.price === "string"
-      ? product.price.replace(/^\$+/, "")
-      : product.price;
-  const formattedPrice =
-    typeof rawPrice === "number" ? rawPrice.toFixed(2) : rawPrice;
+  const hasDiscount =
+    product.discountPrice > 0 && product.discountPrice < product.price;
+
+  const displayPrice = hasDiscount ? product.discountPrice : product.price;
+
+  const formattedPrice = displayPrice.toFixed(2);
+
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((product.price - product.discountPrice) / product.price) * 100,
+      )
+    : 0;
 
   // --- LIST VIEW ITEM ---
   if (viewMode === "list") {
@@ -59,9 +63,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       <div className="group relative bg-white rounded-xl shadow-xs hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border border-slate-100 p-3 sm:p-4">
         {/* Left: Image Box */}
         <div className="relative w-full sm:w-48 h-40 bg-slate-50 rounded-lg shrink-0 overflow-hidden flex items-center justify-center">
-          {product.discount && (
+          {hasDiscount && (
             <span className="absolute top-2 left-2 bg-cyan-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded z-10">
-              {product.discount}
+              {discountPercentage}
             </span>
           )}
 
@@ -126,9 +130,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               <span className="text-lg font-bold text-emerald-600">
                 ${formattedPrice}
               </span>
-              {product.oldPrice && (
+              {hasDiscount && (
                 <span className="text-xs text-slate-400 line-through">
-                  ${product.oldPrice}
+                  ${product.price.toFixed(2)}
                 </span>
               )}
             </div>
@@ -152,9 +156,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     <div className="group relative bg-white rounded-xl shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden p-2 sm:p-3 border border-slate-100">
       {/* Top Image Section */}
       <div className="relative w-full h-32 sm:h-40 bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center mb-2">
-        {product.discount && (
+        {hasDiscount && (
           <span className="absolute top-1.5 left-1.5 bg-cyan-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded z-10">
-            {product.discount}
+            {discountPercentage}%
           </span>
         )}
 
@@ -214,9 +218,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <span className="text-xs sm:text-sm font-bold text-emerald-600">
               ${formattedPrice}
             </span>
-            {product.oldPrice && (
+            {hasDiscount && (
               <span className="text-[9px] text-slate-400 line-through">
-                ${product.oldPrice}
+                ${product.price.toFixed(2)}
               </span>
             )}
           </div>
