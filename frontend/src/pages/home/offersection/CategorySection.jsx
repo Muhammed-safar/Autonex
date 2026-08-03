@@ -5,7 +5,7 @@ import Bearings from "../../../assets/folder/Bearings.png"
 import Brakes from "../../../assets/folder/Brakes.png"
 import CarAccessories from "../../../assets/folder/Car-Accessories.png"
 import Engine from "../../../assets/folder/engine.png"
-import EngineCoolingSystem from "../../../assets/folder/Engine-Cooling-System.png"
+import EngineCoolingSystem from "../../../assets/folder/Engine-cooling-system.png"
 
 // Feature Icons Section Data
 const features = [
