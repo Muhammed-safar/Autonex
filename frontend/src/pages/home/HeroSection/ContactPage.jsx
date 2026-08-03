@@ -84,15 +84,7 @@ const ContactPage = () => {
                 </p>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-[#0066CC] hover:shadow-md transition-all">
-                <div className="text-2xl mb-3">🚚</div>
-
-                <h4 className="font-bold text-slate-900">Fast Delivery</h4>
-
-                <p className="text-sm text-slate-500 mt-2">
-                  Reliable shipping to get your vehicle back on the road.
-                </p>
-              </div>
+              
 
               <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-[#0066CC] hover:shadow-md transition-all">
                 <div className="text-2xl mb-3">🛡️</div>
