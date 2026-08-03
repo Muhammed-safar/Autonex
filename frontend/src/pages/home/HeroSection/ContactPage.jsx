@@ -46,19 +46,19 @@ const ContactPage = () => {
 
           <div className="relative z-10 space-y-4 max-w-md">
            <span className="inline-flex items-center gap-2 text-[#0066CC] text-sm font-bold uppercase tracking-[0.25em]">
-                <span className="w-10 h-[2px] bg-[#0066CC]"></span>
+                <span className="w-10 h-[2px] "></span>
                 About AutoNex
               </span>
 
-              <h2 className="mt-5 text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+              <h2 className="mt-5 text-4xl lg:text-5xl font-black text-white leading-tight">
                 Your Trusted Destination
                 <br />
                 <span className="text-[#0066CC]">For Premium Auto Parts</span>
               </h2>
             
 
-             <div className="bg-white border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
-              <p className="text-slate-700 leading-8">
+             <div className="bg-white/20 border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
+              <p className="text-[#0066CC] leading-8">
                 AutoNex is dedicated to providing high-quality automotive parts
                 and accessories for every journey. From routine maintenance to
                 performance upgrades, we help you find the right products with
