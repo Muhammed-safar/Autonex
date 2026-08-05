@@ -438,7 +438,7 @@ const Navbar = ({ onOpenCategory }) => {
                 <User size={16} /> {t("account.signIn")} / {t("account.account")}
               </NavLink>
               <NavLink
-                to="/wish-list"
+                to="/whishlist"
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-3 py-2 font-medium"
               >
