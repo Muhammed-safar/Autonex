@@ -59,29 +59,31 @@ const App = () => {
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/blog" element={<Blog />} />
 
           <Route element={<PublicRoute />}>
             <Route path="/account" element={<AuthPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/faq" element={<FAQPage />} />
+            
+            
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/auth" element={<ProfileLayout />} />
-
+            <Route
+            path="/wish-list"
+            element={<Wishlist onReturnToShop={handleReturnToShop} />}
+          />
+          <Route path="/compare" element={<ComparePage />} />
             <Route path="/cart/checkout" element={<CheckoutPage />} />
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
             
           </Route>
 
-          <Route
-            path="/wish-list"
-            element={<Wishlist onReturnToShop={handleReturnToShop} />}
-          />
-          <Route path="/compare" element={<ComparePage />} />
+          
         </Route>
 
         <Route element={<AdminRoute />}>

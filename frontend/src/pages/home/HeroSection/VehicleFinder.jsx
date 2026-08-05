@@ -20,7 +20,7 @@ const VehicleFinder = () => {
         <p className="text-xs text-gray-400 text-center leading-relaxed mb-6 px-2">
           {t("vehicleFinder.description")}
         </p>
-        3{/* Form */}
+          {/* Form */}
         <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
           {/* Step 1: Select Make */}
           <div className="relative flex items-center bg-white border border-gray-200 rounded-xl px-3 py-2.5 shadow-sm focus-within:border-blue-500">
