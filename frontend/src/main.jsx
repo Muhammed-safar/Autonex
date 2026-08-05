@@ -10,6 +10,7 @@ import { WishlistProvider } from "./context/WishlistContext.jsx";
 import { store } from "./redux/store.js";
 import { queryClient } from "./hooks/queryClient.js";
 import AuthProvider from "./providers/AuthProvider.jsx";
+import "./i18n";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>

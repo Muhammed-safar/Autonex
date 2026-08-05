@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const VehicleFinder = () => {
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedEngine, setSelectedEngine] = useState("");
+  const { t } = useTranslation();
 
   const makes = ["Toyota", "BMW", "Mercedes-Benz", "Audi", "Ford"];
 
@@ -13,14 +15,12 @@ const VehicleFinder = () => {
       <div className="bg-white text-gray-900 rounded-t-2xl md:rounded-2xl p-6 sm:p-8 shadow-2xl border border-gray-100">
         {/* Title */}
         <h2 className="text-xl font-bold text-gray-900 mb-2 text-center tracking-tight">
-          Find the Right Parts Faster
+          {t("vehicleFinder.title")}
         </h2>
         <p className="text-xs text-gray-400 text-center leading-relaxed mb-6 px-2">
-          You can find the product you are looking for faster by entering the
-          search criteria correctly.
+          {t("vehicleFinder.description")}
         </p>
-
-        {/* Form */}
+        3{/* Form */}
         <form onSubmit={(e) => e.preventDefault()} className="space-y-3.5">
           {/* Step 1: Select Make */}
           <div className="relative flex items-center bg-white border border-gray-200 rounded-xl px-3 py-2.5 shadow-sm focus-within:border-blue-500">
@@ -32,7 +32,7 @@ const VehicleFinder = () => {
               onChange={(e) => setSelectedMake(e.target.value)}
               className="w-full bg-transparent text-xs text-gray-700 outline-none cursor-pointer pr-2"
             >
-              <option value="">Select make</option>
+              <option value="">{t("vehicleFinder.selectMake")}</option>
               {makes.map((m) => (
                 <option key={m} value={m}>
                   {m}
@@ -68,7 +68,8 @@ const VehicleFinder = () => {
                   : "text-gray-800 font-bold cursor-not-allowed"
               }`}
             >
-              <option value="">Select make First</option>
+              <option value="">{t("vehicleFinder.selectMakeFirst")}</option>
+
               {selectedMake && <option value="model1">Sample Model</option>}
             </select>
           </div>
@@ -90,7 +91,7 @@ const VehicleFinder = () => {
               onChange={(e) => setSelectedYear(e.target.value)}
               className="w-full bg-transparent text-xs text-gray-400 outline-none disabled:cursor-not-allowed pr-2"
             >
-              <option value="">Select Year</option>
+              <option value="">{t("vehicleFinder.selectYear")}</option>
             </select>
           </div>
 
@@ -111,7 +112,7 @@ const VehicleFinder = () => {
               onChange={(e) => setSelectedEngine(e.target.value)}
               className="w-full bg-transparent text-xs text-gray-400 outline-none disabled:cursor-not-allowed pr-2"
             >
-              <option value="">Select Engine</option>
+              <option value="">{t("vehicleFinder.selectEngine")}</option>
             </select>
           </div>
 
@@ -120,15 +121,12 @@ const VehicleFinder = () => {
             type="submit"
             className="w-full bg-[#0066B2] hover:bg-[#005596] text-white font-semibold text-xs py-3.5 rounded-xl transition-all shadow-md active:scale-[0.99] mt-3"
           >
-            Find Auto Parts
+            {t("vehicleFinder.button")}
           </button>
         </form>
-
         {/* Footer info text */}
         <p className="text-[10px] text-gray-400 text-center leading-relaxed mt-6 px-1">
-          Having the right automotive parts and car accessories will help you
-          to boost your travel comfort and go on the long-distance journey
-          comfortably that you have been planning.
+          {t("vehicleFinder.footer")}
         </p>
       </div>
     </div>

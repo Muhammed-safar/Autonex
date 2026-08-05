@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const DealCard = ({ item }) => {
   const total = item.available + item.sold;
   const progressPercentage = (item.sold / total) * 100;
+  const { t } = useTranslation();
   return (
     <div>
       <div
@@ -52,11 +54,11 @@ const DealCard = ({ item }) => {
             </div>
             <div className="flex justify-between text-[10px] text-gray-400 font-medium">
               <span>
-                Available:{" "}
+                {t("dealCard.available")}:{" "}
                 <strong className="text-gray-700">{item.available}</strong>
               </span>
               <span>
-                Sold: <strong className="text-gray-700">{item.sold}</strong>
+                {t("dealCard.sold")}: <strong className="text-gray-700">{item.sold}</strong>
               </span>
             </div>
           </div>

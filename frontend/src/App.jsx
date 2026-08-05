@@ -32,6 +32,8 @@ import Dashboard from "./components/admin/Dashboard.jsx";
 import MainLoader from "./components/layout.jsx/MainLoader.jsx";
 import ContactPage from "./pages/home/HeroSection/ContactPage.jsx";
 import Blog from "./pages/home/HeroSection/Blog.jsx";
+import FAQPage from "./pages/home/HeroSection/FAQPage.jsx";
+import AllCategorySidebar from "./pages/home/AllCategorySidebar.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -53,6 +55,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
+          <Route path="/categories" element={<AllCategorySidebar />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
@@ -62,14 +65,16 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/faq" element={<FAQPage />} />
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/auth" element={<ProfileLayout />} />
 
             <Route path="/cart/checkout" element={<CheckoutPage />} />
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/contact" element={<ContactPage />} />
+            
           </Route>
 
           <Route

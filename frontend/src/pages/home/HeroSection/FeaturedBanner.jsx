@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 const FeaturedBanner = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div>
       <section className="w-full px-4">
@@ -22,18 +24,24 @@ const FeaturedBanner = () => {
 
             <div className="relative z-10 max-w-sm space-y-4">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                FROM GARAGE TO ROAD
+                {t("featured.tagline")}
               </span>
+
               <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
-                Fits Your Ride. <br />
-                Fuels Your Drive.
+                {t("featured.title1")}
+                <br />
+                {t("featured.title2")}
               </h2>
+
               <p className="text-xs text-gray-600 leading-relaxed">
-                Add your vehicle once and enjoy personalized shopping forever.
-                Get parts fast, accurate, and stress-free.
+                {t("featured.description")}
               </p>
-              <button className="bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-xs px-5 py-2.5 rounded transition-all shadow">
-                Shop Now
+
+              <button
+                onClick={() => navigate("/shop")}
+                className="bg-[#0066CC] hover:bg-[#0052A3] text-white font-semibold text-xs px-5 py-2.5 rounded transition-all shadow"
+              >
+                {t("featured.button")}
               </button>
             </div>
           </div>

@@ -1,8 +1,11 @@
+import { useTranslation } from "react-i18next";
 import ContactForm from "../../../components/contact/ContactForm.jsx";
 
 const ContactPage = () => {
+
+  const { t } = useTranslation();
   return (
-    <div className="bg-slate-900">
+    <div className="bg-white">
       {/* Hero */}
 
       <section
@@ -17,12 +20,13 @@ const ContactPage = () => {
         <div className="absolute inset-0 bg-black/40"></div>
 
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-5xl font-black">Contact AutoNex</h1>
+        <h1 className="text-5xl font-black">
+  {t("contactPage.hero.title")}
+</h1>
 
           <p className="mt-4 text-lg text-gray-200 max-w-2xl mx-auto">
-            Have questions about our products or your order? We're always ready
-            to help.
-          </p>
+  {t("contactPage.hero.description")}
+</p>
         </div>
       </section>
 
@@ -47,23 +51,20 @@ const ContactPage = () => {
           <div className="relative z-10 space-y-4 max-w-md">
            <span className="inline-flex items-center gap-2 text-[#0066CC] text-sm font-bold uppercase tracking-[0.25em]">
                 <span className="w-10 h-[2px] "></span>
-                About AutoNex
+               {t("contactPage.about.badge")}
               </span>
 
               <h2 className="mt-5 text-4xl lg:text-5xl font-black text-white leading-tight">
-                Your Trusted Destination
+                {t("contactPage.about.title1")}
                 <br />
-                <span className="text-[#0066CC]">For Premium Auto Parts</span>
+                <span className="text-[#0066CC]">{t("contactPage.about.title2")}</span>
               </h2>
             
 
              <div className="bg-white/20 border-l-4 border-[#0066CC] rounded-xl p-5 shadow-sm">
               <p className="text-white leading-8">
-                AutoNex is dedicated to providing high-quality automotive parts
-                and accessories for every journey. From routine maintenance to
-                performance upgrades, we help you find the right products with
-                confidence.
-              </p>
+  {t("contactPage.about.description")}
+</p>
             </div>
           </div>
 

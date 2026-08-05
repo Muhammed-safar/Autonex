@@ -1,0 +1,210 @@
+{
+  "navbar": {
+    "home": "Home",
+    "shop": "Shop",
+    "tyres": "Tyres & Wheels",
+    "headlights": "Headlights & Lighting",
+
+    "tiresWheels": "Tyres & Wheels",
+    "headlightsLighting": "Headlights & Lighting",
+
+    "blog": "Blog",
+    "contact": "Contact",
+    "about": "About Us",
+    "faq": "FAQ",
+    "orderTracking": "Order Tracking",
+    "allCategories": "All Categories",
+    "bestSeller": "Best Seller",
+    "sale": "Sale"
+  },
+
+  "search": {
+    "placeholder": "Search popular products...",
+    "product": "Search Product"
+  },
+
+  "garage": {
+    "addVehicle": "Add Vehicle",
+    "myGarage": "My Garage"
+  },
+
+  "account": {
+    "signIn": "Sign In",
+    "account": "Account"
+  },
+
+  "wishlist": "Wishlist",
+
+   "hero": {
+    "tagline": "PARTS THAT PERFORM",
+    "title1": "Every Part Counts.",
+    "title2": "Choose the Best.",
+    "description": "From engine to exhaust, we provide top-tier parts that keep your vehicle running smoothly.",
+    "button": "View All Products",
+    "campaign": "Time remaining until the end of the campaign:"
+  } ,
+
+  "vehicleFinder": {
+    "title": "Find the Right Parts Faster",
+    "description": "Find the products you need quickly by selecting your vehicle details.",
+    "selectMake": "Select Make",
+    "selectMakeFirst": "Select Make First",
+    "selectYear": "Select Year",
+    "selectEngine": "Select Engine",
+    "button": "Find Auto Parts",
+    "footer": "Having the right automotive parts and accessories improves comfort and keeps your vehicle performing at its best."
+  },
+  
+  "featured": {
+    "tagline": "FROM GARAGE TO ROAD",
+    "title1": "Fits Your Ride.",
+    "title2": "Fuels Your Drive.",
+    "description": "Add your vehicle once and enjoy personalized shopping forever. Get parts fast, accurate, and stress-free.",
+    "button": "Shop Now"
+  },
+
+  "featureBanners": {
+    "button": "Shop Now",
+    "card1": {
+      "tagline": "YOUR RIDE, OUR PARTS",
+      "title1": "Save Your Vehicle.",
+      "title2": "Shop Smarter.",
+      "description": "Get the part. Make the fix. Enjoy the drive."
+    },
+    "card2": {
+      "tagline": "SPEED MEETS PRECISION",
+      "title1": "Search by Vehicle.",
+      "title2": "Shop with Ease.",
+      "description": "Perfect fit, fast delivery, dependable quality."
+    },
+    "card3": {
+      "tagline": "FROM GARAGE TO ROAD",
+      "title1": "Add Your Car.",
+      "title2": "Find Perfect Parts.",
+      "description": "Boost performance with high-quality parts."
+    }
+  },
+
+"categorySection": {
+  "cta": {
+    "title": "Need Help Finding the Right Product?",
+    "description": "Our Parts Experts Can Help. Call for immediate assistance.",
+    "button": "Request a Call",
+    "support": "You can contact us 24/7."
+  },
+  "features": {
+    "original": {
+      "title": "Original Products",
+      "desc": "Genuine parts for maximum reliability."
+    },
+    "affordable": {
+      "title": "Affordable Rates",
+      "desc": "Competitive pricing without compromising quality."
+    },
+    "variety": {
+      "title": "Wide Variety",
+      "desc": "Thousands of products for every vehicle."
+    }
+  },
+  "categories": {
+    "airCondition": "Air Condition",
+    "bearings": "Bearings",
+    "brakes": "Brakes",
+    "carAccessories": "Car Accessories",
+    "engine": "Engine",
+    "engineCooling": "Engine Cooling System"
+  }
+},
+"contactSection": {
+  "tagline": "REFRESHING SPRING DEALS",
+  "title1": "Because",
+  "title2": "Every Mile",
+  "title3": "Matters.",
+  "description": "Boost your vehicle's performance with premium auto parts built to last.",
+  "button": "Shop Now"
+},
+"blog": {
+  "categories": {
+    "all": "All",
+    "maintenance": "Maintenance",
+    "upgrades": "Upgrades",
+    "guides": "Guides",
+    "engineCare": "Engine Care"
+  },
+  "hero": {
+    "badge": "AUTONEX Garage Insights",
+    "title": "Performance, Precision & Maintenance",
+    "description": "Expert guides, DIY installation tutorials, and the latest auto parts technology to keep your ride performing at its peak.",
+    "search": "Search parts guides, tutorials, maintenance..."
+  },
+  "featured": "Featured Article",
+  "readArticle": "Read Article",
+  "readMore": "Read More",
+  "noArticles": "No articles found matching your query.",
+  "reset": "Reset Filters",
+  "offer": {
+    "badge": "Exclusive Reader Offer",
+    "title": "Save 35% On Your Next Part Purchase",
+    "description": "Use discount code",
+    "description2": "at checkout. Guaranteed fitment with My Garage tool.",
+    "button": "Shop Discounted Parts"
+  }
+},
+"contactPage": {
+  "hero": {
+    "title": "Contact AutoNex",
+    "description": "Have questions about our products or your order? We're always ready to help."
+  },
+  "about": {
+    "badge": "About AutoNex",
+    "title1": "Your Trusted Destination",
+    "title2": "For Premium Auto Parts",
+    "description": "AutoNex is dedicated to providing high-quality automotive parts and accessories for every journey. From routine maintenance to performance upgrades, we help you find the right products with confidence."
+  }
+},
+"dealCard": {
+  "available": "Available",
+  "sold": "Sold"
+},
+"faq": {
+  "badge": "Support",
+  "title": "Frequently Asked Questions",
+  "description": "Find answers to the most common questions about AutoNex, our products, shipping, payments, and returns.",
+  "questions": {
+    "compatibility": {
+      "question": "How do I know if a part is compatible with my vehicle?",
+      "answer": "Use our search filters or vehicle selection tool to find compatible parts. If you're unsure, contact our support team with your vehicle make, model, and year, and we'll help you choose the correct part."
+    },
+    "genuine": {
+      "question": "Are your products genuine?",
+      "answer": "Yes. We offer genuine and high-quality aftermarket automotive parts sourced from trusted manufacturers to ensure reliability and performance."
+    },
+    "shipping": {
+      "question": "How long does shipping take?",
+      "answer": "Orders are typically delivered within 3–7 business days depending on your location and product availability."
+    },
+    "tracking": {
+      "question": "Can I track my order?",
+      "answer": "Yes. Once your order is shipped, you'll receive a tracking number via email, and you can also track your order from your AutoNex account."
+    },
+    "payment": {
+      "question": "What payment methods do you accept?",
+      "answer": "We support secure payments through UPI, debit cards, credit cards, net banking, and other available payment options during checkout."
+    },
+    "return": {
+      "question": "Can I return a product?",
+      "answer": "Yes. Products can be returned within our return period if they are unused, in their original packaging, and meet our return policy."
+    },
+    "damaged": {
+      "question": "What should I do if I receive a damaged or incorrect item?",
+      "answer": "Contact our support team immediately with your order number and photos of the product. We'll resolve the issue as quickly as possible."
+    },
+    "cancel": {
+      "question": "Can I cancel my order?",
+      "answer": "Orders can be cancelled before they are shipped. Once shipped, you can initiate a return according to our return policy."
+    }
+  }
+}
+  
+
+}
