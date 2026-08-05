@@ -204,6 +204,29 @@
       "answer": "Orders can be cancelled before they are shipped. Once shipped, you can initiate a return according to our return policy."
     }
   }
+},
+"latestNews": {
+  "title": "Our Latest News",
+  "subtitle": "Our most ordered products.",
+  "viewAll": "View All",
+  "by": "by",
+  "articles": {
+    "article1": {
+      "title": "Buying cheap used transmissions isn’t as risky as you think",
+      "excerpt": "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+      "alt": "Changing wheel on a modern car"
+    },
+    "article2": {
+      "title": "What to Do When Your Car Parts Start Wearing Out",
+      "excerpt": "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+      "alt": "Mechanic inspecting under car hood"
+    },
+    "article3": {
+      "title": "Top 10 Car Parts Every Driver Should Know About",
+      "excerpt": "Integer mattis ultricies augue, ac bibendum arcu viverra vel. Etiam eu facilisis velit. Mauris",
+      "alt": "Auto mechanic standing in garage"
+    }
+  }
 }
   
 

@@ -1,4 +1,4 @@
-const allowedOrigins = process.env.CLIENT_URL.split(",")
+const allowedOrigins = process.env.CLIENT_URL.split(",");
 
 const corsOptions = {
   origin(origin, callback) {
@@ -15,7 +15,7 @@ const corsOptions = {
 
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Currency"],
 };
 
 export default corsOptions;

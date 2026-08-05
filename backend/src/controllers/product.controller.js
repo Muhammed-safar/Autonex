@@ -71,6 +71,7 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProducts = async (req, res) => {
+  console.log(req.headers["x-currency"]);
   try {
     const {
       page = 1,

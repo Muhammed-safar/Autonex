@@ -19,6 +19,7 @@ import { useCart } from "../../hooks/cart/useCart.js";
 import { useWishlist } from "../../hooks/wishlist/useWishlist.js";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "../common/LanguageSelector.jsx";
+import CurrencySelector from "../common/CurrencySelector.jsx";
 
 const navItems = [
   {
@@ -100,9 +101,7 @@ const Navbar = ({ onOpenCategory }) => {
           </div>
           <div className="flex items-center gap-4">
             <LanguageSelector />
-            <button className="flex items-center gap-1 hover:text-gray-900 transition-colors">
-              USD <ChevronDown size={11} />
-            </button>
+            <CurrencySelector />
           </div>
         </div>
       </div>

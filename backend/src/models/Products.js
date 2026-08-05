@@ -37,6 +37,12 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    currency: {
+      type: String,
+      enum: ["USD", "EUR", "INR"],
+      default: "USD",
+      immutable: true,
+    },
 
     stock: {
       type: Number,

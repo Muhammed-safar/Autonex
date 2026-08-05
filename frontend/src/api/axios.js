@@ -16,6 +16,10 @@ API.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    const currency = store.getState().currency.currency;
+
+config.headers["X-Currency"] = currency;
+
     return config;
   },
   (error) => Promise.reject(error),
