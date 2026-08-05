@@ -74,7 +74,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/auth" element={<ProfileLayout />} />
             <Route
-            path="/wish-list"
+            path="/whishlist"
             element={<Wishlist onReturnToShop={handleReturnToShop} />}
           />
           <Route path="/compare" element={<ComparePage />} />
