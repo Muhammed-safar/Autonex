@@ -232,7 +232,7 @@ export const getProducts = async (req, res) => {
       success: true,
       pagination: {
         total,
-        currentPage
+        currentPage,
         totalPages: Math.ceil(total / pageLimit) || 1,
         limit: pageLimit,
       },
