@@ -3,6 +3,7 @@ import Product from "../models/Product.js";
 import Brand from "../models/Brand.js";
 import Category from "../models/Category.js";
 import cloudinary from "../config/cloudinary.js";
+import { convertProduct } from "../services/currency.service.js";
 
 import fs from "fs/promises";
 import {
