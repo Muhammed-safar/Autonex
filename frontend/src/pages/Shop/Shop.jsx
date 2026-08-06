@@ -142,6 +142,7 @@ export default function ProductListingPage({ pageTitle = "Shop" }) {
       title: product.name || "Untitled Product",
       image: product.images?.[0]?.url || "",
       price: product.price || 0,
+      currency: product.currency || "USD",
       discountPrice: product.discountPrice,
       rating: product.rating || 0,
       reviewsCount: product.reviewsCount || 0,
