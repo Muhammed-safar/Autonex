@@ -258,7 +258,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
                     currentProduct.price,
                     currentProduct.currency,
                   )}
-                  <p>Currency: {currentProduct.currency}</p>
+                  
                 </span>
                 {currentProduct.oldPrice && (
                   <span className="text-xs sm:text-sm text-slate-400 line-through font-normal">
