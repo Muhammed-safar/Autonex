@@ -71,7 +71,7 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProducts = async (req, res) => {
-  console.log(req.headers["x-currency"]);
+  const selectedCurrency = req.headers["x-currency"] || "USD";
   try {
     const {
       page = 1,
@@ -223,6 +223,9 @@ export const getProducts = async (req, res) => {
 
     const facetData = result[0] || {};
     const products = facetData.products || [];
+    const convertedProducts = products.map((product) =>
+      convertProduct(product, selectedCurrency),
+    );  
     const total = facetData.totalCount?.[0]?.count || 0;
 
     res.status(200).json({
@@ -233,7 +236,7 @@ export const getProducts = async (req, res) => {
         totalPages: Math.ceil(total / pageLimit) || 1,
         limit: pageLimit,
       },
-      data: products,
+      data: convertedProducts,
     });
   } catch (error) {
     console.error("Error in getProducts:", error);
