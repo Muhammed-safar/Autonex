@@ -23,6 +23,7 @@ import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist";
 import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist";
 import { useProduct } from "../../hooks/products/useProduct.js";
 import { useAddToCart } from "../../hooks/cart/useAddToCart";
+import { formatCurrency } from "../../utils/formatCurrency.js";
 
 const ProductDetailsPage = ({ productId: propProductId }) => {
   const params = useParams();
