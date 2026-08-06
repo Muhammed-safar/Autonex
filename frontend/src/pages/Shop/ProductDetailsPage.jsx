@@ -53,6 +53,7 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
         id: found._id,
         title: found.name || "Untitled Product",
         price: found.price || 0,
+        currency: found.currency || "USD",
         oldPrice:
           found.discountPrice > 0 && found.discountPrice < found.price
             ? found.price
@@ -252,11 +253,17 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-2xl sm:text-3xl font-bold text-[#00a062] tracking-tight">
-                  ${Number(currentProduct.price).toFixed(2)}
+                  {formatCurrency(
+                    currentProduct.price,
+                    currentProduct.currency,
+                  )}
                 </span>
                 {currentProduct.oldPrice && (
                   <span className="text-xs sm:text-sm text-slate-400 line-through font-normal">
-                    ${Number(currentProduct.oldPrice).toFixed(2)}
+                    {formatCurrency(
+                      currentProduct.oldPrice,
+                      currentProduct.currency,
+                    )}
                   </span>
                 )}
               </div>
