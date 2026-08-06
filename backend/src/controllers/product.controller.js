@@ -251,6 +251,7 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    const selectedCurrency = req.headers["x-currency"] || "USD";
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -306,10 +307,15 @@ export const getProductById = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      data: product[0],
-    });
+   const convertedProduct = convertProduct(
+  product[0],
+  selectedCurrency,
+);
+
+res.status(200).json({
+  success: true,
+  data: convertedProduct,
+});
   } catch (error) {
     res.status(500).json({
       success: false,
