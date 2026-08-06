@@ -128,8 +128,9 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-bold text-emerald-600">
                 {formatCurrency(displayPrice, product.currency)}
-                <p>{product.currency}</p>
+                
               </span>
+              <p>{product.currency}</p>
               {hasDiscount && (
                 <span className="text-xs text-slate-400 line-through">
                   {formatCurrency(product.price, product.currency)}
