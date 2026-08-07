@@ -254,10 +254,11 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-2xl sm:text-3xl font-bold text-[#00a062] tracking-tight">
-                  {formatCurrency(
-                    currentProduct.price,
-                    currentProduct.currency,
-                  )}
+                  <Price
+    amount={currentProduct.price}
+    currency={currentProduct.currency}
+    className="text-3xl font-bold"
+/>
                   
                 </span>
                 {currentProduct.oldPrice && (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SlidersHorizontal, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useCategories } from "../../hooks/categories/useCategories.js";
 import { useBrands } from "../../hooks/brands/useBrands.js";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 export default function SidebarFilter({
   selectedCategories,

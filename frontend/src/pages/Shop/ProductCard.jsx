@@ -5,7 +5,7 @@ import { useWishlist } from "../../hooks/wishlist/useWishlist";
 import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist";
 import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist";
 import { useAddToCart } from "../../hooks/cart/useAddToCart";
-import { formatCurrency } from "../../utils/formatCurrency.js";
+import Price from "../../components/common/Price";  
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const { data: wishlistData } = useWishlist();
@@ -126,15 +126,21 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-50">
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold text-emerald-600">
-                {formatCurrency(displayPrice, product.currency)}
+             
+               <Price
+    amount={displayPrice}
+    currency={product.currency}
+    className="text-lg font-bold text-emerald-600"
+/>-
                 
-              </span>
-              <p>{product.currency}</p>
+             
+              
               {hasDiscount && (
-                <span className="text-xs text-slate-400 line-through">
-                  {formatCurrency(product.price, product.currency)}
-                </span>
+                <Price
+  amount={product.price}
+  currency={product.currency}
+  className="text-xs text-slate-400 line-through"
+/>
               )}
             </div>
 
@@ -216,13 +222,17 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         {/* Price & Action Section */}
         <div className="mt-1">
           <div className="flex items-baseline gap-1 mb-1.5">
-            <span className="text-xs sm:text-sm font-bold text-emerald-600">
-              {formatCurrency(displayPrice, product.currency)}
-            </span>
+            <Price
+  amount={displayPrice}
+  currency={product.currency}
+  className="text-xs sm:text-sm font-bold text-emerald-600"
+/>
             {hasDiscount && (
-              <span className="text-[9px] text-slate-400 line-through">
-                {formatCurrency(product.price, product.currency)}
-              </span>
+              <Price
+  amount={product.price}
+  currency={product.currency}
+  className="text-[9px] text-slate-400 line-through"
+/>
             )}
           </div>
 
