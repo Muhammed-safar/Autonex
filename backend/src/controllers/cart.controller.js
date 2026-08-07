@@ -1,6 +1,7 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import { recalculateCart } from "../utils/recalculateCart.js";
+import { convertCurrency } from "../services/currency.service.js";
 
 export const addToCart = async (req, res) => {
   try {
@@ -112,17 +113,15 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
   try {
+    const selectedCurrency = req.headers["x-currency"] || "USD";
+
     const cart = await Cart.findOne({
       userId: req.user.id,
     }).populate({
       path: "items.productId",
       populate: [
-        {
-          path: "brand",
-        },
-        {
-          path: "category",
-        },
+        { path: "brand" },
+        { path: "category" },
       ],
     });
 
@@ -137,9 +136,35 @@ export const getCart = async (req, res) => {
       });
     }
 
+    const convertedItems = cart.items.map((item) => {
+      const convertedPrice = convertCurrency(
+        item.priceAtAdded,
+        item.productId.currency,
+        selectedCurrency
+      );
+
+      return {
+        ...item.toObject(),
+        priceAtAdded: convertedPrice,
+        productId: {
+          ...item.productId.toObject(),
+          currency: selectedCurrency,
+        },
+      };
+    });
+
+    const convertedTotal = convertedItems.reduce(
+      (sum, item) => sum + item.priceAtAdded * item.quantity,
+      0
+    );
+
     res.status(200).json({
       success: true,
-      data: cart,
+      data: {
+        ...cart.toObject(),
+        items: convertedItems,
+        totalPrice: Number(convertedTotal.toFixed(2)),
+      },
     });
   } catch (error) {
     res.status(500).json({
