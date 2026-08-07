@@ -5,7 +5,7 @@ import { useCart } from "../../hooks/cart/useCart";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import { useRemoveCartItem } from "../../hooks/cart/useRemoveCartItem";
 import { useClearCart } from "../../hooks/cart/useClearCart";
-import Price from "../common/Price";
+import Price from "../../components/common/Price";
 
 const CartPage = () => {
   const navigate = useNavigate();
