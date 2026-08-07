@@ -19,6 +19,9 @@
   import app from "./app.js";
   import { errorHandler } from "./middlewares/error.middleware.js";
 import contactRoutes from "../src/routes/contact.routes.js";
+import checkoutRoutes from "./routes/checkout.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import orderRoutes from "./routes/order.routes.js"
   connectDB();
 
   app.use(cors(corsOptions));
@@ -37,6 +40,9 @@ import contactRoutes from "../src/routes/contact.routes.js";
   app.use("/api/address", addressRoutes);
   app.use("/api/dashboard", dashboardRoutes );
   app.use("/api/contact", contactRoutes);
+  app.use("/api/checkout", checkoutRoutes);
+  app.use("/api/payments", paymentRoutes);
+  app.use("/api/orders", orderRoutes);
 
 
   app.use(errorHandler);
