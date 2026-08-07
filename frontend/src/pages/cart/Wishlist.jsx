@@ -5,6 +5,7 @@ import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist.js";
 import { useClearWishlist } from "../../hooks/wishlist/useClearWishlist.js";
 import CartSkeleton from "./CartSkeleton.jsx";
 import { useAddToCart } from "../../hooks/cart/useAddToCart.js";
+import Price from "../../components/common/Price.jsx";
 
 const Wishlist = ({ onReturnToShop }) => {
   const { data, isLoading } = useWishlist();
@@ -101,10 +102,13 @@ const Wishlist = ({ onReturnToShop }) => {
                   <h4 className="text-sm font-bold text-gray-900">
                     {item.name}
                   </h4>
+                  <p>{item.currency}</p>
                   <div className="flex items-center space-x-3 mt-1">
-                    <span className="text-sm font-semibold text-[#0067B2]">
-                      ${numPrice.toFixed(2)}
-                    </span>
+                    <Price
+                      amount={numPrice}
+                      currency={item.currency}
+                      className="text-sm font-semibold text-[#0067B2]"
+                    />
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-md ${
                         item.stock > 0
@@ -159,4 +163,3 @@ const Wishlist = ({ onReturnToShop }) => {
 };
 
 export default Wishlist;
-
