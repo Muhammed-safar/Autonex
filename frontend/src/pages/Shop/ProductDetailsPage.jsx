@@ -23,7 +23,7 @@ import { useAddWishlist } from "../../hooks/wishlist/useAddWishlist";
 import { useRemoveWishlist } from "../../hooks/wishlist/useRemoveWishlist";
 import { useProduct } from "../../hooks/products/useProduct.js";
 import { useAddToCart } from "../../hooks/cart/useAddToCart";
-import { formatCurrency } from "../../utils/formatCurrency.js";
+import Price from "../common/Price";
 
 const ProductDetailsPage = ({ productId: propProductId }) => {
   const params = useParams();
@@ -106,8 +106,9 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
         id: product.id,
         sku: product.sku || product.id?.substring(0, 8),
         title: product.name || "Untitled Product",
-        price: product.price ? `$${product.price}` : "$0.00",
-        oldPrice: product.discountPrice ? `$${product.discountPrice}` : null,
+        price: product.price || 0,
+        discountPrice: product.discountPrice || 0,
+        currency: product.currency || "USD",
         rating: product.rating || 4,
         reviewsCount: product.reviewsCount || 0,
         discount:
@@ -253,21 +254,17 @@ const ProductDetailsPage = ({ productId: propProductId }) => {
 
               {/* Price Metrics */}
               <div className="flex items-baseline gap-3 mb-4">
-                <span className="text-2xl sm:text-3xl font-bold text-[#00a062] tracking-tight">
-                  <Price
-    amount={currentProduct.price}
-    currency={currentProduct.currency}
-    className="text-3xl font-bold"
-/>
-                  
-                </span>
+                <Price
+                  amount={currentProduct.price}
+                  currency={currentProduct.currency}
+                  className="text-2xl sm:text-3xl font-bold text-[#00a062] tracking-tight"
+                />
                 {currentProduct.oldPrice && (
-                  <span className="text-xs sm:text-sm text-slate-400 line-through font-normal">
-                    {formatCurrency(
-                      currentProduct.oldPrice,
-                      currentProduct.currency,
-                    )}
-                  </span>
+                  <Price
+                    amount={currentProduct.oldPrice}
+                    currency={currentProduct.currency}
+                    className="text-xs sm:text-sm text-slate-400 line-through font-normal"
+                  />
                 )}
               </div>
 

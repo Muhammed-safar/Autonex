@@ -5,6 +5,7 @@ import { useCart } from "../../hooks/cart/useCart";
 import { useUpdateCartItem } from "../../hooks/cart/useUpdateCartItem";
 import { useRemoveCartItem } from "../../hooks/cart/useRemoveCartItem";
 import { useClearCart } from "../../hooks/cart/useClearCart";
+import Price from "../common/Price";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const CartPage = () => {
       name: item.productId.name,
       image: item.productId.images?.[0]?.url,
       price: item.priceAtAdded,
+      currency: item.productId.currency || "USD",
       quantity: item.quantity,
       stock: item.productId.stock,
     })) || [];
@@ -84,7 +86,7 @@ const CartPage = () => {
             </div>
 
             <button
-              onClick={() => navigate("/shop")} 
+              onClick={() => navigate("/shop")}
               className="bg-[#0066b2] hover:bg-[#005290] text-white text-sm font-medium py-2.5 px-6 rounded-md transition-colors"
             >
               Return to shop
@@ -152,7 +154,7 @@ const CartPage = () => {
                           </div>
                         </td>
                         <td className="py-4 px-4 text-right font-medium text-gray-700">
-                          ${item.price.toFixed(2)}
+                          <Price amount={item.price} currency={item.currency} />
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center justify-center border border-gray-200 rounded w-20 mx-auto bg-white">
@@ -174,7 +176,10 @@ const CartPage = () => {
                           </div>
                         </td>
                         <td className="py-4 px-4 text-right font-medium text-gray-800">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          <Price
+                            amount={item.price * item.quantity}
+                            currency={item.currency}
+                          />
                         </td>
                         <td className="py-4 px-2 text-center">
                           <button
@@ -223,7 +228,10 @@ const CartPage = () => {
                 <div className="flex justify-between items-center text-xs text-gray-600 pt-1">
                   <span>Subtotal</span>
                   <span className="font-semibold text-gray-800">
-                    ${subtotal.toFixed(2)}
+                    <Price
+                      amount={subtotal}
+                      currency={cart?.items?.[0]?.productId?.currency || "USD"}
+                    />
                   </span>
                 </div>
 
@@ -278,7 +286,12 @@ const CartPage = () => {
                 {/* Total */}
                 <div className="flex justify-between items-center text-sm font-semibold text-gray-800 pt-1">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>
+                    <Price
+                      amount={total}
+                      currency={cart?.items?.[0]?.productId?.currency || "USD"}
+                    />
+                  </span>
                 </div>
 
                 {/* Checkout Button */}
