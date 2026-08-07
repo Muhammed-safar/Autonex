@@ -8,7 +8,12 @@ import {
 // Get Wishlist
 export const getWishlist = async (req, res) => {
   try {
-    const wishlist = await getWishlistService(req.user.id);
+    const selectedCurrency = req.headers["x-currency"] || "USD";
+
+const wishlist = await getWishlistService(
+  req.user.id,
+  selectedCurrency
+);
 
     res.status(200).json({
       success: true,

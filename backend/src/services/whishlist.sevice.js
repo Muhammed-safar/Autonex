@@ -4,10 +4,14 @@ import {
   findWishlistByUserId,
   saveWishlist,
 } from "../repositories/whishlist.repository.js";
+import { convertProduct } from "../services/currency.service.js";
 
 // Get Wishlist
 
-export const getWishlistService = async (userId) => {
+export const getWishlistService = async (
+  userId,
+  selectedCurrency = "USD"
+) => {
   const wishlist = await findWishlistByUserId(userId);
 
   if (!wishlist) {
@@ -17,11 +21,15 @@ export const getWishlistService = async (userId) => {
     };
   }
 
-  wishlist.products = wishlist.products.filter(Boolean);
+  const convertedProducts = wishlist.products.map((product) =>
+    convertProduct(product.toObject(), selectedCurrency)
+  );
 
-  return wishlist;
+  return {
+    ...wishlist.toObject(),
+    products: convertedProducts,
+  };
 };
-
 // Add To Wishlist
 
 export const addToWishlistService = async (userId, productId) => {
