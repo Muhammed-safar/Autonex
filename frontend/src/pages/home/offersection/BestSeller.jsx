@@ -44,8 +44,8 @@ const BestSeller = () => {
     return allCategories
       .filter((cat) =>
         activeTab.categoryNames.some(
-          (name) => name.toLowerCase() === cat.name?.toLowerCase()
-        )
+          (name) => name.toLowerCase() === cat.name?.toLowerCase(),
+        ),
       )
       .map((cat) => cat._id);
   }, [allCategories, activeTab]);
@@ -65,7 +65,7 @@ const BestSeller = () => {
   const handleWishlist = (product) => {
     const id = product._id || product.id;
     const isLiked = wishlistItems.some(
-      (item) => item._id === id || item.product?._id === id
+      (item) => item._id === id || item.product?._id === id,
     );
 
     if (isLiked) {
@@ -169,7 +169,7 @@ const BestSeller = () => {
             const id = product._id || product.id;
 
             const isLiked = wishlistItems.some(
-              (item) => item._id === id || item.product?._id === id
+              (item) => item._id === id || item.product?._id === id,
             );
             const title = product.title || product.name;
             const image =
@@ -255,13 +255,22 @@ const BestSeller = () => {
 
                   {/* Price */}
                   <div className="flex items-baseline gap-1.5 pt-1">
-                    <span className="text-sm sm:text-base font-bold text-[#00A651]">
-                      {price}
-                    </span>
-                    {originalPrice && (
-                      <span className="text-[10px] sm:text-xs text-gray-400 line-through">
-                        {originalPrice}
-                      </span>
+                    <Price
+                      amount={
+                        product.discountPrice > 0
+                          ? product.discountPrice
+                          : product.price
+                      }
+                      currency={product.currency || "USD"}
+                      className="text-sm sm:text-base font-bold text-[#00A651]"
+                    />
+
+                    {product.discountPrice > 0 && (
+                      <Price
+                        amount={product.price}
+                        currency={product.currency || "USD"}
+                        className="text-[10px] sm:text-xs text-gray-400 line-through"
+                      />
                     )}
                   </div>
                 </div>
