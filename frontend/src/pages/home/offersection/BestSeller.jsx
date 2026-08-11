@@ -6,6 +6,7 @@ import { useAddWishlist } from "../../../hooks/wishlist/useAddWishlist.js";
 import { useRemoveWishlist } from "../../../hooks/wishlist/useRemoveWishlist.js";
 import { useWishlist } from "../../../hooks/wishlist/useWishlist.js";
 import { useCategories } from "../../../hooks/categories/useCategories.js";
+import Price from "../../../components/common/Price.jsx";
 
 // Tab definitions with the exact category names as stored in DB
 const CATEGORY_TABS = [
