@@ -11,7 +11,7 @@ export const createPaymentOrder = async (data) => {
 
 export const verifyPayment = async (data) => {
     const response = await API.post(
-        "/payment/verify",
+        "/payments/verify",
         data
     );
 
