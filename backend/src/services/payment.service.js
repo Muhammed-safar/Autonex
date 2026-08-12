@@ -7,6 +7,11 @@ export const createPaymentOrderService = async (userId) => {
     // Find checkout
     const checkout = await Checkout.findOne({ user: userId, checkoutStatus: "ACTIVE" });
 
+    console.log(
+  "RAZORPAY_KEY_ID:",
+  process.env.RAZORPAY_KEY_ID
+);
+
     if (!checkout) {
         throw new Error("Checkout not found");
     }
