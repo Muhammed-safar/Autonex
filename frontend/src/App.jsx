@@ -35,6 +35,9 @@ import Blog from "./pages/home/HeroSection/Blog.jsx";
 import FAQPage from "./pages/home/HeroSection/FAQPage.jsx";
 import AllCategorySidebar from "./pages/home/AllCategorySidebar.jsx";
 import OrderDetailsPage from "./pages/Login/profile/OrderDetailsPage.jsx";
+import Payment from "./pages/Payment/Payment.jsx";
+import ConfirmOrderModal from "./pages/Payment/ConfirmOrderModal.jsx";
+import OrderSuccess from "./pages/Payment/OrderSuccess.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -87,7 +90,7 @@ const App = () => {
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
             
           </Route>
-          <Route path="/OrderDetail/:id" element={<OrderDetails Page/>}/>
+          <Route path="/OrderDetail/:id" element={<OrderDetailsPage/>}/>
 
           
         </Route>
