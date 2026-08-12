@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, CreditCard } from "lucide-react";
+import useCreatePaymentOrder from "../../hooks/payment/useCreatePaymentOrder";
+import useVerifyPayment from "../../hooks/payment/useVerifyPayment";
+import { useCreateOrder } from "../../hooks/orders/useCreateOrder"; 
 
 const Payment = () => {
     const location = useLocation();
 
     const checkoutData = location.state?.checkoutData;
+
+    const {
+        mutate: createPaymentOrder,
+        isPending: isCreatingPaymentOrder,
+    } = useCreatePaymentOrder();
+
+    const {
+        mutate: verifyPayment,
+        isPending: isVerifyingPayment,
+    } = useVerifyPayment();
+
+    const {
+        mutate: createOrder,
+        isPending: isCreatingOrder,
+    } = useCreateOrder();
+
+    const [paymentError, setPaymentError] = useState("");
 
     // If user directly opens /payment without checkout data
     if (!checkoutData) {
@@ -21,6 +41,137 @@ const Payment = () => {
         discount = 0,
         total = 0,
     } = summary || {};
+
+    const handlePayment = () => {
+        if (!checkoutData?._id) {
+            setPaymentError("Checkout information is missing.");
+            return;
+        }
+
+        setPaymentError("");
+
+        createPaymentOrder(checkoutData._id, {
+            onSuccess: (response) => {
+                console.log("Create Payment Order Response:", response);
+
+                const paymentData = response.data;
+
+                if (!paymentData?.orderId) {
+                    setPaymentError(
+                        "Unable to create Razorpay payment order."
+                    );
+                    return;
+                }
+
+                if (!window.Razorpay) {
+                    setPaymentError(
+                        "Razorpay SDK is not loaded."
+                    );
+                    return;
+                }
+
+                const options = {
+                    key: paymentData.key,
+
+                    amount: paymentData.amount,
+
+                    currency: paymentData.currency,
+
+                    name: "Autonex",
+
+                    description: "Order Payment",
+
+                    order_id: paymentData.orderId,
+
+                    prefill: {
+                        name: checkoutData.shippingAddress?.fullName || "",
+                        contact: checkoutData.shippingAddress?.phone || "",
+                    },
+
+                    theme: {
+                        color: "#0066b2",
+                    },
+
+                    handler: (razorpayResponse) => {
+                        console.log(
+                            "Razorpay Payment Success:",
+                            razorpayResponse
+                        );
+
+                        verifyPayment(
+                            {
+                                checkoutId: checkoutData._id,
+
+                                razorpay_order_id:
+                                    razorpayResponse.razorpay_order_id,
+
+                                razorpay_payment_id:
+                                    razorpayResponse.razorpay_payment_id,
+
+                                razorpay_signature:
+                                    razorpayResponse.razorpay_signature,
+                            },
+                            {
+                                onSuccess: (response) => {
+                                    console.log(
+                                        "Payment Verification Success:",
+                                        response
+                                    );
+
+                                    createOrder({
+                                        checkoutId: checkoutData._id,
+
+                                        paymentDetails: {
+                                            razorpayOrderId:
+                                                razorpayResponse.razorpay_order_id,
+
+                                            razorpayPaymentId:
+                                                razorpayResponse.razorpay_payment_id,
+
+                                            razorpaySignature:
+                                                razorpayResponse.razorpay_signature,
+                                        },
+                                    });
+                                },
+
+                                onError: (error) => {
+                                    console.error(
+                                        "Payment Verification Failed:",
+                                        error.response?.data?.message ||
+                                        error.message
+                                    );
+                                },
+                            }
+                        );
+                    },
+
+                    modal: {
+                        ondismiss: () => {
+                            console.log(
+                                "Razorpay payment window closed."
+                            );
+                        },
+                    },
+                };
+
+                const razorpay = new window.Razorpay(options);
+
+                razorpay.open();
+            },
+
+            onError: (error) => {
+                console.error(
+                    "Create Razorpay Order Failed:",
+                    error
+                );
+
+                setPaymentError(
+                    error.response?.data?.message ||
+                    "Unable to start payment."
+                );
+            },
+        });
+    };
 
     return (
         <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 font-sans text-gray-800">
@@ -244,12 +395,27 @@ const Payment = () => {
                             {/* Razorpay Button */}
                             <button
                                 type="button"
-                                className="w-full bg-[#0066b2] hover:bg-[#005290] text-white text-xs font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
+                                onClick={handlePayment}
+                                disabled={
+                                    isCreatingPaymentOrder ||
+                                    isVerifyingPayment
+                                }
+                                className="w-full bg-[#0066b2] hover:bg-[#005290] disabled:bg-gray-400 text-white text-xs font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2"
                             >
                                 <CreditCard className="w-4 h-4" />
 
-                                Pay ${total.toFixed(2)}
+                                {isCreatingPaymentOrder
+                                    ? "Creating Payment..."
+                                    : isVerifyingPayment
+                                        ? "Verifying Payment..."
+                                        : `Pay $${total.toFixed(2)}`}
                             </button>
+
+                            {paymentError && (
+                                <p className="mt-3 text-xs text-red-500 text-center">
+                                    {paymentError}
+                                </p>
+                            )}
 
                             {/* Security */}
                             <div className="mt-5 pt-4 border-t border-gray-100 text-center">
