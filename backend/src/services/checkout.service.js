@@ -193,6 +193,8 @@ export const checkoutService = async (userId, body) => {
                 discount,
                 total,
             },
+             checkoutStatus: "ACTIVE",
+    expiresAt: new Date(Date.now() + 30 * 60 * 1000),
         },
         {
             upsert: true,
