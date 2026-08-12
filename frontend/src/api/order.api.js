@@ -11,7 +11,7 @@ export const getMyOrders = async (
   date = "",
   page = 1
 ) => {
-  const response = await API.get("/api/orders", {
+  const response = await API.get("/orders", {
     params: {
       search,
       date,
