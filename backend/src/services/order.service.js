@@ -447,20 +447,20 @@ export const getOrderInvoice = async (orderId, user) => {
         throw new Error("Invalid Order ID");
     }
 
-    const order = await Order.findById(orderId)
-        .populate("user", "name email");
+  const order = await Order.findById(orderId);
 
-    if (!order) {
-        throw new Error("Order not found");
-    }
+if (!order) {
+    throw new Error("Order not found");
+}
 
-    // Check Permission
-    const isOwner = order.user._id.toString() === user._id.toString();
-    const isAdmin = user.role === "admin";
+const isOwner = order.user.toString() === user._id.toString();
+const isAdmin = user.role === "admin";
 
-    if (!isOwner && !isAdmin) {
-        throw new Error("You are not authorized to view this invoice");
-    }
+if (!isOwner && !isAdmin) {
+    throw new Error("You are not authorized to view this invoice");
+}
 
-    return order;
-};
+await order.populate("user", "fullName email");
+
+return order;
+};  
