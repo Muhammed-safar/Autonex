@@ -169,15 +169,24 @@ export const checkoutService = async (userId, body) => {
 
     const total =
         subtotal +
-        shipping +
-        tax -
+        shipping -
         discount;
 
     // Return
 
-    const checkout = await Checkout.findOneAndUpdate(
-        { user: userId },
-        {
+    // Find existing checkout for this user
+    let checkout = await Checkout.findOne({
+        user: userId,
+    });
+
+    // create a completely new checkout
+    if (checkout && checkout.checkoutStatus === "COMPLETED") {
+        checkout = null;
+    }
+
+    // Create a new checkout
+    if (!checkout) {
+        checkout = await Checkout.create({
             user: userId,
             items,
             shippingAddress,
@@ -193,19 +202,41 @@ export const checkoutService = async (userId, body) => {
                 discount,
                 total,
             },
-             checkoutStatus: "ACTIVE",
-    expiresAt: new Date(Date.now() + 30 * 60 * 1000),
-        },
-        {
-            upsert: true,
-            new: true,
-            runValidators: true,
-        }
-    );
+            checkoutStatus: "ACTIVE",
+        });
+    } else {
+        // Update existing unfinished checkout
+        checkout.items = items;
+        checkout.shippingAddress = shippingAddress;
+
+        checkout.payment = {
+            method: paymentMethod,
+            status: "PENDING",
+        };
+
+        checkout.coupon = appliedCoupon;
+
+        checkout.summary = {
+            subtotal,
+            shipping,
+            tax,
+            discount,
+            total,
+        };
+
+        checkout.checkoutStatus = "ACTIVE";
+
+        await checkout.save();
+    }
 
     return {
-  nextStep: paymentMethod === "RAZORPAY" ? "PAYMENT" : "CREATE_ORDER",
-  checkout,
-};
+        success: true,
 
+        nextStep:
+            paymentMethod === "RAZORPAY"
+                ? "PAYMENT"
+                : "CREATE_ORDER",
+
+        checkout,
+    };
 };
