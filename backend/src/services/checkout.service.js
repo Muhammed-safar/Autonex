@@ -201,6 +201,9 @@ export const checkoutService = async (userId, body) => {
         }
     );
 
-    return checkout;
+    return {
+  nextStep: paymentMethod === "RAZORPAY" ? "PAYMENT" : "CREATE_ORDER",
+  checkout,
+};
 
 };
