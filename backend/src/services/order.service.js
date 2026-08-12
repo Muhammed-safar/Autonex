@@ -28,7 +28,7 @@ const generateUniqueTrackingId = async () => {
     }
 };
 
-export const createOrder = async (checkoutId, paymentDetails ) => {
+export const createOrder = async (checkoutId, paymentDetails) => {
     const session = await mongoose.startSession();
 
     session.startTransaction();
@@ -172,7 +172,6 @@ export const createOrder = async (checkoutId, paymentDetails ) => {
         await checkout.save({ session });
 
         // Clear Cart
-
         await Cart.findOneAndUpdate(
             { userId: checkout.user },
             {
