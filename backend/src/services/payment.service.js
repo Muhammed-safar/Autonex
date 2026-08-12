@@ -45,6 +45,7 @@ export const createPaymentOrderService = async (userId) => {
 
 export const verifyPaymentService = async ({
     userId,
+    checkoutId,
     razorpay_order_id,
     razorpay_payment_id,
     razorpay_signature,
@@ -60,7 +61,11 @@ export const verifyPaymentService = async ({
     }
 
     // Find checkout
-    const checkout = await Checkout.findOne({ user: userId });
+    const checkout = await Checkout.findOne({
+    _id: checkoutId,
+    user: userId,
+    checkoutStatus: "ACTIVE",
+});
 
     if (!checkout) {
         throw new Error("Checkout not found");
