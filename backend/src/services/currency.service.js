@@ -2,8 +2,7 @@ const exchangeRates = {
   USD: 1,
   EUR: 0.86,
   INR: 87.4,
-  GBP: 0.74,
-  AED: 3.67,
+
 };
 
 export const convertCurrency = (

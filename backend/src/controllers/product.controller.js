@@ -72,7 +72,7 @@ export const createProduct = async (req, res) => {
 };
 
 export const getProducts = async (req, res) => {
-  const selectedCurrency = req.headers["x-currency"] || "USD";
+  const selectedCurrency = req.headers["x-currency"] || "INR";
   try {
     const {
       page = 1,

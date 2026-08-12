@@ -34,6 +34,7 @@ import ContactPage from "./pages/home/HeroSection/ContactPage.jsx";
 import Blog from "./pages/home/HeroSection/Blog.jsx";
 import FAQPage from "./pages/home/HeroSection/FAQPage.jsx";
 import AllCategorySidebar from "./pages/home/AllCategorySidebar.jsx";
+import OrderDetailsPage from "./pages/Login/profile/OrderDetailsPage.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -62,6 +63,9 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/payment" element={<Payment/>} />
+          <Route path="/confirm-order" element={<ConfirmOrderModal/>} />
+          <Route path="/order-success" element={<OrderSuccess/>} />
 
           <Route element={<PublicRoute />}>
             <Route path="/account" element={<AuthPage />} />
@@ -73,6 +77,7 @@ const App = () => {
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/auth" element={<ProfileLayout />} />
+            
             <Route
             path="/whishlist"
             element={<Wishlist onReturnToShop={handleReturnToShop} />}
@@ -82,6 +87,7 @@ const App = () => {
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
             
           </Route>
+          <Route path="/OrderDetail/:id" element={<OrderDetails Page/>}/>
 
           
         </Route>

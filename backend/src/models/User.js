@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
     preferredCurrency: {
       type: String,
       enum: ["USD", "EUR",  "INR"],
-      default: "USD",
+      default: "INR",
     },
 
     isVerified: {
