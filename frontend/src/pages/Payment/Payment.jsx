@@ -43,7 +43,11 @@ const Payment = () => {
 
     setPaymentError("");
 
-    createPaymentOrder(checkoutData._id, {
+    createPaymentOrder(
+  {
+    checkoutId: checkoutData._id,
+  },
+  {
       onSuccess: (response) => {
         console.log("Create Payment Order Response:", response);
 

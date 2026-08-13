@@ -2,21 +2,39 @@ import { createPaymentOrderService, verifyPaymentService } from "../services/pay
 
 export const createPaymentOrder = async (req, res) => {
     try {
-        const paymentOrder = await createPaymentOrderService(req.user.id, req.body.checkoutId);
+        const { checkoutId } = req.body || {};
+
+        console.log("CREATE PAYMENT ORDER");
+        console.log("User ID:", req.user.id);
+        console.log("Checkout ID:", checkoutId);
+
+        if (!checkoutId) {
+            return res.status(400).json({
+                success: false,
+                message: "Checkout ID is required",
+            });
+        }
+
+        const paymentOrder = await createPaymentOrderService(
+            req.user.id,
+            checkoutId
+        );
 
         return res.status(200).json({
             success: true,
             message: "Payment order created successfully",
             data: paymentOrder,
         });
+
     } catch (error) {
+        console.error("Create Payment Order Error:", error);
+
         return res.status(400).json({
             success: false,
             message: error.message,
         });
     }
 };
-
 export const verifyPayment = async (req, res) => {
     try {
         const {
