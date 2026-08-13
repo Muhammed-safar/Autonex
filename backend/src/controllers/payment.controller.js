@@ -2,7 +2,7 @@ import { createPaymentOrderService, verifyPaymentService } from "../services/pay
 
 export const createPaymentOrder = async (req, res) => {
     try {
-        const paymentOrder = await createPaymentOrderService(req.user.id);
+        const paymentOrder = await createPaymentOrderService(req.user.id, req.body.checkoutId);
 
         return res.status(200).json({
             success: true,
@@ -19,16 +19,23 @@ export const createPaymentOrder = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
     try {
-        const verification = await verifyPaymentService({
+        const {
+            checkoutId,
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+        } = req.body;
+
+        const result = await verifyPaymentService({
             userId: req.user.id,
-            ...req.body,
+            checkoutId,
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
         });
 
-        return res.status(200).json({
-            success: true,
-            message: verification.message,
-            data: verification,
-        });
+        return res.status(200).json(result);
+
     } catch (error) {
         return res.status(400).json({
             success: false,
