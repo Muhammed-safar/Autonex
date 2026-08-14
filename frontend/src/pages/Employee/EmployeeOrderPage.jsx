@@ -55,19 +55,14 @@ const EmployeeOrderPage = () => {
       setUpdating(true);
       setError("");
 
-      const response = await API.patch(`/orders/${order._id}/status`, {
+      await API.patch(`/orders/${order._id}/status`, {
         status: selectedStatus,
       });
 
-      const updatedOrder = response.data.data;
+      // Fetch the complete updated order
+      const response = await API.get(`/orders/tracking/${trackingId}`);
 
-      setOrder((prevOrder) => ({
-        ...prevOrder,
-        orderStatus: updatedOrder.orderStatus,
-        statusHistory: updatedOrder.statusHistory,
-        deliveredAt: updatedOrder.deliveredAt,
-        cancelledAt: updatedOrder.cancelledAt,
-      }));
+      setOrder(response.data.data);
 
       setSelectedStatus("");
     } catch (error) {
