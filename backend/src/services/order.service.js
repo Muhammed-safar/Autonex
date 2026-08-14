@@ -334,9 +334,11 @@ export const cancelOrder = async ({
             throw new Error("Order not found");
         }
 
+        const currentUser = await User.findById(user.id).select("role");
         // Permission
-        const isOwner = order.user.toString() === user._id.toString();
-        const isAdmin = user.role === "admin";
+
+        const isOwner = order.user.toString() === user.id.toString();
+        const isAdmin = currentUser?.role === "admin";
 
         if (!isOwner && !isAdmin) {
             throw new Error("You are not authorized to cancel this order");
@@ -367,9 +369,10 @@ export const cancelOrder = async ({
             order.paymentMethod === "RAZORPAY" &&
             order.paymentStatus === "PAID"
         ) {
+
             refund = await refundPayment(
                 order.payment.razorpayPaymentId,
-                Math.round(order.totalAmount * 100)
+                Math.round(order.totalAmount)
             );
 
             order.paymentStatus = "REFUNDED";

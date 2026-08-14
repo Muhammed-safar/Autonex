@@ -17,12 +17,14 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import useOrder from "../../../hooks/orders/useOrder";
 import { useDownloadInvoice } from "../../../hooks/orders/useDownloadInvoice";
+import useCancelOrder from "../../../hooks/orders/useCancelOrder";
 
 const OrderDetailsPage = () => {
     const navigate = useNavigate()
     const { id } = useParams();
 
     const downloadInvoiceMutation = useDownloadInvoice();
+    const cancelOrderMutation = useCancelOrder();
 
     const {
         data,
@@ -65,12 +67,23 @@ const OrderDetailsPage = () => {
 
     const statusSteps = [
         "PLACED",
+        "CONFIRMED",
         "SHIPPED",
         "OUT_FOR_DELIVERY",
         "DELIVERED",
     ];
 
     const currentStep = statusSteps.indexOf(orderData.orderStatus);
+
+    const cancellableStatuses = [
+        "PLACED",
+        "CONFIRMED",
+        "PROCESSING",
+    ];
+
+    const canCancelOrder =
+        cancellableStatuses.includes(orderData.orderStatus) &&
+        !isCancelled;
 
     return (
         <div className="min-h-screen bg-slate-50  text-slate-600 py-8 px-4 sm:px-6 lg:px-8 font-sans">
@@ -82,21 +95,44 @@ const OrderDetailsPage = () => {
                         onClick={() => navigate(-1)}
                         className="inline-flex items-center gap-2 text-sm text-slate-700 hover:text-slate-400 transition-colors w-fit"
                     >
-                        <ArrowLeft className="w-4 h-4" /> Back to Orders
+                        <ArrowLeft className="w-4 h-4" />
+                        Back to Orders
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={() => downloadInvoiceMutation.mutate(orderData._id)}
-                        disabled={downloadInvoiceMutation.isPending}
-                        className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-medium px-4 py-2.5 rounded-lg shadow-lg shadow-red-900/20 transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                        <Download className="w-4 h-4" />
+                    <div className="flex items-center gap-3">
+                        {canCancelOrder && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    cancelOrderMutation.mutate(orderData._id);
+                                }}
+                                disabled={cancelOrderMutation.isPending}
+                                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-medium
+                                             px-4 py-2.5 rounded-lg shadow-lg shadow-red-900/20 transition-all text-sm
+                                             disabled:opacity-60 disabled:cursor-not-allowed" >
+                                <XCircle className="w-4 h-4" />
+                                {cancelOrderMutation.isPending
+                                    ? "Cancelling..."
+                                    : "Cancel Order"}
+                            </button>
+                        )}
 
-                        {downloadInvoiceMutation.isPending
-                            ? "Preparing Invoice..."
-                            : "Download PDF Bill"}
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                downloadInvoiceMutation.mutate(orderData._id)
+                            }
+                            disabled={downloadInvoiceMutation.isPending}
+                            className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500
+                                         text-white font-medium  px-4 py-2.5 rounded-lg  shadow-lg shadow-red-900/20
+                                          transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed" >
+                            <Download className="w-4 h-4" />
+
+                            {downloadInvoiceMutation.isPending
+                                ? "Preparing Invoice..."
+                                : "Download PDF Bill"}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Top Summary Card */}
@@ -140,12 +176,12 @@ const OrderDetailsPage = () => {
 
                     {/* Cancelled / Refund Banner (Conditional) */}
                     {isCancelled && (
-                        <div className="mt-4 p-4 rounded-xl bg-red-950/30 border border-red-900/50 flex items-start gap-3 text-red-300 text-sm">
-                            <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                        <div className="mt-4 p-4 rounded-xl bg-red-400/30 border border-red-900/50 flex items-start gap-3 text-red-500 text-sm">
+                            <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                             <div>
                                 <p className="font-semibold">Order Cancelled</p>
                                 {orderData.cancelledAt && (
-                                    <p className="text-xs text-red-400 mt-0.5">
+                                    <p className="text-xs text-red-600 mt-0.5">
                                         Cancelled on {formatDate(orderData.cancelledAt)}
                                     </p>
                                 )}
@@ -154,7 +190,7 @@ const OrderDetailsPage = () => {
                     )}
 
                     {showRefund && (
-                        <div className="mt-4 p-4 rounded-xl bg-amber-950/30 border border-amber-900/50 flex items-center gap-3 text-amber-300 text-sm">
+                        <div className="mt-4 p-4 rounded-xl bg-amber-400/30 border border-amber-900/50 flex items-center gap-3 text-amber-500 text-sm">
                             <Clock className="w-5 h-5 text-amber-400 shrink-0" />
                             <div>
                                 <span className="font-semibold">Refund Status: </span>
@@ -165,13 +201,13 @@ const OrderDetailsPage = () => {
 
                     {!isCancelled && (
                         <div className="mt-6 pt-2">
-                            <div className="grid grid-cols-4 gap-2 text-center text-xs font-medium text-slate-400">
+                            <div className="grid grid-cols-5 gap-2 text-center text-xs font-medium text-slate-400">
 
                                 {/* Placed */}
                                 <div className="flex flex-col items-center gap-2">
                                     <div
                                         className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 0
-                                            ? "bg-red-600 text-white"
+                                            ? "bg-green-600 text-white"
                                             : "bg-slate-100 text-slate-400 border border-gray-100"
                                             }`}
                                     >
@@ -181,12 +217,25 @@ const OrderDetailsPage = () => {
                                     <span>Placed</span>
                                 </div>
 
+                                {/* Confirmed */}
+                                <div className="flex flex-col items-center gap-2">
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 1
+                                            ? "bg-green-600 text-white"
+                                            : "bg-slate-100 text-slate-400 border border-gray-100"
+                                            }`}
+                                    >
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    </div>
+
+                                    <span>Confirmed</span>
+                                </div>
 
                                 {/* Shipped */}
                                 <div className="flex flex-col items-center gap-2">
                                     <div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 1
-                                            ? "bg-red-600 text-white"
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 2
+                                            ? "bg-green-600 text-white"
                                             : "bg-slate-100 text-slate-400 border border-gray-100"
                                             }`}
                                     >
@@ -196,12 +245,11 @@ const OrderDetailsPage = () => {
                                     <span>Shipped</span>
                                 </div>
 
-
                                 {/* Out For Delivery */}
                                 <div className="flex flex-col items-center gap-2">
                                     <div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 2
-                                            ? "bg-red-600 text-white"
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 3
+                                            ? "bg-green-600 text-white"
                                             : "bg-slate-100 text-slate-400 border border-gray-100"
                                             }`}
                                     >
@@ -211,12 +259,11 @@ const OrderDetailsPage = () => {
                                     <span>Out for Delivery</span>
                                 </div>
 
-
                                 {/* Delivered */}
                                 <div className="flex flex-col items-center gap-2">
                                     <div
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 3
-                                            ? "bg-red-600 text-white"
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 4
+                                            ? "bg-green-600 text-white"
                                             : "bg-slate-100 text-slate-400 border border-gray-100"
                                             }`}
                                     >
