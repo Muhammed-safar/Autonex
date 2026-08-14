@@ -167,16 +167,28 @@ export const getAllOrders = async (req, res) => {
 export const updateOrderStatusController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, note } = req.body;
+        const { status } = req.body;
+
+        console.log("UPDATE STATUS BODY:", req.body);
+        console.log("STATUS:", status);
+        console.log("STATUS TYPE:", typeof status);
+
+        // Make sure status is a string
+        if (typeof status !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Status must be a string",
+                receivedStatus: status,
+            });
+        }
 
         const order = await updateOrderStatus({
             orderId: id,
-            status,
+            status: status.toUpperCase(),
             updatedBy: req.user.id,
             role: req.user.role,
             ipAddress: req.ip,
-            userAgent: req.get("User-Agent"),
-            note,
+            userAgent: req.get("user-agent"),
         });
 
         return res.status(200).json({
@@ -187,7 +199,7 @@ export const updateOrderStatusController = async (req, res) => {
     } catch (error) {
         console.error("Update Order Status Error:", error);
 
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
             message: error.message || "Failed to update order status",
         });
