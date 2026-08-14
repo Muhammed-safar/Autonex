@@ -19,7 +19,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 import Categories from "./components/admin/category/Categories.jsx";
 import Products from "./components/admin/products/Products.jsx"
 import Brands from "./components/admin/brand/Brands.jsx";
-import Orders from "./components/admin/Orders";
+import Orders from "./components/admin/orders/Orders.jsx";
 import UsersView from "./components/admin/users/UsersView.jsx";
 import VerifyOTPPage from "./pages/Login/VerifyOTPPage";
 import ResetPassword from "./pages/Login/ResetPassword";
