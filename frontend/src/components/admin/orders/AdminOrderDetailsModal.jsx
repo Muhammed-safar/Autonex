@@ -87,17 +87,8 @@ const AdminOrderDetailsModal = ({
           {/* ORDER DETAILS */}
 
           <motion.div
-            className="
-              relative
-              z-10
-              w-full
-              max-w-5xl
-              max-h-[90vh]
-              overflow-hidden
-              rounded-2xl
-              bg-slate-50
-              shadow-2xl
-            "
+            className=" relative z-10 w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-2xl
+              bg-slate-50 shadow-2xl hide-scrollbar "
             initial={{
               opacity: 0,
               scale: 0.88,
@@ -163,7 +154,7 @@ const AdminOrderDetailsModal = ({
 
             {/* CONTENT */}
 
-            <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
+            <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6 hide-scrollbar">
               <div className="space-y-6">
 
                 {/* STATUS */}
