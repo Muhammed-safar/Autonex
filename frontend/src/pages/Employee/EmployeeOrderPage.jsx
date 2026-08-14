@@ -21,6 +21,7 @@ const EmployeeOrderPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -44,6 +45,33 @@ const EmployeeOrderPage = () => {
       fetchOrder();
     }
   }, [trackingId]);
+
+  const handleUpdateStatus = async () => {
+    if (!selectedStatus || !order?._id) {
+      return;
+    }
+
+    try {
+      setUpdating(true);
+      setError("");
+
+      const response = await API.patch(`/orders/${order._id}/status`, {
+        status: selectedStatus,
+      });
+
+      setOrder(response.data.data);
+
+      setSelectedStatus("");
+    } catch (error) {
+      console.error("Update order status error:", error);
+
+      setError(
+        error.response?.data?.message || "Failed to update order status",
+      );
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -126,10 +154,11 @@ const EmployeeOrderPage = () => {
 
               <button
                 type="button"
-                disabled={!selectedStatus}
+                onClick={handleUpdateStatus}
+                disabled={!selectedStatus || updating}
                 className="mt-4 px-5 py-3 rounded-lg bg-black text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Update Status
+                {updating ? "Updating..." : "Update Status"}
               </button>
             </div>
           )}
