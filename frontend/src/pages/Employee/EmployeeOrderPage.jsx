@@ -59,7 +59,15 @@ const EmployeeOrderPage = () => {
         status: selectedStatus,
       });
 
-      setOrder(response.data.data);
+      const updatedOrder = response.data.data;
+
+      setOrder((prevOrder) => ({
+        ...prevOrder,
+        orderStatus: updatedOrder.orderStatus,
+        statusHistory: updatedOrder.statusHistory,
+        deliveredAt: updatedOrder.deliveredAt,
+        cancelledAt: updatedOrder.cancelledAt,
+      }));
 
       setSelectedStatus("");
     } catch (error) {
