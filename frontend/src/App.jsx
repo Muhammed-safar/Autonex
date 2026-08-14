@@ -38,6 +38,7 @@ import OrderDetailsPage from "./pages/Login/profile/OrderDetailsPage.jsx";
 import Payment from "./pages/Payment/Payment.jsx";
 import ConfirmOrderModal from "./pages/Payment/ConfirmOrderModal.jsx";
 import OrderSuccess from "./pages/Payment/OrderSuccess.jsx";
+import Settings from "./components/admin/Settings.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -103,6 +104,7 @@ const App = () => {
             <Route path="brands" element={<Brands />} />
             <Route path="orders" element={<Orders />} />
             <Route path="users" element={<UsersView />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
       </Routes>
