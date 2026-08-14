@@ -207,7 +207,12 @@ export const login = async (req, res) => {
       });
     }
 
-    const accessToken = generateAccessToken(user._id);
+    // Include the user's role in the access token
+    const accessToken = generateAccessToken(
+      user._id,
+      user.role,
+    );
+
     const refreshToken = generateRefreshToken(user._id);
 
     user.refreshToken = await bcrypt.hash(refreshToken, 10);
@@ -426,14 +431,23 @@ export const updateProfile = async (req, res) => {
     }
 
     // Update text fields
-    if (req.body.fullName !== undefined) user.fullName = req.body.fullName;
+    if (req.body.fullName !== undefined) {
+      user.fullName = req.body.fullName;
+    }
 
-    if (req.body.country !== undefined) user.country = req.body.country;
+    if (req.body.country !== undefined) {
+      user.country = req.body.country;
+    }
 
-    if (req.body.phone !== undefined) user.phone = req.body.phone;
+    if (req.body.phone !== undefined) {
+      user.phone = req.body.phone;
+    }
 
     // Remove profile image
-    if (req.body.removeProfile === "true" || req.body.removeProfile === true) {
+    if (
+      req.body.removeProfile === "true" ||
+      req.body.removeProfile === true
+    ) {
       if (user.profile?.publicId) {
         await deleteFromCloudinary(user.profile.publicId);
       }
@@ -450,7 +464,10 @@ export const updateProfile = async (req, res) => {
         await deleteFromCloudinary(user.profile.publicId);
       }
 
-      const image = await uploadToCloudinary(req.file.path, "profiles");
+      const image = await uploadToCloudinary(
+        req.file.path,
+        "profiles",
+      );
 
       user.profile = image;
     }
@@ -458,9 +475,10 @@ export const updateProfile = async (req, res) => {
     await user.save();
 
     const updatedUser = user.toObject();
+
     delete updatedUser.password;
     delete updatedUser.refreshToken;
-    
+
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
@@ -487,7 +505,10 @@ export const refreshToken = async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET,
+    );
 
     const user = await User.findById(decoded.id);
 
@@ -498,7 +519,10 @@ export const refreshToken = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+    const isMatch = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
 
     if (!isMatch) {
       return res.status(401).json({
@@ -508,10 +532,18 @@ export const refreshToken = async (req, res) => {
     }
 
     // Rotate tokens
-    const newAccessToken = generateAccessToken(user._id);
+    // Include the current role from the database
+    const newAccessToken = generateAccessToken(
+      user._id,
+      user.role,
+    );
+
     const newRefreshToken = generateRefreshToken(user._id);
 
-    user.refreshToken = await bcrypt.hash(newRefreshToken, 10);
+    user.refreshToken = await bcrypt.hash(
+      newRefreshToken,
+      10,
+    );
 
     await user.save();
 
@@ -528,9 +560,9 @@ export const refreshToken = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
     return res.status(401).json({
       success: false,
-      // message: "Invalid or expired refresh token",
       message: error.message,
     });
   }
@@ -594,30 +626,52 @@ export const getAllUsers = async (req, res) => {
         ? {
             $or: [
               { _id: keyword },
-              { fullName: { $regex: keyword, $options: "i" } },
+              {
+                fullName: {
+                  $regex: keyword,
+                  $options: "i",
+                },
+              },
             ],
           }
         : {
-            fullName: { $regex: keyword, $options: "i" },
+            fullName: {
+              $regex: keyword,
+              $options: "i",
+            },
           };
     }
 
-    const [users, totalUsers, activeUsers, verifiedUsers, adminUsers] =
-      await Promise.all([
-        User.find(filter)
-          .select("-password -refreshToken")
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit),
+    const [
+      users,
+      totalUsers,
+      activeUsers,
+      verifiedUsers,
+      adminUsers,
+    ] = await Promise.all([
+      User.find(filter)
+        .select("-password -refreshToken")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
 
-        User.countDocuments(filter),
+      User.countDocuments(filter),
 
-        User.countDocuments({ ...filter, isActive: true }),
+      User.countDocuments({
+        ...filter,
+        isActive: true,
+      }),
 
-        User.countDocuments({ ...filter, isVerified: true }),
+      User.countDocuments({
+        ...filter,
+        isVerified: true,
+      }),
 
-        User.countDocuments({ ...filter, role: "admin" }),
-      ]);
+      User.countDocuments({
+        ...filter,
+        role: "admin",
+      }),
+    ]);
 
     res.status(200).json({
       success: true,
@@ -678,7 +732,9 @@ export const deleteUser = async (req, res) => {
 
     if (user.profile) {
       try {
-        await fs.unlink(path.join(process.cwd(), user.profile));
+        await fs.unlink(
+          path.join(process.cwd(), user.profile),
+        );
       } catch (_) {}
     }
 
