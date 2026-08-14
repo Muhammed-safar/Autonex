@@ -13,7 +13,7 @@ const migrate = async () => {
   {},
   {
     $set: {
-      currency: "USD",
+      currency: "INR",
     },
   },
 );

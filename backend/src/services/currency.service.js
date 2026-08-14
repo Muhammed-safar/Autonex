@@ -22,7 +22,7 @@ export const convertCurrency = (
 };
 
 export const convertProduct = (product, targetCurrency) => {
-  const sourceCurrency = product.currency || "USD";
+  const sourceCurrency = product.currency || "INR";
 
   return {
     ...product,
