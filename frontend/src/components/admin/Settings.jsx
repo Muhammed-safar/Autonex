@@ -1,10 +1,10 @@
 import React, { useState } from "react";
+import { Settings as SettingsIcon, Save } from "lucide-react";
 
 const currencies = [
   { code: "USD", name: "US Dollar", symbol: "$" },
   { code: "INR", name: "Indian Rupee", symbol: "₹" },
   { code: "EUR", name: "Euro", symbol: "€" },
- 
 ];
 
 const Settings = () => {
@@ -15,48 +15,81 @@ const Settings = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">
-            Settings
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage your store settings.
+    <div className="space-y-4 sm:space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-bold text-slate-700 text-sm">
+            Store Settings
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">
+            Manage your store preferences and configuration.
           </p>
         </div>
+      </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-1">
-            Currency
-          </h2>
+      {/* Settings Card */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Card Header */}
+        <div className="px-5 py-4 border-b border-slate-200 bg-slate-50">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white">
+              <SettingsIcon className="w-4 h-4 text-[#0066B2]" />
+            </div>
 
-          <p className="text-sm text-slate-500 mb-5">
-            Select the default currency used by your store.
-          </p>
-
-          <div className="max-w-md">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Default Currency
-            </label>
-
-            <select
-              value={defaultCurrency}
-              onChange={(e) => setDefaultCurrency(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {currencies.map((currency) => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.symbol} {currency.code} - {currency.name}
-                </option>
-              ))}
-            </select>
+            <div>
+              <h4 className="text-sm font-bold text-slate-800">
+                General Settings
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Configure the default settings used by your store.
+              </p>
+            </div>
           </div>
+        </div>
 
+        {/* Card Content */}
+        <div className="p-5">
+          {/* Currency Section */}
+          <div className="max-w-xl">
+            <div className="mb-4">
+              <h5 className="text-xs font-bold text-slate-700">
+                Currency
+              </h5>
+
+              <p className="text-[11px] text-slate-400 mt-1">
+                Select the default currency displayed throughout the
+                storefront.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-slate-600">
+                Default Currency
+              </label>
+
+              <select
+                value={defaultCurrency}
+                onChange={(e) => setDefaultCurrency(e.target.value)}
+                className="w-full sm:w-96 text-xs px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0066B2]/20 focus:border-[#0066B2] transition"
+              >
+                {currencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.symbol} {currency.code} - {currency.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Footer */}
+        <div className="px-5 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
           <button
             onClick={handleSave}
-            className="mt-6 bg-[#0066B2] hover:bg-[#005290] text-white px-5 py-2.5 rounded-lg text-sm font-semibold"
+            className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition"
           >
+            <Save className="w-3.5 h-3.5" />
             Save Settings
           </button>
         </div>
