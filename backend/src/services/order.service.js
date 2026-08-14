@@ -211,9 +211,11 @@ export const createOrder = async (checkoutId, paymentDetails) => {
 export const updateOrderStatus = async ({
     orderId,
     status,
-    employeeId,
+    updatedBy,
+    role,
     ipAddress,
     userAgent,
+    note = "",
 }) => {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
         throw new Error("Invalid Order ID");
@@ -260,14 +262,14 @@ export const updateOrderStatus = async ({
     }
 
     // Timeline / Audit
-    order.statusHistory.push({
-        status,
-        updatedBy: employeeId,
-        role: "EMPLOYEE",
-        ipAddress,
-        userAgent,
-        note: `Status changed from ${oldStatus} to ${status}`,
-    });
+   order.statusHistory.push({
+    status,
+    updatedBy,
+    role: role.toUpperCase(),
+    ipAddress,
+    userAgent,
+    note: note || `Status changed from ${oldStatus} to ${status}`,
+});
 
     await order.save();
 

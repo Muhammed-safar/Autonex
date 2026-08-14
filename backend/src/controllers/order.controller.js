@@ -167,9 +167,17 @@ export const getAllOrders = async (req, res) => {
 export const updateOrderStatusController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, note } = req.body;
 
-        const order = await updateOrderStatus(id, status);
+        const order = await updateOrderStatus({
+            orderId: id,
+            status,
+            updatedBy: req.user.id,
+            role: req.user.role,
+            ipAddress: req.ip,
+            userAgent: req.get("User-Agent"),
+            note,
+        });
 
         return res.status(200).json({
             success: true,
@@ -221,6 +229,34 @@ export const downloadInvoiceController = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: error.message || "Failed to generate invoice",
+        });
+    }
+};
+
+export const getOrderByTrackingId = async (req, res) => {
+    try {
+        const { trackingId } = req.params;
+
+        const order = await Order.findOne({ trackingId })
+            .populate("user", "fullName email");
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: order,
+        });
+    } catch (error) {
+        console.error("Get Order By Tracking ID Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Failed to get order",
         });
     }
 };

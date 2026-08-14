@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import {useInitializeAuth} from "./hooks/auth/useInitializeAuth.js"
+import { useInitializeAuth } from "./hooks/auth/useInitializeAuth.js";
 
 import MainLayout from "./Layouts/MainLayout";
 import Home from "./pages/home/Home";
@@ -17,7 +17,7 @@ import ProfileLayout from "./pages/Login/profile/ProfileLayout";
 import ComparePage from "./pages/cart/ComparePage";
 import AdminLayout from "./components/admin/AdminLayout";
 import Categories from "./components/admin/category/Categories.jsx";
-import Products from "./components/admin/products/Products.jsx"
+import Products from "./components/admin/products/Products.jsx";
 import Brands from "./components/admin/brand/Brands.jsx";
 import Orders from "./components/admin/orders/Orders.jsx";
 import UsersView from "./components/admin/users/UsersView.jsx";
@@ -39,6 +39,8 @@ import Payment from "./pages/Payment/Payment.jsx";
 import ConfirmOrderModal from "./pages/Payment/ConfirmOrderModal.jsx";
 import OrderSuccess from "./pages/Payment/OrderSuccess.jsx";
 import Settings from "./components/admin/Settings.jsx";
+import EmployeeRoute from "./routes/EmployeeRoute.jsx";
+import EmployeeOrderPage from "./pages/Employee/EmployeeOrderPage.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -53,7 +55,7 @@ const App = () => {
   const authInitialized = useSelector((state) => state.auth.authInitialized);
 
   if (!authInitialized) {
-    return <MainLoader/>
+    return <MainLoader />;
   }
   return (
     <>
@@ -65,35 +67,34 @@ const App = () => {
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/contact" element={<ContactPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/payment" element={<Payment/>} />
-          <Route path="/confirm-order" element={<ConfirmOrderModal/>} />
-          <Route path="/order-success" element={<OrderSuccess/>} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/confirm-order" element={<ConfirmOrderModal />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
 
           <Route element={<PublicRoute />}>
             <Route path="/account" element={<AuthPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            
-            
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/auth" element={<ProfileLayout />} />
-            
+
             <Route
-            path="/whishlist"
-            element={<Wishlist onReturnToShop={handleReturnToShop} />}
-          />
-          <Route path="/compare" element={<ComparePage />} />
+              path="/whishlist"
+              element={<Wishlist onReturnToShop={handleReturnToShop} />}
+            />
+            <Route path="/compare" element={<ComparePage />} />
             <Route path="/cart/checkout" element={<CheckoutPage />} />
             <Route path="/MyGaragePage" element={<MyGaragePage />} />
-            
           </Route>
-          <Route path="/OrderDetail/:id" element={<OrderDetailsPage/>}/>
+          <Route path="/OrderDetail/:id" element={<OrderDetailsPage />} />
+        </Route>
 
-          
+        <Route element={<EmployeeRoute />}>
+          <Route path="/e/o/:trackingId" element={<EmployeeOrderPage />} />
         </Route>
 
         <Route element={<AdminRoute />}>
