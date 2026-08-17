@@ -12,7 +12,7 @@ import {
 import ProductModal from "./ProductModal";
 import ProductDetailsModal from "./ProductDetailsModal"; // Import Details Modal
 
-import { useProducts } from "../../../hooks/products/useProducts";
+import { useAdminProducts } from "../../../hooks/products/useAdminProducts";
 import { useCreateProduct } from "../../../hooks/products/useCreateProduct";
 import { useUpdateProduct } from "../../../hooks/products/useUpdateProduct";
 import { useDeleteProduct } from "../../../hooks/products/useDeleteProduct";
@@ -39,7 +39,7 @@ const Products = () => {
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: productsData } = useProducts({
+  const { data: productsData } = useAdminProducts({
     search: debouncedSearch,
     page,
   });
