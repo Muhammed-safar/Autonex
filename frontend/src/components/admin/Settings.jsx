@@ -17,17 +17,30 @@ const Settings = () => {
 
   const [defaultCurrency, setDefaultCurrency] = useState("INR");
 
-  useEffect(() => {
-    if (data?.data?.defaultCurrency) {
-      setDefaultCurrency(data.data.defaultCurrency);
-    }
-  }, [data]);
+ useEffect(() => {
+  if (data?.data?.defaultCurrency) {
+    const currency = data.data.defaultCurrency;
 
-  const handleSave = () => {
-    updateSettings.mutate({
+    setDefaultCurrency(currency);
+    localStorage.setItem("adminCurrency", currency);
+  }
+}, [data]);
+
+ const handleSave = () => {
+  updateSettings.mutate(
+    {
       defaultCurrency,
-    });
-  };
+    },
+    {
+      onSuccess: (response) => {
+        const savedCurrency =
+          response?.data?.defaultCurrency || defaultCurrency;
+
+        localStorage.setItem("adminCurrency", savedCurrency);
+      },
+    },
+  );
+};
 
   return (
     <div className="space-y-4 sm:space-y-5">
