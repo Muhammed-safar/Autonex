@@ -44,6 +44,8 @@ import EmployeeOrderPage from "./pages/Employee/EmployeeOrderPage.jsx";
 import AdminReviews from "./components/admin/reviews/AdminReviews.jsx";
 import AdminBlogs from "./components/admin/blogs/Blogs.jsx";
 import CreateEditBlog from "./components/admin/blogs/CreateEditBlog.jsx";
+import AdminFAQs from "./components/admin/faqs/FAQs.jsx";
+import CreateEditFAQ from "./components/admin/faqs/CreateEditFAQ.jsx";
 
 const App = () => {
   useInitializeAuth();
@@ -112,6 +114,9 @@ const App = () => {
             <Route path="blogs/create" element={<CreateEditBlog />} />
             <Route path="blogs/:id/edit" element={<CreateEditBlog />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="faqs" element={<AdminFAQs />} />
+            <Route path="faqs/create" element={<CreateEditFAQ />} />
+            <Route path="faqs/:id/edit" element={<CreateEditFAQ />} />
             <Route path="settings" element={<Settings />} />
 
           </Route>
