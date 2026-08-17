@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Settings as SettingsIcon, Save } from "lucide-react";
-import { useSettings } from "../../hooks/settings/useSettings.js";
-import { useUpdateSettings } from "../../hooks/settings/useUpdateSettings.js";
+
 
 
 const currencies = [
