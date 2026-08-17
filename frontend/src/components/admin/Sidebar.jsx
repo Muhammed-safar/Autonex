@@ -10,6 +10,9 @@ import {
   LogOut,
   ChevronRight,
   Settings,
+  Star,
+  FileText,
+  MessageSquare
 } from "lucide-react";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -21,6 +24,9 @@ export default function Sidebar({ isOpen, onClose }) {
     { id: "categories", label: "Categories", path: "/admin/categories", icon: FolderTree },
     { id: "brands", label: "Brands", path: "/admin/brands", icon: Tag },
     { id: "orders", label: "Orders", path: "/admin/orders", icon: ShoppingBag },
+    { id: "reviews", label: "Reviews", path: "/admin/reviews", icon: Star },
+    { id: "blog", label: "Blog", path: "/admin/blogs", icon: FileText },
+    { id: "faq", label: "FAQ", path: "/admin/faqs", icon: MessageSquare },
     { id: "users", label: "Users", path: "/admin/users", icon: Users },
   ];
 
