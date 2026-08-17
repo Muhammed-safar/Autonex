@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Settings as SettingsIcon, Save } from "lucide-react";
+import { useSettings } from "../../../hooks/settings/useSettings.js";
+import { useUpdateSettings } from "../../../hooks/settings/useUpdateSettings.js";
 import { Settings as SettingsIcon, Save } from "lucide-react";
 
 const currencies = [
@@ -8,10 +11,21 @@ const currencies = [
 ];
 
 const Settings = () => {
+  const { data, isLoading, isError } = useSettings();
+  const updateSettings = useUpdateSettings();
+
   const [defaultCurrency, setDefaultCurrency] = useState("INR");
 
+  useEffect(() => {
+    if (data?.data?.defaultCurrency) {
+      setDefaultCurrency(data.data.defaultCurrency);
+    }
+  }, [data]);
+
   const handleSave = () => {
-    console.log("Default currency:", defaultCurrency);
+    updateSettings.mutate({
+      defaultCurrency,
+    });
   };
 
   return (
@@ -19,9 +33,7 @@ const Settings = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-slate-700 text-sm">
-            Store Settings
-          </h3>
+          <h3 className="font-bold text-slate-700 text-sm">Store Settings</h3>
           <p className="text-xs text-slate-400 mt-1">
             Manage your store preferences and configuration.
           </p>
@@ -53,13 +65,10 @@ const Settings = () => {
           {/* Currency Section */}
           <div className="max-w-xl">
             <div className="mb-4">
-              <h5 className="text-xs font-bold text-slate-700">
-                Currency
-              </h5>
+              <h5 className="text-xs font-bold text-slate-700">Currency</h5>
 
               <p className="text-[11px] text-slate-400 mt-1">
-                Select the default currency displayed throughout the
-                storefront.
+                Select the default currency displayed throughout the storefront.
               </p>
             </div>
 
@@ -87,10 +96,11 @@ const Settings = () => {
         <div className="px-5 py-4 border-t border-slate-200 bg-slate-50 flex justify-end">
           <button
             onClick={handleSave}
-            className="bg-[#0066B2] hover:bg-[#005290] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition"
+            disabled={updateSettings.isPending}
+            className="bg-[#0066B2] hover:bg-[#005290] disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition"
           >
             <Save className="w-3.5 h-3.5" />
-            Save Settings
+            {updateSettings.isPending ? "Saving..." : "Save Settings"}
           </button>
         </div>
       </div>
