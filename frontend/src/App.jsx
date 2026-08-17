@@ -32,6 +32,7 @@ import Dashboard from "./components/admin/Dashboard.jsx";
 import MainLoader from "./components/layout.jsx/MainLoader.jsx";
 import ContactPage from "./pages/home/HeroSection/ContactPage.jsx";
 import Blog from "./pages/home/HeroSection/Blog.jsx";
+import BlogDetails from "./pages/blog&contact/BlogDetails.jsx";
 import FAQPage from "./pages/home/HeroSection/FAQPage.jsx";
 import AllCategorySidebar from "./pages/home/AllCategorySidebar.jsx";
 import OrderDetailsPage from "./pages/Login/profile/OrderDetailsPage.jsx";
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogDetails />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/confirm-order" element={<ConfirmOrderModal />} />
           <Route path="/order-success" element={<OrderSuccess />} />
