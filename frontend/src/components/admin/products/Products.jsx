@@ -20,6 +20,7 @@ import { useDeleteProduct } from "../../../hooks/products/useDeleteProduct";
 import { useBrands } from "../../../hooks/brands/useBrands";
 import { useCategories } from "../../../hooks/categories/useCategories";
 import useDebounce from "../../../hooks/useDebounce.js";
+import Price from "../../common/Price.jsx";
 
 const Products = () => {
   const createProduct = useCreateProduct();
@@ -217,7 +218,10 @@ const Products = () => {
                       {product.category?.name || "-"}
                     </td>
                     <td className="p-4 text-slate-800 font-medium">
-                      ${product.price}
+                      <Price
+                        amount={product.price}
+                        currency={product.currency || "USD"}
+                      />
                     </td>
                     <td className="p-4 text-slate-600">{product.stock}</td>
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setCurrency } from "../../redux/slices/currencySlice.js";
+import { setDefaultCurrency } from "../../redux/slices/currencySlice.js";
 import { getSettings } from "../../api/settings.api.js";
 
 const CurrencyInitializer = () => {
@@ -21,7 +21,7 @@ const CurrencyInitializer = () => {
         const defaultCurrency =
           data?.data?.defaultCurrency || "INR";
 
-        dispatch(setCurrency(defaultCurrency));
+        dispatch(setDefaultCurrency(defaultCurrency));
       } catch (error) {
         console.error(
           "Failed to load default currency:",

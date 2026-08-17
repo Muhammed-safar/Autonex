@@ -235,11 +235,19 @@ const ProductDetailsModal = ({ productId, isOpen, onClose }) => {
                       </span>
                       <div className="flex items-baseline gap-1.5 mt-0.5">
                         <span className="text-base font-extrabold text-slate-900">
-                          ${product.discountPrice ?? product.price}
+                          <Price
+                            amount={product.discountPrice ?? product.price}
+                            currency={product.currency || "USD"}
+                            className="text-base font-extrabold text-slate-900"
+                          />
                         </span>
                         {product.discountPrice && (
                           <span className="text-xs text-slate-400 line-through font-medium">
-                            ${product.price}
+                            <Price
+                              amount={product.price}
+                              currency={product.currency || "USD"}
+                              className="text-xs text-slate-400 line-through font-medium"
+                            />
                           </span>
                         )}
                       </div>
