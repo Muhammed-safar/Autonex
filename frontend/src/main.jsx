@@ -11,6 +11,7 @@ import { store } from "./redux/store.js";
 import { queryClient } from "./hooks/queryClient.js";
 import AuthProvider from "./providers/AuthProvider.jsx";
 import "./i18n";
+import CurrencyInitializer from "./components/common/CurrencyInitializer.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")).render(
       <QueryClientProvider client={queryClient}>
         <WishlistProvider>
           <AuthProvider>
+            <CurrencyInitializer />
             <App />
             <Toaster />
           </AuthProvider>
