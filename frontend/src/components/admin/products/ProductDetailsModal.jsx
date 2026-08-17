@@ -19,6 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useProduct } from "../../../hooks/products/useProduct"; // Adjust path as needed
+import Price from "../../common/Price";
 
 const ProductDetailsModal = ({ productId, isOpen, onClose }) => {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
