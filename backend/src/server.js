@@ -23,7 +23,9 @@ import checkoutRoutes from "./routes/checkout.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import settingsRoutes from "./routes/settings.routes.js";
-import reviewRoutes from "./routes/review.routes.js"
+import reviewRoutes from "./routes/review.routes.js";
+import blogRoutes from "./routes/blog.routes.js"
+
   connectDB();
 
   app.use(cors(corsOptions));
@@ -47,6 +49,7 @@ import reviewRoutes from "./routes/review.routes.js"
   app.use("/api/orders", orderRoutes);
   app.use("/api/settings", settingsRoutes);
   app.use("/api/reviews", reviewRoutes);
+  app.use("/api/blogs", blogRoutes);
 
 
   app.use(errorHandler);
