@@ -1,0 +1,40 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { adminDeleteReview } from "../../api/review.api.js";
+
+const useAdminDeleteReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminDeleteReview,
+
+    onSuccess: (data) => {
+      toast.success(data.message || "Review deleted successfully!");
+
+      // Refresh admin review list
+      queryClient.invalidateQueries({
+        queryKey: ["reviews", "all"],
+      });
+
+      // Also invalidate the specific product review list and product data
+      // (we don't know the productId here, so invalidate all product queries)
+      queryClient.invalidateQueries({
+        queryKey: ["reviews", "product"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["product"],
+      });
+    },
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete review"
+      );
+    },
+  });
+};
+
+export default useAdminDeleteReview;

@@ -1,0 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
+import { getAllReviews } from "../../api/review.api.js";
+
+const useAdminReviews = ({ page = 1, limit = 15, productId, rating } = {}) => {
+  return useQuery({
+    queryKey: ["reviews", "all", page, limit, productId, rating],
+    queryFn: () => getAllReviews({ page, limit, productId, rating }),
+    placeholderData: (previousData) => previousData,
+  });
+};
+
+export default useAdminReviews;
