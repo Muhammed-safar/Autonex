@@ -26,10 +26,8 @@ import settingsRoutes from "./routes/settings.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import blogRoutes from "./routes/blog.routes.js"
 import faqRoutes from "./routes/faq.routes.js"
-import { initWhatsApp } from "./services/whatsapp.service.js";
 
   connectDB();
-  initWhatsApp();
 
   app.use(cors(corsOptions));
   app.use(helmet());
