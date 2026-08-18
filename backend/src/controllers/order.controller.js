@@ -169,10 +169,6 @@ export const updateOrderStatusController = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        console.log("UPDATE STATUS BODY:", req.body);
-        console.log("STATUS:", status);
-        console.log("STATUS TYPE:", typeof status);
-
         // Make sure status is a string
         if (typeof status !== "string") {
             return res.status(400).json({

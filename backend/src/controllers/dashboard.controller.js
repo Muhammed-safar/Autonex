@@ -1,5 +1,6 @@
 import Product from "../models/Product.js";
 import User from "../models/User.js";
+import { getAdminDashboardAnalytics } from "../services/analytics.service.js";
 
 export const getDashboardStats = async (req, res) => {
   try {
@@ -68,6 +69,25 @@ export const getDashboardStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+
+export const getAdminDashboardAnalyticsController = async (req, res) => {
+  try {
+    const analytics = await getAdminDashboardAnalytics();
+
+    return res.status(200).json({
+      success: true,
+      data: analytics,
+    });
+  } catch (error) {
+    console.error("Dashboard analytics error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch dashboard analytics",
     });
   }
 };

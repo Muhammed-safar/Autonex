@@ -5,6 +5,7 @@ import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import { generateQRCode } from "../utils/generateQRCode.js";
 import { sendOrderStatusEmail } from "./email/order.email.js";
+import { sendWhatsAppOrderConfirmation } from "./whatsapp.service.js";
 import User from "../models/User.js";
 
 const generateOrderNumber = () => {
@@ -187,7 +188,7 @@ export const createOrder = async (checkoutId, paymentDetails) => {
         await session.commitTransaction();
 
         const createdOrder = await Order.findById(order[0]._id)
-            .populate("user", "fullName email");
+            .populate("user", "fullName email phone");
 
         try {
             await sendOrderStatusEmail({
@@ -198,6 +199,12 @@ export const createOrder = async (checkoutId, paymentDetails) => {
             });
         } catch (error) {
             console.error("Failed to send order confirmation email:", error);
+        }
+
+        try {
+            await sendWhatsAppOrderConfirmation(createdOrder);
+        } catch (error) {
+            console.error(`Failed to send WhatsApp confirmation for order ${createdOrder.orderNumber}:`, error);
         }
 
         return createdOrder;

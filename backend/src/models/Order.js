@@ -193,6 +193,11 @@ const orderSchema = new mongoose.Schema(
             company: String,
             trackingNumber: String,
         },
+
+        whatsappNotificationSent: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
