@@ -266,11 +266,11 @@ const BestSeller = () => {
                     />
 
                     {product.discountPrice > 0 && (
-                      <Price
-                        amount={product.price}
-                        currency={product.currency || "USD"}
-                        className="text-[10px] sm:text-xs text-gray-400 line-through"
-                      />
+                        <Price
+                          amount={product.price}
+                          currency={product.currency || "USD"}
+                          className="text-[10px] sm:text-xs text-gray-400 line-through"
+                        />
                     )}
                   </div>
                 </div>

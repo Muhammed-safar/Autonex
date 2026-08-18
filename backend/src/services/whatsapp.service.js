@@ -1,161 +1,353 @@
-import axios from "axios";
+import {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  fetchLatestBaileysVersion,
+  Browsers,
+} from "@whiskeysockets/baileys";
+import qrcode from "qrcode-terminal";
+import pino from "pino";
+import path from "path";
+import fs from "fs";
 import Order from "../models/Order.js";
 
+// Session persistence directory
+const AUTH_DIR = path.resolve(process.cwd(), "auth_info_baileys");
+
+let sock = null;
+let isConnected = false;
+let isInitializing = false;
+let initPromise = null;
+let reconnectTimer = null;
+let lastPrintedQR = null;
+
 /**
- * Normalizes a customer phone number into international digit format required by Meta WhatsApp Cloud API.
- * e.g., "9876543210" -> "919876543210"
- * e.g., "+91 98765 43210" -> "919876543210"
- * e.g., "09876543210" -> "919876543210"
+ * Ensures the auth directory exists.
+ */
+const ensureAuthDir = () => {
+  if (!fs.existsSync(AUTH_DIR)) {
+    fs.mkdirSync(AUTH_DIR, { recursive: true });
+  }
+};
+
+/**
+ * Clears saved authentication credentials (used on logout/bad session).
+ */
+const clearAuthDirectory = () => {
+  try {
+    if (fs.existsSync(AUTH_DIR)) {
+      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      console.log("[WhatsApp] Auth directory cleared.");
+    }
+  } catch (err) {
+    console.error("[WhatsApp] Error clearing auth directory:", err.message);
+  }
+};
+
+/**
+ * Safely cleans up the existing Baileys socket instance and listeners.
+ */
+const cleanupSocket = () => {
+  if (sock) {
+    try {
+      sock.ev.removeAllListeners();
+      if (sock.ws) {
+        sock.ws.close();
+      }
+      if (sock.end) {
+        sock.end(undefined);
+      }
+    } catch (e) {
+      // Ignore socket closing errors
+    }
+    sock = null;
+  }
+  isConnected = false;
+  isInitializing = false;
+};
+
+/**
+ * Schedules a reconnect attempt with a safe backoff delay, preventing duplicate timers.
+ */
+const scheduleReconnect = (delayMs = 5000) => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+  }
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    initWhatsApp().catch((err) => {
+      console.error("[WhatsApp] Reconnect failed:", err.message);
+    });
+  }, delayMs);
+};
+
+/**
+ * Normalizes customer phone number into WhatsApp JID format.
+ * e.g., "9876543210" -> "919876543210@s.whatsapp.net"
+ * e.g., "+91 98765 43210" -> "919876543210@s.whatsapp.net"
+ * e.g., "09876543210" -> "919876543210@s.whatsapp.net"
  *
- * @param {string|number} phone - Raw input phone number
- * @returns {string|null} Normalized phone string or null if invalid
+ * @param {string|number} phone
+ * @returns {string|null} WhatsApp JID string or null if invalid
  */
 export const normalizePhoneNumber = (phone) => {
   if (!phone) return null;
 
-  // Convert to string and strip all non-digit characters
   let digits = String(phone).replace(/\D/g, "");
-
   if (!digits) return null;
 
   const defaultCountryCode = process.env.DEFAULT_COUNTRY_CODE || "91";
 
-  // Standard 10-digit mobile number (e.g. Indian numbers)
   if (digits.length === 10) {
     digits = `${defaultCountryCode}${digits}`;
-  }
-  // 11-digit number starting with '0' (e.g. 09876543210)
-  else if (digits.length === 11 && digits.startsWith("0")) {
+  } else if (digits.length === 11 && digits.startsWith("0")) {
     digits = `${defaultCountryCode}${digits.slice(1)}`;
   }
 
-  // Check valid length range according to ITU E.164 (10 to 15 digits total)
   if (digits.length < 10 || digits.length > 15) {
     return null;
   }
 
-  return digits;
+  return `${digits}@s.whatsapp.net`;
 };
 
 /**
- * Sends an automated order confirmation message via Meta WhatsApp Cloud API.
- * This operation is isolated and non-blocking: any failure will be logged
- * without throwing an exception or causing the order creation flow to fail.
+ * Initializes shared Baileys WhatsApp connection with single-instance locking.
+ */
+export const initWhatsApp = async () => {
+  if (sock && isConnected) {
+    return sock;
+  }
+
+  if (initPromise) {
+    return initPromise;
+  }
+
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+
+  initPromise = (async () => {
+    isInitializing = true;
+    console.log("[WhatsApp] Initializing Baileys connection...");
+
+    try {
+      ensureAuthDir();
+      const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+
+      let version = [2, 3000, 1015901307];
+      try {
+        const fetchedVersion = await fetchLatestBaileysVersion();
+        if (fetchedVersion?.version) {
+          version = fetchedVersion.version;
+        }
+      } catch {
+        // Fallback to default version if fetch fails
+      }
+
+      // Cleanup any previous socket instance before creating a new one
+      cleanupSocket();
+
+      const browserSetting = typeof Browsers?.ubuntu === "function"
+        ? Browsers.ubuntu("Chrome")
+        : ["Autonex Backend", "Chrome", "120.0.0"];
+
+      sock = makeWASocket({
+        version,
+        auth: state,
+        printQRInTerminal: false,
+        logger: pino({ level: "silent" }),
+        browser: browserSetting,
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 60000,
+        keepAliveIntervalMs: 25000,
+        retryRequestDelayMs: 2000,
+      });
+
+      sock.ev.on("creds.update", saveCreds);
+
+      sock.ev.on("connection.update", (update) => {
+        const { connection, lastDisconnect, qr } = update;
+
+        if (qr && qr !== lastPrintedQR) {
+          lastPrintedQR = qr;
+          console.log("\n=======================================================");
+          console.log("[WhatsApp] Scan this QR code with your WhatsApp app:");
+          console.log("=======================================================\n");
+          qrcode.generate(qr, { small: true });
+          console.log("\n[WhatsApp] Waiting for QR scan...\n");
+        }
+
+        if (connection === "close") {
+          isConnected = false;
+          isInitializing = false;
+          lastPrintedQR = null;
+
+          const statusCode = lastDisconnect?.error?.output?.statusCode;
+          console.log(`[WhatsApp] Connection closed (Reason code: ${statusCode || "unknown"})`);
+
+          // Distinguish disconnect reasons
+          if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+            console.log("[WhatsApp] Session logged out. Clearing auth directory for fresh QR scan...");
+            cleanupSocket();
+            clearAuthDirectory();
+            scheduleReconnect(5000);
+          } else if (statusCode === DisconnectReason.badSession || statusCode === 500) {
+            console.log("[WhatsApp] Bad session state detected. Resetting auth directory...");
+            cleanupSocket();
+            clearAuthDirectory();
+            scheduleReconnect(5000);
+          } else if (statusCode === DisconnectReason.connectionReplaced || statusCode === 440) {
+            console.warn("[WhatsApp] Connection replaced by another session. Auto-reconnect stopped.");
+            cleanupSocket();
+          } else if (statusCode === DisconnectReason.restartRequired || statusCode === 515) {
+            console.log("[WhatsApp] Server requested stream restart. Reconnecting quickly...");
+            cleanupSocket();
+            scheduleReconnect(1000);
+          } else {
+            // Transient 408 (timeout), 428 (precondition required), network drops
+            console.log("[WhatsApp] Transient connection drop. Reconnecting in 5 seconds...");
+            cleanupSocket();
+            scheduleReconnect(5000);
+          }
+        } else if (connection === "open") {
+          isConnected = true;
+          isInitializing = false;
+          lastPrintedQR = null;
+          console.log("[WhatsApp] WhatsApp connected successfully!");
+        }
+      });
+
+      return sock;
+    } catch (error) {
+      isInitializing = false;
+      isConnected = false;
+      console.error("[WhatsApp] Initialization error:", error.message);
+      cleanupSocket();
+      scheduleReconnect(10000);
+      return null;
+    }
+  })().finally(() => {
+    initPromise = null;
+  });
+
+  return initPromise;
+};
+
+/**
+ * Returns current WhatsApp connection status.
+ */
+export const getWhatsAppStatus = () => {
+  return {
+    isConnected,
+    isInitializing,
+  };
+};
+
+/**
+ * Sends an automated order confirmation message via Baileys.
+ * Non-blocking: fails gracefully without throwing errors or breaking order creation.
  *
  * @param {Object} order - Populated Mongoose order document
- * @returns {Promise<Object>} Status object indicating outcome
+ * @returns {Promise<Object>} Status object
  */
 export const sendWhatsAppOrderConfirmation = async (order) => {
   try {
     if (!order || !order._id) {
-      console.warn("WhatsApp notification skipped: Invalid order object provided.");
+      console.warn("[WhatsApp] Notification skipped: Invalid order provided.");
       return { success: false, reason: "INVALID_ORDER" };
     }
 
     const orderId = order.orderNumber || String(order._id);
 
-    // 1. Prevent duplicate notifications
+    // 1. Check duplicate prevention
     if (order.whatsappNotificationSent) {
-      console.log(`WhatsApp confirmation already sent for order: ${orderId}`);
+      console.log(`[WhatsApp] Order confirmation already sent for order: ${orderId}`);
       return { success: true, reason: "ALREADY_SENT" };
     }
 
-    // 2. Validate WhatsApp environment credentials
-    const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    const apiVersion = process.env.WHATSAPP_API_VERSION || "v20.0";
-    const templateName = process.env.WHATSAPP_ORDER_TEMPLATE_NAME || "order_confirmation";
-    const templateLanguage = process.env.WHATSAPP_TEMPLATE_LANGUAGE || "en";
-
-    if (!accessToken || !phoneNumberId) {
+    // 2. Check connection status
+    if (!sock || !isConnected) {
       console.warn(
-        `WhatsApp confirmation skipped for order ${orderId}: WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID is not configured in .env`
+        `[WhatsApp] Notification skipped for order ${orderId}: WhatsApp is not connected.`
       );
-      return { success: false, reason: "MISSING_CONFIG" };
+      // Attempt background connection for future orders
+      initWhatsApp().catch(() => {});
+      return { success: false, reason: "NOT_CONNECTED" };
     }
 
-    // 3. Extract and normalize phone number
+    // 3. Normalize phone number to WhatsApp JID
     const rawPhone = order.shippingAddress?.phone || order.user?.phone;
-    const recipientPhone = normalizePhoneNumber(rawPhone);
+    const jid = normalizePhoneNumber(rawPhone);
 
-    if (!recipientPhone) {
+    if (!jid) {
       console.warn(
-        `WhatsApp confirmation skipped for order ${orderId}: Missing or invalid recipient phone number (${rawPhone})`
+        `[WhatsApp] Notification skipped for order ${orderId}: Invalid phone number (${rawPhone})`
       );
       return { success: false, reason: "INVALID_PHONE" };
     }
 
-    // 4. Prepare message order parameters
-    const customerName = order.shippingAddress?.fullName || order.user?.fullName || "Customer";
-    const totalAmount = `₹${order.totalAmount}`;
+    // 4. Verify number is registered on WhatsApp
+    try {
+      const results = await sock.onWhatsApp(jid);
+      const targetUser = Array.isArray(results) ? results[0] : null;
+
+      if (!targetUser || !targetUser.exists) {
+        console.warn(
+          `[WhatsApp] Notification skipped for order ${orderId}: Phone number (${rawPhone}) is not registered on WhatsApp.`
+        );
+        return { success: false, reason: "NOT_ON_WHATSAPP" };
+      }
+    } catch (verifError) {
+      console.warn(
+        `[WhatsApp] Verification check warning for order ${orderId}:`,
+        verifError.message
+      );
+    }
+
+    // 5. Construct order confirmation message
+    const customerName =
+      order.shippingAddress?.fullName || order.user?.fullName || "Customer";
+    const totalAmount = order.totalAmount ? `₹${order.totalAmount}` : "N/A";
     const paymentStatus = order.paymentStatus || "PENDING";
 
-    console.log(`Sending WhatsApp confirmation for order: ${orderId} to phone: ${recipientPhone}`);
+    const messageText = `Hi ${customerName} 👋\n\nThank you for shopping with Autonex! 🎉\n\nYour order has been successfully placed.\n\nOrder ID: ${orderId}\nTotal Amount: ${totalAmount}\nPayment Status: ${paymentStatus}\n\nWe'll keep you updated about your order status.\n\nThank you for choosing Autonex! ❤️`;
 
-    const url = `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`;
+    console.log(`[WhatsApp] Sending order confirmation for order: ${orderId}`);
 
-    // 5. Build Meta Cloud API payload (Template format)
-    const payload = {
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to: recipientPhone,
-      type: "template",
-      template: {
-        name: templateName,
-        language: {
-          code: templateLanguage,
-        },
-        components: [
-          {
-            type: "body",
-            parameters: [
-              { type: "text", text: String(customerName) },
-              { type: "text", text: String(orderId) },
-              { type: "text", text: String(totalAmount) },
-              { type: "text", text: String(paymentStatus) },
-            ],
-          },
-        ],
-      },
-    };
+    // 6. Send message
+    await sock.sendMessage(jid, { text: messageText });
 
-    // 6. Send HTTPS POST request to Meta API
-    const response = await axios.post(url, payload, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      timeout: 10000,
-    });
-
-    const messageId = response.data?.messages?.[0]?.id;
-
-    // 7. Atomically mark notification as sent in DB to avoid duplicate sends
+    // 7. Update whatsappNotificationSent boolean in DB
     await Order.findByIdAndUpdate(order._id, {
       whatsappNotificationSent: true,
     });
 
-    console.log(
-      `WhatsApp confirmation sent successfully: ${orderId}${messageId ? ` (Message ID: ${messageId})` : ""}`
-    );
+    console.log(`[WhatsApp] Message sent successfully for order: ${orderId}`);
 
     return {
       success: true,
-      messageId,
     };
   } catch (error) {
     const orderId = order?.orderNumber || order?._id || "Unknown";
-    const errorMsg =
-      error.response?.data?.error?.message ||
-      error.response?.data ||
-      error.message;
+    console.error(
+      `[WhatsApp] Failed to send message for order: ${orderId}:`,
+      error.message
+    );
 
-    console.error(`WhatsApp confirmation failed for order ${orderId}:`, errorMsg);
-
-    // Return failure result cleanly without throwing exception
+    // Non-blocking: Return failure object gracefully
     return {
       success: false,
-      error: errorMsg,
+      error: error.message,
     };
   }
 };
+
+// Graceful process shutdown cleanup
+process.on("SIGINT", () => {
+  cleanupSocket();
+});
+process.on("SIGTERM", () => {
+  cleanupSocket();
+});
