@@ -8,6 +8,12 @@ const useUpdateOrderStatus = () => {
     mutationFn: updateOrderStatus,
 
     onSuccess: (data, variables) => {
+      // Update the specific order immediately with the latest backend data
+      queryClient.setQueryData(
+        ["orders", variables.orderId],
+        data.data
+      );
+
       queryClient.invalidateQueries({
         queryKey: ["orders", "all"],
       });

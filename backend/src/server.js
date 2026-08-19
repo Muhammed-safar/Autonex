@@ -26,6 +26,10 @@ import settingsRoutes from "./routes/settings.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import blogRoutes from "./routes/blog.routes.js"
 import faqRoutes from "./routes/faq.routes.js"
+import {
+  startWhatsApp,
+  sendWhatsAppMessage,
+} from "./services/whatsapp.service.js";
 
   connectDB();
 
@@ -56,6 +60,12 @@ import faqRoutes from "./routes/faq.routes.js"
 
   app.use(errorHandler);
 
-  app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
-  });
+app.listen(PORT, async () => {
+  console.log(`Server running on ${PORT}`);
+
+  try {
+    await startWhatsApp();
+  } catch (error) {
+    console.error("[WhatsApp] Failed to start:", error);
+  }
+}); 

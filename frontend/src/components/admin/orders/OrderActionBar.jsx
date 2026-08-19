@@ -10,7 +10,7 @@ const nextStatusMap = {
   OUT_FOR_DELIVERY: "DELIVERED",
 };
 
-const OrderActionBar = ({ order, onCancel, onUpdateStatus }) => {
+const OrderActi onBar = ({ order, onCancel, onUpdateStatus }) => {
   const isDelivered = order.orderStatus === "DELIVERED";
 
   const isCancelled =

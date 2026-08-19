@@ -15,7 +15,7 @@ export const adminOnly = async (req, res, next) => {
 
 
 export const employeeOrAdmin = (req, res, next) => {
-  console.log("USER FROM TOKEN:", req.user);
+  
     if (!req.user) {
         return res.status(401).json({
             success: false,
